@@ -203,7 +203,7 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button>
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button>
         </div>
         
         <!-- 装备栏界面 -->
@@ -245,6 +245,19 @@
                 </div>
             </div>
             <button id="closeEquip" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
+        </div>
+        
+        <!-- 背包界面 -->
+        <div id="bagPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:340px;">
+            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">🎒 背包</div>
+            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:15px;">
+                <!-- 20个背包格子 -->
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span id="bagCount" style="color:#888;font-size:12px;">0/20</span>
+                <button id="sortBag" style="background:#4a7c59;color:#fff;border:none;padding:5px 15px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:12px;">自动整理</button>
+            </div>
+            <button id="closeBag" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
         </div>
     </div>
 
@@ -290,7 +303,42 @@
                 bonusAttack: 0,
                 bonusCrit: 0,
                 skill: null
+            },
+            // 已装备
+            equipped: {
+                helmet: null,
+                armor: null,
+                shoes: null,
+                necklace: null,
+                ring: null,
+                leftHand: null
             }
+        };
+
+        // 背包系统
+        const bag = {
+            maxSize: 20,
+            items: []
+        };
+
+        // 装备品质配置
+        const itemQualities = {
+            common: { name: '普通', color: '#808080', bonus: 1 },
+            uncommon: { name: '精良', color: '#CD7F32', bonus: 1.2 },
+            rare: { name: '稀有', color: '#C0C0C0', bonus: 1.5 },
+            epic: { name: '史诗', color: '#FFD700', bonus: 2 },
+            legendary: { name: '传说', color: '#FF6B35', bonus: 2.5 },
+            mythic: { name: '神话', color: '#B19CD9', bonus: 3 }
+        };
+
+        // 装备类型配置
+        const equipTypes = {
+            helmet: { name: '头盔', icon: '🪖', stat: 'defense' },
+            armor: { name: '衣服', icon: '👘', stat: 'hp' },
+            shoes: { name: '鞋子', icon: '👢', stat: 'speed' },
+            necklace: { name: '项链', icon: '📿', stat: 'all' },
+            ring: { name: '戒指', icon: '💍', stat: 'attack' },
+            leftHand: { name: '法宝', icon: '🔮', stat: 'special' }
         };
 
         // 绿武阶段配置
@@ -951,6 +999,12 @@
                                 enemies.splice(i, 1);
                                 // 增加绿武成长值
                                 addGreenWeaponGrowth(enemy.tier);
+                                // 掉落装备
+                                if (Math.random() < 0.3) {
+                                    const drop = generateRandomEquip();
+                                    addToBag(drop);
+                                    createFloatingText(enemy.x, enemy.y - 50, `掉落${itemQualities[drop.quality].name}${equipTypes[drop.type].name}`, itemQualities[drop.quality].color);
+                                }
                                 updateUI();
                             }
                             return false;
@@ -1108,6 +1162,168 @@
                 updateEquipPanel();
             }
         }, 500);
+
+        // 背包系统交互
+        const bagBtn = document.getElementById('bagBtn');
+        const bagPanel = document.getElementById('bagPanel');
+        const closeBag = document.getElementById('closeBag');
+        const sortBag = document.getElementById('sortBag');
+        const bagGrid = document.getElementById('bagGrid');
+
+        // 初始化背包格子
+        function initBagGrid() {
+            bagGrid.innerHTML = '';
+            for (let i = 0; i < bag.maxSize; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'bag-slot';
+                slot.style.cssText = 'width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #555;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;position:relative;';
+                slot.dataset.index = i;
+                slot.addEventListener('click', () => useBagItem(i));
+                bagGrid.appendChild(slot);
+            }
+            updateBagDisplay();
+        }
+
+        // 更新背包显示
+        function updateBagDisplay() {
+            const slots = bagGrid.querySelectorAll('.bag-slot');
+            slots.forEach((slot, i) => {
+                const item = bag.items[i];
+                if (item) {
+                    const equipType = equipTypes[item.type];
+                    const quality = itemQualities[item.quality];
+                    slot.innerHTML = equipType.icon;
+                    slot.style.borderColor = quality.color;
+                    slot.style.boxShadow = '0 0 5px ' + quality.color;
+                    slot.title = `${quality.name}${equipType.name}`;
+                } else {
+                    slot.innerHTML = '';
+                    slot.style.borderColor = '#555';
+                    slot.style.boxShadow = 'none';
+                    slot.title = '空';
+                }
+            });
+            document.getElementById('bagCount').textContent = `${bag.items.length}/${bag.maxSize}`;
+        }
+
+        // 使用背包物品
+        function useBagItem(index) {
+            const item = bag.items[index];
+            if (!item) return;
+
+            // 装备物品
+            const currentEquip = player.equipped[item.type];
+            if (currentEquip) {
+                // 卸下当前装备，放回背包
+                bag.items.push(currentEquip);
+            }
+            player.equipped[item.type] = item;
+            bag.items.splice(index, 1);
+
+            createFloatingText(player.x, player.y - 40, `装备${itemQualities[item.quality].name}${equipTypes[item.type].name}`, itemQualities[item.quality].color);
+            updateBagDisplay();
+            updateEquipSlots();
+        }
+
+        // 更新装备栏显示
+        function updateEquipSlots() {
+            const slots = document.querySelectorAll('.equip-slot');
+            slots.forEach(slot => {
+                const type = slot.dataset.slot;
+                const item = player.equipped[type];
+                if (item) {
+                    const quality = itemQualities[item.quality];
+                    slot.style.borderColor = quality.color;
+                    slot.style.boxShadow = '0 0 8px ' + quality.color;
+                } else {
+                    if (type === 'weapon') {
+                        slot.style.borderColor = player.greenWeapon.color;
+                        slot.style.boxShadow = '0 0 10px ' + player.greenWeapon.color;
+                    } else {
+                        slot.style.borderColor = '#666';
+                        slot.style.boxShadow = 'none';
+                    }
+                }
+            });
+        }
+
+        // 自动整理背包
+        function sortBagItems() {
+            bag.items.sort((a, b) => {
+                const qualityOrder = ['mythic', 'legendary', 'epic', 'rare', 'uncommon', 'common'];
+                const typeOrder = ['helmet', 'armor', 'shoes', 'necklace', 'ring', 'leftHand'];
+                const qualityDiff = qualityOrder.indexOf(a.quality) - qualityOrder.indexOf(b.quality);
+                if (qualityDiff !== 0) return qualityDiff;
+                return typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type);
+            });
+            updateBagDisplay();
+            createFloatingText(centerX, centerY - 50, '背包已整理', '#4CAF50');
+        }
+
+        // 生成随机装备（测试用）
+        function generateRandomEquip() {
+            const types = ['helmet', 'armor', 'shoes', 'necklace', 'ring', 'leftHand'];
+            const qualities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+            const qualityWeights = [0.4, 0.3, 0.15, 0.1, 0.04, 0.01];
+
+            const type = types[Math.floor(Math.random() * types.length)];
+            let rand = Math.random();
+            let quality = 'common';
+            for (let i = 0; i < qualities.length; i++) {
+                rand -= qualityWeights[i];
+                if (rand <= 0) {
+                    quality = qualities[i];
+                    break;
+                }
+            }
+
+            return { type, quality };
+        }
+
+        // 添加物品到背包
+        function addToBag(item) {
+            if (bag.items.length >= bag.maxSize) {
+                createFloatingText(player.x, player.y - 40, '背包已满!', '#ff0000');
+                return false;
+            }
+            bag.items.push(item);
+            updateBagDisplay();
+            return true;
+        }
+
+        bagBtn.addEventListener('click', () => {
+            bagPanel.style.display = 'block';
+            initBagGrid();
+        });
+
+        closeBag.addEventListener('click', () => {
+            bagPanel.style.display = 'none';
+        });
+
+        bagPanel.addEventListener('click', (e) => {
+            if (e.target === bagPanel) {
+                bagPanel.style.display = 'none';
+            }
+        });
+
+        sortBag.addEventListener('click', sortBagItems);
+
+        // 点击装备槽卸下装备
+        document.querySelectorAll('.equip-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                const type = slot.dataset.slot;
+                if (type === 'weapon') return; // 绿武不能卸下
+
+                const item = player.equipped[type];
+                if (item) {
+                    if (addToBag(item)) {
+                        player.equipped[type] = null;
+                        updateEquipSlots();
+                        createFloatingText(player.x, player.y - 40, `卸下${equipTypes[type].name}`, '#888');
+                    }
+                }
+            });
+        });
 
         function gameLoop() {
             frameCount++;
