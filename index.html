@@ -39,6 +39,27 @@
             }
         }
         
+        @keyframes levelUpPulse {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.3);
+            }
+            30% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% { 
+                opacity: 1; 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+        }
+        
         body {
             background: linear-gradient(135deg, #1a0f0a 0%, #2d1810 50%, #1a0f0a 100%);
             display: flex;
@@ -216,7 +237,28 @@
             targetY: centerY,
             isMoving: false,
             color: '#ffd700',
-            swordAngle: 0
+            swordAngle: 0,
+            // 绿武系统
+            greenWeapon: {
+                name: '绿芽剑',
+                stage: 1, // 1-5阶段
+                stageName: '嫩芽',
+                color: '#90EE90',
+                growth: 0,
+                maxGrowth: 100,
+                bonusAttack: 0,
+                bonusCrit: 0,
+                skill: null
+            }
+        };
+
+        // 绿武阶段配置
+        const greenWeaponStages = {
+            1: { name: '嫩芽', color: '#90EE90', maxGrowth: 100, attackBonus: 0, critBonus: 0, skill: null },
+            2: { name: '幼苗', color: '#4CAF50', maxGrowth: 300, attackBonus: 0.2, critBonus: 0.05, skill: 'lifeSteal' },
+            3: { name: '青藤', color: '#2E7D32', maxGrowth: 600, attackBonus: 0.4, critBonus: 0.10, skill: 'slow' },
+            4: { name: '翠竹', color: '#1B5E20', maxGrowth: 1000, attackBonus: 0.6, critBonus: 0.15, skill: 'defense' },
+            5: { name: '古木', color: '#0D3B0D', maxGrowth: 999999, attackBonus: 1.0, critBonus: 0.25, skill: 'ultimate' }
         };
 
         let enemies = [];
@@ -641,6 +683,63 @@
             });
         }
 
+        // 绿武成长系统
+        function addGreenWeaponGrowth(enemyTier) {
+            const gw = player.greenWeapon;
+            if (gw.stage >= 5) return; // 已满级
+            
+            // 根据怪物等级给予成长值
+            const growthValue = enemyTier;
+            gw.growth += growthValue;
+            
+            // 检查是否突破
+            if (gw.growth >= gw.maxGrowth) {
+                levelUpGreenWeapon();
+            }
+        }
+
+        function levelUpGreenWeapon() {
+            const gw = player.greenWeapon;
+            if (gw.stage >= 5) return;
+            
+            gw.stage++;
+            const stageConfig = greenWeaponStages[gw.stage];
+            gw.stageName = stageConfig.name;
+            gw.color = stageConfig.color;
+            gw.maxGrowth = stageConfig.maxGrowth;
+            gw.bonusAttack = stageConfig.attackBonus;
+            gw.bonusCrit = stageConfig.critBonus;
+            gw.skill = stageConfig.skill;
+            gw.growth = 0;
+            
+            // 显示突破提示
+            showGreenWeaponLevelUp(gw.stageName, gw.color);
+        }
+
+        function showGreenWeaponLevelUp(stageName, color) {
+            const levelUpDiv = document.createElement('div');
+            levelUpDiv.style.cssText = `
+                position: fixed;
+                top: 30%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 36px;
+                font-weight: bold;
+                color: ${color};
+                text-shadow: 0 0 20px ${color}, 0 0 40px ${color};
+                z-index: 10001;
+                text-align: center;
+                animation: levelUpPulse 2s ease-out forwards;
+            `;
+            levelUpDiv.innerHTML = `🌿 绿武突破 🌿<br><span style="font-size: 28px;">${stageName}</span>`;
+            
+            document.body.appendChild(levelUpDiv);
+            
+            setTimeout(() => {
+                levelUpDiv.remove();
+            }, 2000);
+        }
+
         function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
             let rot = Math.PI / 2 * 3;
             let x = cx;
@@ -809,6 +908,8 @@
                                 score += enemy.score;
                                 kills++;
                                 enemies.splice(i, 1);
+                                // 增加绿武成长值
+                                addGreenWeaponGrowth(enemy.tier);
                                 updateUI();
                             }
                             return false;
