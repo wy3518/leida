@@ -198,25 +198,37 @@
         let floatingTexts = [];
 
         const enemyTypes = {
-            spirit: { name: '妖灵', radius: 8, hp: 20, damage: 5, attackRange: 50, attackSpeed: 60, moveSpeed: 1.6, color: '#90EE90', score: 5, shape: 'circle', tier: 1 },
-            goblin: { name: '小妖', radius: 10, hp: 40, damage: 10, attackRange: 55, attackSpeed: 55, moveSpeed: 1.3, color: '#4a7c59', score: 15, shape: 'circle', tier: 2 },
-            demon: { name: '妖魔', radius: 12, hp: 70, damage: 18, attackRange: 65, attackSpeed: 45, moveSpeed: 1.1, color: '#8b0000', score: 35, shape: 'triangle', tier: 3 },
-            general: { name: '妖将', radius: 14, hp: 120, damage: 25, attackRange: 60, attackSpeed: 65, moveSpeed: 0.9, color: '#FF8C00', score: 60, shape: 'square', tier: 4 },
-            boss: { name: '妖王', radius: 18, hp: 200, damage: 35, attackRange: 70, attackSpeed: 70, moveSpeed: 0.75, color: '#4b0082', score: 100, shape: 'diamond', tier: 5 },
-            emperor: { name: '妖皇', radius: 20, hp: 350, damage: 50, attackRange: 75, attackSpeed: 80, moveSpeed: 0.6, color: '#FFD700', score: 200, shape: 'star', tier: 6 },
-            god: { name: '魔神', radius: 25, hp: 600, damage: 80, attackRange: 80, attackSpeed: 90, moveSpeed: 0.45, color: '#DC143C', score: 500, shape: 'hexstar', tier: 7 }
+            spirit: { name: '妖灵', radius: 8, hp: 20, damage: 5, attackRange: 50, attackSpeed: 60, moveSpeed: 1.6, color: '#90EE90', score: 5, shape: 'circle', tier: 1, sizeType: 'S' },
+            goblin: { name: '小妖', radius: 10, hp: 40, damage: 10, attackRange: 55, attackSpeed: 55, moveSpeed: 1.3, color: '#4a7c59', score: 15, shape: 'circle', tier: 2, sizeType: 'M' },
+            demon: { name: '妖魔', radius: 12, hp: 70, damage: 18, attackRange: 65, attackSpeed: 45, moveSpeed: 1.1, color: '#8b0000', score: 35, shape: 'triangle', tier: 3, sizeType: 'M' },
+            general: { name: '妖将', radius: 14, hp: 120, damage: 25, attackRange: 60, attackSpeed: 65, moveSpeed: 0.9, color: '#FF8C00', score: 60, shape: 'square', tier: 4, sizeType: 'L' },
+            boss: { name: '妖王', radius: 18, hp: 200, damage: 35, attackRange: 70, attackSpeed: 70, moveSpeed: 0.75, color: '#4b0082', score: 100, shape: 'diamond', tier: 5, sizeType: 'L' },
+            emperor: { name: '妖皇', radius: 20, hp: 350, damage: 50, attackRange: 75, attackSpeed: 80, moveSpeed: 0.6, color: '#FFD700', score: 200, shape: 'star', tier: 6, sizeType: 'L' },
+            god: { name: '魔神', radius: 25, hp: 600, damage: 80, attackRange: 80, attackSpeed: 90, moveSpeed: 0.45, color: '#DC143C', score: 500, shape: 'hexstar', tier: 7, sizeType: 'L' }
+        };
+
+        const sizeModifiers = {
+            'S': { scale: 0.8, dodge: 0.2, damageReduce: 0.1, rangeMod: 0.9 },
+            'M': { scale: 1.0, dodge: 0, damageReduce: 0, rangeMod: 1.0 },
+            'L': { scale: 1.3, hpMod: 0.3, damageTake: 0.1, rangeMod: 1.15 }
         };
 
         function spawnEnemy(type) {
             const config = enemyTypes[type];
             const angle = Math.random() * Math.PI * 2;
             const distance = radarRadius - 35;
+            const sizeMod = sizeModifiers[config.sizeType];
+            let finalHp = config.hp;
+            if (config.sizeType === 'L') {
+                finalHp = Math.floor(config.hp * (1 + sizeMod.hpMod));
+            }
             enemies.push({
                 x: centerX + Math.cos(angle) * distance,
                 y: centerY + Math.sin(angle) * distance,
                 type: type,
                 ...config,
-                maxHp: config.hp,
+                hp: finalHp,
+                maxHp: finalHp,
                 attackCooldown: 0,
                 id: Math.random()
             });
@@ -441,6 +453,10 @@
         function drawEnemies() {
             enemies.forEach(enemy => {
                 const distToPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y);
+                const sizeMod = sizeModifiers[enemy.sizeType];
+                const scale = sizeMod.scale;
+                const scaledRadius = enemy.radius * scale;
+                
                 if (distToPlayer < enemy.attackRange + 50 && playerAlive) {
                     ctx.strokeStyle = 'rgba(139, 0, 0, 0.15)';
                     ctx.fillStyle = 'rgba(139, 0, 0, 0.03)';
@@ -455,44 +471,51 @@
                 ctx.shadowColor = enemy.color;
                 if (enemy.shape === 'circle') {
                     ctx.beginPath();
-                    ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
+                    ctx.arc(enemy.x, enemy.y, scaledRadius, 0, Math.PI * 2);
                     ctx.fill();
                 } else if (enemy.shape === 'triangle') {
                     ctx.beginPath();
-                    ctx.moveTo(enemy.x, enemy.y - enemy.radius);
-                    ctx.lineTo(enemy.x - enemy.radius, enemy.y + enemy.radius);
-                    ctx.lineTo(enemy.x + enemy.radius, enemy.y + enemy.radius);
+                    ctx.moveTo(enemy.x, enemy.y - scaledRadius);
+                    ctx.lineTo(enemy.x - scaledRadius, enemy.y + scaledRadius);
+                    ctx.lineTo(enemy.x + scaledRadius, enemy.y + scaledRadius);
                     ctx.closePath();
                     ctx.fill();
                 } else if (enemy.shape === 'square') {
-                    ctx.fillRect(enemy.x - enemy.radius, enemy.y - enemy.radius, enemy.radius * 2, enemy.radius * 2);
+                    ctx.fillRect(enemy.x - scaledRadius, enemy.y - scaledRadius, scaledRadius * 2, scaledRadius * 2);
                 } else if (enemy.shape === 'diamond') {
                     ctx.beginPath();
-                    ctx.moveTo(enemy.x, enemy.y - enemy.radius);
-                    ctx.lineTo(enemy.x + enemy.radius, enemy.y);
-                    ctx.lineTo(enemy.x, enemy.y + enemy.radius);
-                    ctx.lineTo(enemy.x - enemy.radius, enemy.y);
+                    ctx.moveTo(enemy.x, enemy.y - scaledRadius);
+                    ctx.lineTo(enemy.x + scaledRadius, enemy.y);
+                    ctx.lineTo(enemy.x, enemy.y + scaledRadius);
+                    ctx.lineTo(enemy.x - scaledRadius, enemy.y);
                     ctx.closePath();
                     ctx.fill();
                 } else if (enemy.shape === 'star') {
-                    drawStar(ctx, enemy.x, enemy.y, 5, enemy.radius, enemy.radius * 0.5);
+                    drawStar(ctx, enemy.x, enemy.y, 5, scaledRadius, scaledRadius * 0.5);
                 } else if (enemy.shape === 'hexstar') {
-                    drawStar(ctx, enemy.x, enemy.y, 6, enemy.radius, enemy.radius * 0.6);
+                    drawStar(ctx, enemy.x, enemy.y, 6, scaledRadius, scaledRadius * 0.6);
                 }
                 ctx.shadowBlur = 0;
 
                 ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(enemy.x, enemy.y, enemy.radius * 0.5, 0, Math.PI * 2);
+                ctx.arc(enemy.x, enemy.y, scaledRadius * 0.5, 0, Math.PI * 2);
                 ctx.stroke();
 
+                // 体型标识 S/M/L
+                const sizeColors = { 'S': '#90EE90', 'M': '#FFD700', 'L': '#FF6347' };
+                ctx.fillStyle = sizeColors[enemy.sizeType];
+                ctx.font = 'bold 10px SimSun';
+                ctx.fillText(enemy.sizeType, enemy.x - 4, enemy.y - scaledRadius - 18);
+
+                // 血条
                 const barWidth = 28, barHeight = 4;
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-                ctx.fillRect(enemy.x - barWidth/2, enemy.y - enemy.radius - 12, barWidth, barHeight);
+                ctx.fillRect(enemy.x - barWidth/2, enemy.y - scaledRadius - 12, barWidth, barHeight);
                 const hpPercent = enemy.hp / enemy.maxHp;
                 ctx.fillStyle = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
-                ctx.fillRect(enemy.x - barWidth/2, enemy.y - enemy.radius - 12, barWidth * hpPercent, barHeight);
+                ctx.fillRect(enemy.x - barWidth/2, enemy.y - scaledRadius - 12, barWidth * hpPercent, barHeight);
             });
         }
 
