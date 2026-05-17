@@ -203,7 +203,48 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button>
+        </div>
+        
+        <!-- 装备栏界面 -->
+        <div id="equipPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);">
+            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">🌿 装备栏 🌿</div>
+            <div style="display:flex;gap:30px;">
+                <!-- 左侧：人物和装备 -->
+                <div style="position:relative;width:200px;height:280px;background:rgba(139,69,19,0.2);border-radius:10px;border:2px solid #8b4513;">
+                    <!-- 头盔 -->
+                    <div class="equip-slot" data-slot="helmet" style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="头盔">🪖</div>
+                    <!-- 左手法宝 -->
+                    <div class="equip-slot" data-slot="leftHand" style="position:absolute;top:80px;left:10px;width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="法宝">📿</div>
+                    <!-- 人物 -->
+                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px;">👤</div>
+                    <!-- 右手绿武 -->
+                    <div class="equip-slot" data-slot="weapon" id="weaponSlot" style="position:absolute;top:80px;right:10px;width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #90EE90;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 10px #90EE90;" title="绿武">🗡️</div>
+                    <!-- 衣服 -->
+                    <div class="equip-slot" data-slot="armor" style="position:absolute;top:150px;left:50%;transform:translateX(-50%);width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="衣服">👘</div>
+                    <!-- 鞋子 -->
+                    <div class="equip-slot" data-slot="shoes" style="position:absolute;top:220px;left:50%;transform:translateX(-50%);width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="鞋子">👢</div>
+                    <!-- 项链 -->
+                    <div class="equip-slot" data-slot="necklace" style="position:absolute;top:150px;left:10px;width:40px;height:40px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;" title="项链">📿</div>
+                    <!-- 戒指 -->
+                    <div class="equip-slot" data-slot="ring" style="position:absolute;top:150px;right:10px;width:40px;height:40px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;" title="戒指">💍</div>
+                </div>
+                <!-- 右侧：绿武信息 -->
+                <div style="width:200px;color:#d4af37;">
+                    <div style="font-size:16px;color:#90EE90;margin-bottom:10px;">🌿 绿芽剑</div>
+                    <div style="font-size:14px;margin-bottom:5px;">阶段: <span id="gwStage" style="color:#90EE90;">嫩芽</span></div>
+                    <div style="font-size:14px;margin-bottom:5px;">成长: <span id="gwGrowth">0</span>/<span id="gwMaxGrowth">100</span></div>
+                    <div style="width:100%;height:10px;background:#333;border-radius:5px;margin:10px 0;overflow:hidden;">
+                        <div id="gwBar" style="width:0%;height:100%;background:linear-gradient(90deg,#90EE90,#4CAF50);transition:width 0.3s;"></div>
+                    </div>
+                    <div style="font-size:12px;color:#888;margin-top:10px;">
+                        <div>攻击加成: <span id="gwAtk">+0%</span></div>
+                        <div>暴击加成: <span id="gwCrit">+0%</span></div>
+                        <div style="margin-top:5px;color:#666;">技能: <span id="gwSkill">无</span></div>
+                    </div>
+                </div>
+            </div>
+            <button id="closeEquip" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
         </div>
     </div>
 
@@ -1013,6 +1054,60 @@
                 player.isMoving = true;
             }
         });
+
+        // 装备栏交互
+        const equipBtn = document.getElementById('equipBtn');
+        const equipPanel = document.getElementById('equipPanel');
+        const closeEquip = document.getElementById('closeEquip');
+
+        equipBtn.addEventListener('click', () => {
+            equipPanel.style.display = 'block';
+            updateEquipPanel();
+        });
+
+        closeEquip.addEventListener('click', () => {
+            equipPanel.style.display = 'none';
+        });
+
+        // 点击装备栏外部关闭
+        equipPanel.addEventListener('click', (e) => {
+            if (e.target === equipPanel) {
+                equipPanel.style.display = 'none';
+            }
+        });
+
+        // 更新装备栏显示
+        function updateEquipPanel() {
+            const gw = player.greenWeapon;
+            document.getElementById('gwStage').textContent = gw.stageName;
+            document.getElementById('gwStage').style.color = gw.color;
+            document.getElementById('gwGrowth').textContent = gw.growth;
+            document.getElementById('gwMaxGrowth').textContent = gw.maxGrowth;
+            document.getElementById('gwBar').style.width = (gw.growth / gw.maxGrowth * 100) + '%';
+            document.getElementById('gwAtk').textContent = '+' + Math.floor(gw.bonusAttack * 100) + '%';
+            document.getElementById('gwCrit').textContent = '+' + Math.floor(gw.bonusCrit * 100) + '%';
+            
+            const skillNames = {
+                null: '无',
+                'lifeSteal': '回春剑气(吸血5%)',
+                'slow': '缠绕斩(减速20%)',
+                'defense': '坚韧之刃(防御+30%)',
+                'ultimate': '万木归宗(范围+50%,伤害+50%)'
+            };
+            document.getElementById('gwSkill').textContent = skillNames[gw.skill] || '无';
+            
+            // 更新武器槽边框颜色
+            const weaponSlot = document.getElementById('weaponSlot');
+            weaponSlot.style.borderColor = gw.color;
+            weaponSlot.style.boxShadow = '0 0 10px ' + gw.color;
+        }
+
+        // 定期更新装备栏（如果打开状态）
+        setInterval(() => {
+            if (equipPanel.style.display === 'block') {
+                updateEquipPanel();
+            }
+        }, 500);
 
         function gameLoop() {
             frameCount++;
