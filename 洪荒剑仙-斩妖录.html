@@ -623,6 +623,10 @@
             updateUI();
             createParticles(player.x, player.y, '#ffd700', 25);
             createFloatingText(player.x, player.y - 30, '重塑肉身', '#22c55e');
+            // 复活后重新刷新怪物
+            enemies = [];
+            projectiles = [];
+            spawnWave();
         }
 
         function updateParticles() {
@@ -681,7 +685,7 @@
             updateParticles();
             updateDamageTexts();
             updateFloatingTexts();
-            if (enemies.length === 0 && frameCount % 60 === 0) {
+            if (playerAlive && enemies.length === 0 && frameCount % 60 === 0) {
                 wave++;
                 updateUI();
                 spawnWave();

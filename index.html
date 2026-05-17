@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>洪荒剑仙 - 斩妖录</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +17,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Noto Serif SC', 'SimSun', serif;
+            font-family: 'SimSun', '宋体', serif;
             overflow: hidden;
             user-select: none;
         }
@@ -37,28 +35,25 @@
         }
         
         h1 {
-            font-size: 28px;
-            background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+            font-size: 32px;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 140, 0, 0.8);
             margin-bottom: 8px;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
         }
         
         .subtitle {
             color: #8b7355;
-            font-size: 12px;
-            letter-spacing: 2px;
+            font-size: 14px;
+            letter-spacing: 3px;
         }
         
         .stats {
             display: flex;
             gap: 25px;
-            font-size: 13px;
+            font-size: 14px;
             color: #d4af37;
-            margin-top: 8px;
+            margin-top: 10px;
             text-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
         }
         
@@ -66,10 +61,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-        }
-        
-        .stat-icon {
-            font-size: 14px;
         }
         
         .canvas-wrapper {
@@ -82,30 +73,21 @@
                 0 0 0 2px #d4af37,
                 0 0 0 4px #8b4513;
             background: radial-gradient(circle at center, #1a0f0a 0%, #0d0705 100%);
+            margin-top: 15px;
         }
         
         canvas {
             border-radius: 50%;
             cursor: crosshair;
-        }
-        
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            border-radius: 50%;
-            overflow: hidden;
+            display: block;
         }
         
         .controls {
             color: #8b7355;
-            margin-top: 15px;
-            font-size: 12px;
+            margin-top: 20px;
+            font-size: 13px;
             text-align: center;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
         
         .revive-overlay {
@@ -118,16 +100,16 @@
         }
         
         .revive-text {
-            font-size: 36px;
+            font-size: 40px;
             color: #dc143c;
             text-shadow: 0 0 30px #dc143c;
             margin-bottom: 15px;
             font-weight: bold;
-            letter-spacing: 8px;
+            letter-spacing: 10px;
         }
         
         .revive-countdown {
-            font-size: 56px;
+            font-size: 60px;
             color: #ffd700;
             text-shadow: 0 0 40px #ffd700;
             font-family: 'Courier New', monospace;
@@ -135,74 +117,28 @@
         
         .revive-subtext {
             color: #8b7355;
-            font-size: 14px;
-            margin-top: 15px;
-            letter-spacing: 2px;
-        }
-
-        .story-intro {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #8b4513;
-            padding: 30px 40px;
-            text-align: center;
-            color: #d4af37;
-            border-radius: 10px;
-            max-width: 400px;
-            display: none;
-        }
-
-        .story-intro h3 {
-            color: #ffd700;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-
-        .story-intro p {
-            line-height: 1.8;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .story-intro button {
-            background: linear-gradient(180deg, #8b4513 0%, #654321 100%);
-            color: #ffd700;
-            border: 1px solid #d4af37;
-            padding: 10px 30px;
             font-size: 16px;
-            cursor: pointer;
-            font-family: inherit;
-            border-radius: 5px;
-        }
-
-        .story-intro button:hover {
-            background: linear-gradient(180deg, #a0522d 0%, #8b4513 100%);
+            margin-top: 15px;
+            letter-spacing: 3px;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="game-header">
-            <h1>⚔️ 洪荒剑仙</h1>
+            <h1>洪荒剑仙</h1>
             <div class="subtitle">上古战场 · 斩妖除魔</div>
             <div class="stats">
                 <div class="stat-item">
-                    <span class="stat-icon">❤️</span>
                     <span>气血: <span id="playerHp">100</span>/100</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-icon">⚡</span>
                     <span>斩妖: <span id="kills">0</span></span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-icon">🔥</span>
                     <span>波次: <span id="wave">1</span></span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-icon">💎</span>
                     <span>修为: <span id="score">0</span></span>
                 </div>
             </div>
@@ -210,7 +146,6 @@
         
         <div class="canvas-wrapper">
             <canvas id="gameCanvas" width="500" height="500"></canvas>
-            <div class="ui-overlay"></div>
             <div class="revive-overlay" id="reviveOverlay">
                 <div class="revive-text">道消身殒</div>
                 <div class="revive-countdown" id="reviveCountdown">5</div>
@@ -230,7 +165,6 @@
         const centerY = canvas.height / 2;
         const radarRadius = 230;
 
-        // 游戏状态
         let gameRunning = true;
         let playerAlive = true;
         let reviveTimer = 0;
@@ -239,7 +173,6 @@
         let score = 0;
         let frameCount = 0;
 
-        // 剑仙（玩家）
         const player = {
             x: centerX,
             y: centerY,
@@ -258,59 +191,22 @@
             swordAngle: 0
         };
 
-        // 妖兽数组
         let enemies = [];
         let projectiles = [];
         let particles = [];
         let damageTexts = [];
         let floatingTexts = [];
 
-        // 妖兽类型配置
         const enemyTypes = {
-            goblin: {
-                name: '小妖',
-                radius: 10,
-                hp: 35,
-                damage: 10,
-                attackRange: 55,
-                attackSpeed: 55,
-                moveSpeed: 1.3,
-                color: '#4a7c59',
-                score: 15,
-                shape: 'circle'
-            },
-            demon: {
-                name: '妖魔',
-                radius: 12,
-                hp: 70,
-                damage: 18,
-                attackRange: 65,
-                attackSpeed: 45,
-                moveSpeed: 1.1,
-                color: '#8b0000',
-                score: 35,
-                shape: 'triangle'
-            },
-            boss: {
-                name: '妖王',
-                radius: 18,
-                hp: 150,
-                damage: 30,
-                attackRange: 55,
-                attackSpeed: 70,
-                moveSpeed: 0.7,
-                color: '#4b0082',
-                score: 80,
-                shape: 'square'
-            }
+            goblin: { name: '小妖', radius: 10, hp: 35, damage: 10, attackRange: 55, attackSpeed: 55, moveSpeed: 1.3, color: '#4a7c59', score: 15, shape: 'circle' },
+            demon: { name: '妖魔', radius: 12, hp: 70, damage: 18, attackRange: 65, attackSpeed: 45, moveSpeed: 1.1, color: '#8b0000', score: 35, shape: 'triangle' },
+            boss: { name: '妖王', radius: 18, hp: 150, damage: 30, attackRange: 55, attackSpeed: 70, moveSpeed: 0.7, color: '#4b0082', score: 80, shape: 'square' }
         };
 
-        // 生成妖兽
         function spawnEnemy(type) {
             const config = enemyTypes[type];
             const angle = Math.random() * Math.PI * 2;
             const distance = radarRadius - 35;
-            
             enemies.push({
                 x: centerX + Math.cos(angle) * distance,
                 y: centerY + Math.sin(angle) * distance,
@@ -322,7 +218,6 @@
             });
         }
 
-        // 生成一波妖兽
         function spawnWave() {
             const count = 3 + wave * 2;
             for (let i = 0; i < count; i++) {
@@ -337,121 +232,79 @@
             }
         }
 
-        // 创建剑气
         function createSwordQi(from, to, damage) {
             const angle = Math.atan2(to.y - from.y, to.x - from.x);
             projectiles.push({
-                x: from.x,
-                y: from.y,
-                vx: Math.cos(angle) * 8,
-                vy: Math.sin(angle) * 8,
-                isPlayer: true,
-                damage: damage,
-                life: 50,
-                angle: angle,
-                type: 'sword'
+                x: from.x, y: from.y,
+                vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8,
+                isPlayer: true, damage: damage, life: 50, angle: angle, type: 'sword'
             });
         }
 
-        // 创建妖气攻击
         function createDemonQi(from, to, damage) {
             const angle = Math.atan2(to.y - from.y, to.x - from.x);
             projectiles.push({
-                x: from.x,
-                y: from.y,
-                vx: Math.cos(angle) * 5,
-                vy: Math.sin(angle) * 5,
-                isPlayer: false,
-                damage: damage,
-                life: 60,
-                type: 'demon'
+                x: from.x, y: from.y,
+                vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5,
+                isPlayer: false, damage: damage, life: 60, type: 'demon'
             });
         }
 
-        // 创建粒子效果
         function createParticles(x, y, color, count = 10) {
             for (let i = 0; i < count; i++) {
                 const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
                 particles.push({
-                    x: x,
-                    y: y,
+                    x: x, y: y,
                     vx: Math.cos(angle) * (2 + Math.random() * 3),
                     vy: Math.sin(angle) * (2 + Math.random() * 3),
-                    life: 25,
-                    color: color,
-                    size: 2 + Math.random() * 3,
+                    life: 25, color: color, size: 2 + Math.random() * 3,
                     type: Math.random() > 0.5 ? 'spark' : 'smoke'
                 });
             }
         }
 
-        // 创建伤害数字
         function createDamageText(x, y, damage, isPlayer) {
             damageTexts.push({
-                x: x,
-                y: y,
-                text: damage,
-                life: 35,
-                color: isPlayer ? '#ff6b6b' : '#ffd93d',
-                font: 'bold 14px "Noto Serif SC"'
+                x: x, y: y, text: damage, life: 35,
+                color: isPlayer ? '#ff6b6b' : '#ffd93d'
             });
         }
 
-        // 创建飘字
         function createFloatingText(x, y, text, color) {
-            floatingTexts.push({
-                x: x,
-                y: y,
-                text: text,
-                life: 40,
-                color: color,
-                vy: -0.8
-            });
+            floatingTexts.push({ x: x, y: y, text: text, life: 40, color: color, vy: -0.8 });
         }
 
-        // 绘制洪荒战场背景
         function drawBackground() {
-            // 背景
             ctx.fillStyle = 'rgba(13, 7, 5, 0.98)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 古战场符文圈
             ctx.strokeStyle = 'rgba(139, 69, 19, 0.3)';
             ctx.lineWidth = 2;
             for (let r = 60; r <= radarRadius; r += 60) {
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
                 ctx.stroke();
-                
-                // 符文标记
                 for (let i = 0; i < 8; i++) {
                     const angle = (i / 8) * Math.PI * 2;
-                    const x = centerX + Math.cos(angle) * r;
-                    const y = centerY + Math.sin(angle) * r;
                     ctx.fillStyle = 'rgba(139, 69, 19, 0.4)';
                     ctx.font = '12px serif';
-                    ctx.fillText('◆', x - 4, y + 4);
+                    ctx.fillText('◆', centerX + Math.cos(angle) * r - 4, centerY + Math.sin(angle) * r + 4);
                 }
             }
 
-            // 八卦方位线
             ctx.strokeStyle = 'rgba(139, 69, 19, 0.25)';
             ctx.lineWidth = 1;
             for (let i = 0; i < 8; i++) {
                 const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
-                ctx.lineTo(
-                    centerX + Math.cos(angle) * radarRadius,
-                    centerY + Math.sin(angle) * radarRadius
-                );
+                ctx.lineTo(centerX + Math.cos(angle) * radarRadius, centerY + Math.sin(angle) * radarRadius);
                 ctx.stroke();
             }
 
-            // 方位文字
             const directions = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
             ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
-            ctx.font = '12px "Noto Serif SC"';
+            ctx.font = '12px SimSun';
             directions.forEach((dir, i) => {
                 const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
                 const x = centerX + Math.cos(angle) * (radarRadius + 15);
@@ -459,7 +312,6 @@
                 ctx.fillText(dir, x - 6, y + 4);
             });
 
-            // 外圈古纹
             ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -467,18 +319,11 @@
             ctx.stroke();
         }
 
-        // 绘制剑气范围
         function drawAttackRange() {
             if (!playerAlive) return;
-            
-            // 剑气范围
-            const gradient = ctx.createRadialGradient(
-                player.x, player.y, 0,
-                player.x, player.y, player.attackRange
-            );
+            const gradient = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, player.attackRange);
             gradient.addColorStop(0, 'rgba(255, 215, 0, 0.05)');
             gradient.addColorStop(1, 'rgba(255, 215, 0, 0.15)');
-            
             ctx.fillStyle = gradient;
             ctx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
             ctx.lineWidth = 1;
@@ -486,26 +331,20 @@
             ctx.arc(player.x, player.y, player.attackRange, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-
-            // 剑阵符文
             ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)';
             ctx.beginPath();
             ctx.arc(player.x, player.y, player.attackRange * 0.7, 0, Math.PI * 2);
             ctx.stroke();
         }
 
-        // 绘制剑仙
         function drawPlayer() {
             if (!playerAlive) return;
-            
-            // 御剑光环
             ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI * 2);
             ctx.stroke();
 
-            // 剑仙本体
             ctx.fillStyle = '#ffd700';
             ctx.shadowBlur = 20;
             ctx.shadowColor = '#ffd700';
@@ -514,19 +353,16 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // 道袍
             ctx.fillStyle = '#fff8dc';
             ctx.beginPath();
             ctx.arc(player.x, player.y, 7, 0, Math.PI * 2);
             ctx.fill();
 
-            // 飞剑环绕效果
             player.swordAngle += 0.08;
             for (let i = 0; i < 3; i++) {
                 const angle = player.swordAngle + (i * Math.PI * 2 / 3);
                 const sx = player.x + Math.cos(angle) * 20;
                 const sy = player.y + Math.sin(angle) * 20;
-                
                 ctx.strokeStyle = '#ffd700';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
@@ -535,28 +371,20 @@
                 ctx.stroke();
             }
 
-            // 气血条
-            const barWidth = 36;
-            const barHeight = 5;
+            const barWidth = 36, barHeight = 5;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
             ctx.fillRect(player.x - barWidth/2, player.y - player.radius - 15, barWidth, barHeight);
-            
             const hpPercent = player.hp / player.maxHp;
-            const hpColor = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
-            ctx.fillStyle = hpColor;
+            ctx.fillStyle = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
             ctx.fillRect(player.x - barWidth/2, player.y - player.radius - 15, barWidth * hpPercent, barHeight);
-            
             ctx.strokeStyle = '#8b4513';
             ctx.lineWidth = 1;
             ctx.strokeRect(player.x - barWidth/2, player.y - player.radius - 15, barWidth, barHeight);
         }
 
-        // 绘制妖兽
         function drawEnemies() {
             enemies.forEach(enemy => {
                 const distToPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y);
-                
-                // 妖气范围
                 if (distToPlayer < enemy.attackRange + 50 && playerAlive) {
                     ctx.strokeStyle = 'rgba(139, 0, 0, 0.15)';
                     ctx.fillStyle = 'rgba(139, 0, 0, 0.03)';
@@ -566,11 +394,9 @@
                     ctx.stroke();
                 }
 
-                // 妖兽本体
                 ctx.fillStyle = enemy.color;
                 ctx.shadowBlur = 12;
                 ctx.shadowColor = enemy.color;
-                
                 if (enemy.shape === 'circle') {
                     ctx.beginPath();
                     ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI * 2);
@@ -587,30 +413,24 @@
                 }
                 ctx.shadowBlur = 0;
 
-                // 妖纹
                 ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.arc(enemy.x, enemy.y, enemy.radius * 0.5, 0, Math.PI * 2);
                 ctx.stroke();
 
-                // 妖兽血条
-                const barWidth = 28;
-                const barHeight = 4;
+                const barWidth = 28, barHeight = 4;
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
                 ctx.fillRect(enemy.x - barWidth/2, enemy.y - enemy.radius - 12, barWidth, barHeight);
-                
                 const hpPercent = enemy.hp / enemy.maxHp;
                 ctx.fillStyle = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
                 ctx.fillRect(enemy.x - barWidth/2, enemy.y - enemy.radius - 12, barWidth * hpPercent, barHeight);
             });
         }
 
-        // 绘制剑气和妖气
         function drawProjectiles() {
             projectiles.forEach(p => {
                 if (p.type === 'sword') {
-                    // 剑气
                     ctx.strokeStyle = '#ffd700';
                     ctx.lineWidth = 3;
                     ctx.shadowBlur = 10;
@@ -620,8 +440,6 @@
                     ctx.lineTo(p.x - p.vx * 3, p.y - p.vy * 3);
                     ctx.stroke();
                     ctx.shadowBlur = 0;
-                    
-                    // 剑光尾迹
                     ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -629,7 +447,6 @@
                     ctx.lineTo(p.x - p.vx * 6, p.y - p.vy * 6);
                     ctx.stroke();
                 } else {
-                    // 妖气
                     ctx.fillStyle = '#8b0000';
                     ctx.shadowBlur = 8;
                     ctx.shadowColor = '#8b0000';
@@ -641,7 +458,6 @@
             });
         }
 
-        // 绘制粒子
         function drawParticles() {
             particles.forEach(p => {
                 ctx.globalAlpha = p.life / 25;
@@ -660,45 +476,38 @@
             });
         }
 
-        // 绘制伤害数字
         function drawDamageTexts() {
             damageTexts.forEach(d => {
                 ctx.fillStyle = d.color;
-                ctx.font = d.font;
+                ctx.font = 'bold 14px SimSun';
                 ctx.globalAlpha = d.life / 35;
                 ctx.fillText('-' + d.text, d.x - 8, d.y);
                 ctx.globalAlpha = 1;
             });
         }
 
-        // 绘制飘字
         function drawFloatingTexts() {
             floatingTexts.forEach(f => {
                 ctx.fillStyle = f.color;
-                ctx.font = 'bold 16px "Noto Serif SC"';
+                ctx.font = 'bold 16px SimSun';
                 ctx.globalAlpha = f.life / 40;
                 ctx.fillText(f.text, f.x - 20, f.y);
                 ctx.globalAlpha = 1;
             });
         }
 
-        // 更新剑仙
         function updatePlayer() {
             if (!playerAlive) return;
-            
             if (player.isMoving) {
                 const dx = player.targetX - player.x;
                 const dy = player.targetY - player.y;
                 const dist = Math.hypot(dx, dy);
-                
                 if (dist > 3) {
                     player.x += (dx / dist) * player.moveSpeed;
                     player.y += (dy / dist) * player.moveSpeed;
                 } else {
                     player.isMoving = false;
                 }
-
-                // 限制在阵法范围内
                 const centerDist = Math.hypot(player.x - centerX, player.y - centerY);
                 if (centerDist > radarRadius - player.radius) {
                     const angle = Math.atan2(player.y - centerY, player.x - centerX);
@@ -708,44 +517,33 @@
             }
         }
 
-        // 剑仙自动连续斩妖
         function playerAutoAttack() {
             if (!playerAlive) return;
-            
             player.attackTimer++;
             if (player.attackTimer >= player.attackInterval) {
                 player.attackTimer = 0;
-                
                 let targetsInRange = [];
                 enemies.forEach(enemy => {
                     const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
-                    if (dist <= player.attackRange) {
-                        targetsInRange.push(enemy);
-                    }
+                    if (dist <= player.attackRange) targetsInRange.push(enemy);
                 });
-                
                 targetsInRange.forEach((target, index) => {
                     setTimeout(() => {
-                        if (playerAlive && enemies.includes(target)) {
-                            createSwordQi(player, target, player.attackDamage);
-                        }
+                        if (playerAlive && enemies.includes(target)) createSwordQi(player, target, player.attackDamage);
                     }, index * 80);
                 });
             }
         }
 
-        // 更新妖兽AI
         function updateEnemies() {
-            enemies.forEach((enemy, index) => {
+            enemies.forEach(enemy => {
                 if (playerAlive) {
                     const distToPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y);
-                    
                     if (distToPlayer > enemy.attackRange - 10) {
                         const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
                         enemy.x += Math.cos(angle) * enemy.moveSpeed;
                         enemy.y += Math.sin(angle) * enemy.moveSpeed;
                     }
-
                     if (distToPlayer <= enemy.attackRange && enemy.attackCooldown <= 0) {
                         createDemonQi(enemy, player, enemy.damage);
                         enemy.attackCooldown = enemy.attackSpeed;
@@ -755,13 +553,11 @@
             });
         }
 
-        // 更新剑气/妖气
         function updateProjectiles() {
             projectiles = projectiles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
                 p.life--;
-
                 if (p.isPlayer) {
                     for (let i = enemies.length - 1; i >= 0; i--) {
                         const enemy = enemies[i];
@@ -770,7 +566,6 @@
                             enemy.hp -= p.damage;
                             createDamageText(enemy.x, enemy.y - 20, p.damage, true);
                             createParticles(p.x, p.y, '#ffd700', 6);
-                            
                             if (enemy.hp <= 0) {
                                 createParticles(enemy.x, enemy.y, enemy.color, 18);
                                 createFloatingText(enemy.x, enemy.y - 30, '斩!', '#ffd700');
@@ -790,33 +585,25 @@
                             createDamageText(player.x, player.y - 28, p.damage, false);
                             createParticles(p.x, p.y, '#8b0000', 6);
                             updateUI();
-                            
-                            if (player.hp <= 0) {
-                                playerDied();
-                            }
+                            if (player.hp <= 0) playerDied();
                             return false;
                         }
                     }
                 }
-
                 return p.life > 0;
             });
         }
 
-        // 剑仙身殒
         function playerDied() {
             playerAlive = false;
             reviveTimer = 5;
             createParticles(player.x, player.y, '#ffd700', 35);
             createFloatingText(player.x, player.y - 40, '道消身殒', '#dc143c');
-            
             document.getElementById('reviveOverlay').style.display = 'block';
             document.getElementById('reviveCountdown').textContent = reviveTimer;
-            
             const countdownInterval = setInterval(() => {
                 reviveTimer--;
                 document.getElementById('reviveCountdown').textContent = reviveTimer;
-                
                 if (reviveTimer <= 0) {
                     clearInterval(countdownInterval);
                     revivePlayer();
@@ -824,7 +611,6 @@
             }, 1000);
         }
 
-        // 元神重塑
         function revivePlayer() {
             playerAlive = true;
             player.hp = player.maxHp;
@@ -833,15 +619,16 @@
             player.targetX = centerX;
             player.targetY = centerY;
             player.isMoving = false;
-            
             document.getElementById('reviveOverlay').style.display = 'none';
             updateUI();
-            
             createParticles(player.x, player.y, '#ffd700', 25);
             createFloatingText(player.x, player.y - 30, '重塑肉身', '#22c55e');
+            // 复活后重新刷新怪物
+            enemies = [];
+            projectiles = [];
+            spawnWave();
         }
 
-        // 更新粒子
         function updateParticles() {
             particles = particles.filter(p => {
                 p.x += p.vx;
@@ -853,7 +640,6 @@
             });
         }
 
-        // 更新伤害数字
         function updateDamageTexts() {
             damageTexts = damageTexts.filter(d => {
                 d.y -= 0.6;
@@ -862,7 +648,6 @@
             });
         }
 
-        // 更新飘字
         function updateFloatingTexts() {
             floatingTexts = floatingTexts.filter(f => {
                 f.y += f.vy;
@@ -871,7 +656,6 @@
             });
         }
 
-        // 更新UI
         function updateUI() {
             document.getElementById('playerHp').textContent = Math.max(0, Math.floor(player.hp));
             document.getElementById('kills').textContent = kills;
@@ -879,13 +663,11 @@
             document.getElementById('score').textContent = score;
         }
 
-        // 鼠标点击御剑飞行
         canvas.addEventListener('click', (e) => {
             if (!playerAlive) return;
             const rect = canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
-            
             const dist = Math.hypot(clickX - centerX, clickY - centerY);
             if (dist <= radarRadius) {
                 player.targetX = clickX;
@@ -894,10 +676,8 @@
             }
         });
 
-        // 游戏主循环
         function gameLoop() {
             frameCount++;
-            
             updatePlayer();
             playerAutoAttack();
             updateEnemies();
@@ -905,13 +685,11 @@
             updateParticles();
             updateDamageTexts();
             updateFloatingTexts();
-
-            if (enemies.length === 0 && frameCount % 60 === 0) {
+            if (playerAlive && enemies.length === 0 && frameCount % 60 === 0) {
                 wave++;
                 updateUI();
                 spawnWave();
             }
-
             drawBackground();
             drawAttackRange();
             drawEnemies();
@@ -920,11 +698,9 @@
             drawParticles();
             drawDamageTexts();
             drawFloatingTexts();
-
             requestAnimationFrame(gameLoop);
         }
 
-        // 启动游戏
         updateUI();
         spawnWave();
         gameLoop();
