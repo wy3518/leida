@@ -11,6 +11,34 @@
             box-sizing: border-box;
         }
         
+        @keyframes bossWarning {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes bossTextPulse {
+            0% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            20% { 
+                opacity: 1; 
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            40% { 
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% { 
+                opacity: 1; 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
         body {
             background: linear-gradient(135deg, #1a0f0a 0%, #2d1810 50%, #1a0f0a 100%);
             display: flex;
@@ -266,7 +294,7 @@
                 finalSpeed = config.moveSpeed * 0.8;
             }
             
-            enemies.push({
+            const enemy = {
                 x: centerX + Math.cos(angle) * distance,
                 y: centerY + Math.sin(angle) * distance,
                 type: type,
@@ -278,7 +306,54 @@
                 moveSpeed: finalSpeed,
                 attackCooldown: 0,
                 id: Math.random()
-            });
+            };
+            
+            enemies.push(enemy);
+            
+            // 妖皇和魔神出现时的警示
+            if (type === 'emperor' || type === 'god') {
+                showBossWarning(config.name, config.color);
+            }
+        }
+        
+        function showBossWarning(bossName, bossColor) {
+            // 创建全屏警示效果
+            const warningDiv = document.createElement('div');
+            warningDiv.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, transparent 30%, ${bossColor}40 70%);
+                pointer-events: none;
+                z-index: 9999;
+                animation: bossWarning 3s ease-out forwards;
+            `;
+            
+            const warningText = document.createElement('div');
+            warningText.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 48px;
+                font-weight: bold;
+                color: ${bossColor};
+                text-shadow: 0 0 30px ${bossColor}, 0 0 60px ${bossColor};
+                z-index: 10000;
+                text-align: center;
+                animation: bossTextPulse 3s ease-out forwards;
+            `;
+            warningText.innerHTML = `⚠️ ${bossName}降临 ⚠️`;
+            
+            document.body.appendChild(warningDiv);
+            document.body.appendChild(warningText);
+            
+            setTimeout(() => {
+                warningDiv.remove();
+                warningText.remove();
+            }, 3000);
         }
 
         function getEnemyTypeByWave() {
