@@ -404,11 +404,11 @@
 
         // 进阶阶段配置
         const weaponStages = {
-            0: { name: '深绿', color: '#2E8B57', bonusPercent: 0 },
-            1: { name: '新绿', color: '#32CD32', bonusPercent: 5 },
-            2: { name: '精工', color: '#7B68EE', bonusPercent: 12 },
-            3: { name: '至尊', color: '#FFD700', bonusPercent: 20 },
-            4: { name: '神武', color: '#FF4500', bonusPercent: 35 }
+            0: { name: '深绿', color: '#2E8B57', bonusPercent: 0, atkRangeBonus: 0 },
+            1: { name: '新绿', color: '#32CD32', bonusPercent: 5, atkRangeBonus: 3 },
+            2: { name: '精工', color: '#7B68EE', bonusPercent: 12, atkRangeBonus: 6 },
+            3: { name: '至尊', color: '#FFD700', bonusPercent: 20, atkRangeBonus: 10 },
+            4: { name: '神武', color: '#FF4500', bonusPercent: 35, atkRangeBonus: 15 }
         };
 
         // 进阶条件
@@ -437,6 +437,7 @@
             critChance: { name: '暴击几率', category: '输出', values: [1.5, 3, 5, 8], unit: '%' },
             critDmg: { name: '暴击伤害', category: '输出', values: [8, 15, 25, 40], unit: '%' },
             atkSpeed: { name: '攻击速度', category: '输出', values: [2, 4, 7, 11], unit: '%' },
+            atkRange: { name: '攻击范围', category: '输出', values: [3, 6, 10, 15], unit: '%' },
             fireDmg: { name: '附加火伤', category: '输出', values: [12, 25, 42, 68], unit: '' },
             iceDmg: { name: '附加冰伤', category: '输出', values: [10, 22, 38, 62], unit: '' },
             poisonDmg: { name: '附加毒伤', category: '输出', values: [9, 20, 35, 58], unit: '' },
@@ -451,6 +452,9 @@
             weaponExpBonus: { name: '武具经验加成', category: '养成', values: [3, 6, 9, 13], unit: '%' },
             duraReduce: { name: '耐久消耗降低', category: '养成', values: [5, 10, 18, 28], unit: '%' }
         };
+
+        // 攻击范围全局上限
+        const ATK_RANGE_MAX = 0.25; // 25%
 
         // 词条品质权重
         const inscriptionQualityWeights = [0.50, 0.30, 0.15, 0.05]; // 普通/优秀/精良/极品
@@ -498,6 +502,37 @@
             player.attackDamage = Math.floor(player.computedStats.physicalAtk);
             player.maxHp = Math.floor(player.computedStats.maxHp);
             player.moveSpeed = player.computedStats.moveSpeed;
+            
+            // 计算攻击范围（词条+进阶）
+            updatePlayerAttackRange();
+        }
+        
+        // 计算攻击范围
+        function updatePlayerAttackRange() {
+            let baseRange = 90; // 基础攻击范围
+            let rangeBonus = 0;
+            
+            // 词条加成
+            if (player.equippedWeapon) {
+                const weapon = player.equippedWeapon;
+                weapon.inscriptions.forEach(ins => {
+                    if (ins.type === 'atkRange') {
+                        rangeBonus += ins.value / 100;
+                    }
+                });
+                
+                // 进阶加成
+                const stageBonus = weaponStages[weapon.stage].atkRangeBonus / 100;
+                rangeBonus += stageBonus;
+            }
+            
+            // 限制上限25%
+            if (rangeBonus > ATK_RANGE_MAX) {
+                rangeBonus = ATK_RANGE_MAX;
+            }
+            
+            player.attackRange = baseRange * (1 + rangeBonus);
+            player.computedStats.atkRangeBonus = rangeBonus;
         }
 
         // 角色升级
@@ -751,6 +786,7 @@
             let success = Math.random() < req.successRate;
             if (success) {
                 weapon.stage = nextStage;
+                updatePlayerAttackRange(); // 更新攻击范围
                 showWeaponStageUp(weapon.name, weaponStages[nextStage].name, weaponStages[nextStage].color);
             } else {
                 showWeaponStageFail(weapon.name);
@@ -1878,6 +1914,7 @@
                 player.equippedWeapon = item;
                 bag.items.splice(index, 1);
                 createFloatingText(player.x, player.y - 40, `装备${item.name}`, '#90EE90');
+                updatePlayerAttackRange(); // 更新攻击范围
                 updateBagDisplay();
                 updateEquipSlots();
                 updateEquipPanel();
