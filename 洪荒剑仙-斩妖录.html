@@ -904,6 +904,56 @@
             return true;
         }
 
+        // 绿武重生（全部重置为全新绿武）
+        function rebirthWeapon(weapon) {
+            if (!weapon || weapon.type !== 'greenWeapon') return false;
+            
+            const template = greenWeapons[weapon.weaponId];
+            if (!template) return false;
+            
+            // 保存武器模板ID
+            const weaponId = weapon.weaponId;
+            
+            // 全部重置
+            weapon.level = template.reqLevel;
+            weapon.exp = 0;
+            weapon.totalBurstAtk = 0;
+            weapon.durability = 24;
+            weapon.maxDurability = 24;
+            weapon.bound = false;
+            weapon.stage = 0;
+            weapon.inscriptions = [];
+            weapon.totalScore = 0;
+            weapon.scoreRating = { name: '普通', color: '#FFFFFF', title: '凡铁' };
+            weapon.attackCount = 0;
+            
+            showWeaponRebirth(template.name);
+            updateWeaponScore(weapon);
+            updatePlayerAttackRange();
+            
+            return true;
+        }
+
+        function showWeaponRebirth(weaponName) {
+            const rebirthDiv = document.createElement('div');
+            rebirthDiv.style.cssText = `
+                position: fixed;
+                top: 35%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 36px;
+                font-weight: bold;
+                color: #00FFAA;
+                text-shadow: 0 0 20px #00FFAA, 0 0 40px #00FFAA, 0 0 60px #008855;
+                z-index: 10001;
+                text-align: center;
+                animation: levelUpPulse 2.5s ease-out forwards;
+            `;
+            rebirthDiv.innerHTML = `🔄 绿武重生 🔄<br><span style="font-size:24px;">${weaponName} 获得新生</span>`;
+            document.body.appendChild(rebirthDiv);
+            setTimeout(() => rebirthDiv.remove(), 2500);
+        }
+
         // 消耗耐久
         function consumeWeaponDurability(weapon) {
             if (!weapon) return;
@@ -1946,6 +1996,9 @@
             html += `<div style="margin-top:10px;display:flex;gap:8px;">`;
             if (isDeepGreen && !weapon.bound) {
                 html += `<button onclick="bindWeapon(player.equippedWeapon);updateEquipPanel();" style="background:#8b4513;color:#FFD700;border:1px solid #d4af37;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">认主绑定</button>`;
+            }
+            if (isDeepGreen) {
+                html += `<button onclick="if(confirm('确认重生？等级、词条、爆攻、进阶将全部重置！')){rebirthWeapon(player.equippedWeapon);updateEquipPanel();}" style="background:#8B0000;color:#00FFAA;border:1px solid #00FFAA;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">🔄重生</button>`;
             }
             if (isDeepGreen && stageRequirements[weapon.stage + 1] && weapon.level >= stageRequirements[weapon.stage + 1].reqLevel) {
                 html += `<button onclick="attemptWeaponStageUp(player.equippedWeapon);updateEquipPanel();" style="background:#4a7c59;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">尝试进阶</button>`;
