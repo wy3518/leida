@@ -769,15 +769,28 @@
         // 消耗耐久
         function consumeWeaponDurability(weapon) {
             if (!weapon) return;
+            // 每攻击100000次掉1点耐久
+            if (!weapon.attackCount) weapon.attackCount = 0;
+            weapon.attackCount++;
+            
             // 耐久消耗降低词条
             let duraReduce = 0;
             weapon.inscriptions.forEach(ins => {
                 if (ins.type === 'duraReduce') duraReduce += ins.value;
             });
-            if (Math.random() * 100 < duraReduce) return; // 概率免消耗
-
-            weapon.durability--;
-            if (weapon.durability < 0) weapon.durability = 0;
+            
+            // 计算实际需要的攻击次数（考虑词条减免）
+            let attacksPerDura = 100000;
+            if (duraReduce > 0) {
+                attacksPerDura = Math.floor(100000 * (1 + duraReduce / 100));
+            }
+            
+            // 达到次数才扣耐久
+            if (weapon.attackCount >= attacksPerDura) {
+                weapon.attackCount = 0;
+                weapon.durability--;
+                if (weapon.durability < 0) weapon.durability = 0;
+            }
         }
 
         // 修复武器耐久
