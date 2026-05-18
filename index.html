@@ -207,9 +207,9 @@
         </div>
         
         <!-- 装备栏界面 -->
-        <div id="equipPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);">
-            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">🌿 装备栏 🌿</div>
-            <div style="display:flex;gap:30px;">
+        <div id="equipPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:520px;">
+            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">装备栏</div>
+            <div style="display:flex;gap:20px;">
                 <!-- 左侧：人物和装备 -->
                 <div style="position:relative;width:200px;height:280px;background:rgba(139,69,19,0.2);border-radius:10px;border:2px solid #8b4513;">
                     <!-- 头盔 -->
@@ -218,8 +218,8 @@
                     <div class="equip-slot" data-slot="leftHand" style="position:absolute;top:80px;left:10px;width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="法宝">📿</div>
                     <!-- 人物 -->
                     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px;">👤</div>
-                    <!-- 右手绿武 -->
-                    <div class="equip-slot" data-slot="weapon" id="weaponSlot" style="position:absolute;top:80px;right:10px;width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #90EE90;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 10px #90EE90;" title="绿武">🗡️</div>
+                    <!-- 右手武器 -->
+                    <div class="equip-slot" data-slot="weapon" id="weaponSlot" style="position:absolute;top:80px;right:10px;width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #90EE90;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 10px #90EE90;" title="武器">🗡️</div>
                     <!-- 衣服 -->
                     <div class="equip-slot" data-slot="armor" style="position:absolute;top:150px;left:50%;transform:translateX(-50%);width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="衣服">👘</div>
                     <!-- 鞋子 -->
@@ -229,29 +229,19 @@
                     <!-- 戒指 -->
                     <div class="equip-slot" data-slot="ring" style="position:absolute;top:150px;right:10px;width:40px;height:40px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;" title="戒指">💍</div>
                 </div>
-                <!-- 右侧：绿武信息 -->
-                <div style="width:200px;color:#d4af37;">
-                    <div style="font-size:16px;color:#90EE90;margin-bottom:10px;">🌿 绿芽剑</div>
-                    <div style="font-size:14px;margin-bottom:5px;">阶段: <span id="gwStage" style="color:#90EE90;">嫩芽</span></div>
-                    <div style="font-size:14px;margin-bottom:5px;">成长: <span id="gwGrowth">0</span>/<span id="gwMaxGrowth">100</span></div>
-                    <div style="width:100%;height:10px;background:#333;border-radius:5px;margin:10px 0;overflow:hidden;">
-                        <div id="gwBar" style="width:0%;height:100%;background:linear-gradient(90deg,#90EE90,#4CAF50);transition:width 0.3s;"></div>
-                    </div>
-                    <div style="font-size:12px;color:#888;margin-top:10px;">
-                        <div>攻击加成: <span id="gwAtk">+0%</span></div>
-                        <div>暴击加成: <span id="gwCrit">+0%</span></div>
-                        <div style="margin-top:5px;color:#666;">技能: <span id="gwSkill">无</span></div>
-                    </div>
+                <!-- 右侧：武器详细信息 -->
+                <div id="weaponInfoPanel" style="width:280px;color:#d4af37;font-size:12px;max-height:280px;overflow-y:auto;">
+                    <div id="weaponInfoContent" style="color:#888;">未装备武器</div>
                 </div>
             </div>
             <button id="closeEquip" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
         </div>
         
         <!-- 背包界面 -->
-        <div id="bagPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:340px;">
-            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">🎒 背包</div>
+        <div id="bagPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:400px;">
+            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">背包</div>
             <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:15px;">
-                <!-- 20个背包格子 -->
+                <!-- 背包格子由JS生成 -->
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span id="bagCount" style="color:#888;font-size:12px;">0/20</span>
@@ -292,19 +282,9 @@
             isMoving: false,
             color: '#ffd700',
             swordAngle: 0,
-            // 绿武系统
-            greenWeapon: {
-                name: '绿芽剑',
-                stage: 1, // 1-5阶段
-                stageName: '嫩芽',
-                color: '#90EE90',
-                growth: 0,
-                maxGrowth: 100,
-                bonusAttack: 0,
-                bonusCrit: 0,
-                skill: null
-            },
-            // 已装备
+            // 当前装备的绿武实例（null表示未装备）
+            equippedWeapon: null,
+            // 已装备防具
             equipped: {
                 helmet: null,
                 armor: null,
@@ -314,6 +294,425 @@
                 leftHand: null
             }
         };
+
+        // ========== 绿武系统数据 ==========
+
+        // 深绿武器模板
+        const greenWeapons = {
+            ruyidao: { name: '如意刀', class: '剑客', minAtk: 38, maxAtk: 48, element: null, growth: 1.08, totalGrowth: 97.2, reqLevel: 9, maxLevel: 99 },
+            qiankun: { name: '乾坤剑', class: '剑客', minAtk: 32, maxAtk: 42, element: '火攻', growth: 0.72, totalGrowth: 64.8, reqLevel: 9, maxLevel: 99 },
+            emeici: { name: '峨眉刺', class: '游侠', minAtk: 30, maxAtk: 40, element: null, growth: 0.95, totalGrowth: 85.5, reqLevel: 9, maxLevel: 99 },
+            yuanyang: { name: '鸳鸯双环', class: '游侠', minAtk: 29, maxAtk: 39, element: '毒攻', growth: 0.92, totalGrowth: 82.8, reqLevel: 9, maxLevel: 99 },
+            zhenhun: { name: '镇魂锤', class: '力士', minAtk: 45, maxAtk: 55, element: null, growth: 1.57, totalGrowth: 141.3, reqLevel: 9, maxLevel: 99 },
+            lieshan: { name: '裂山斧', class: '力士', minAtk: 43, maxAtk: 53, element: '冰攻', growth: 1.52, totalGrowth: 136.8, reqLevel: 9, maxLevel: 99 },
+            hanying: { name: '寒影长枪', class: '武尊', minAtk: 35, maxAtk: 45, element: null, growth: 1.02, totalGrowth: 91.8, reqLevel: 9, maxLevel: 99 },
+            zhenyue: { name: '镇岳战旗', class: '武尊', minAtk: 33, maxAtk: 43, element: '火攻', growth: 0.88, totalGrowth: 79.2, reqLevel: 9, maxLevel: 99 },
+            biyu: { name: '碧玉短杖', class: '散仙', minAtk: 18, maxAtk: 26, element: '冰攻', growth: 0.55, totalGrowth: 49.5, reqLevel: 9, maxLevel: 99 },
+            tianpu: { name: '天瀑长杖', class: '散仙', minAtk: 16, maxAtk: 24, element: '火攻', growth: 0.50, totalGrowth: 45.0, reqLevel: 9, maxLevel: 99 }
+        };
+
+        // 浅绿武器模板
+        const lightGreenWeapons = {
+            lgsword: { name: '青锋剑', class: '通用', minAtk: 15, maxAtk: 20, growth: 0.4, reqLevel: 20, maxLevel: 45 },
+            lgsaber: { name: '碧水刀', class: '通用', minAtk: 15, maxAtk: 20, growth: 0.4, reqLevel: 20, maxLevel: 45 }
+        };
+
+        // 进阶阶段配置
+        const weaponStages = {
+            0: { name: '深绿', color: '#2E8B57', bonusPercent: 0 },
+            1: { name: '新绿', color: '#32CD32', bonusPercent: 5 },
+            2: { name: '精工', color: '#7B68EE', bonusPercent: 12 },
+            3: { name: '至尊', color: '#FFD700', bonusPercent: 20 },
+            4: { name: '神武', color: '#FF4500', bonusPercent: 35 }
+        };
+
+        // 进阶条件
+        const stageRequirements = {
+            1: { reqLevel: 30, successRate: 0.85 },
+            2: { reqLevel: 50, successRate: 0.45 },
+            3: { reqLevel: 70, successRate: 0.20 },
+            4: { reqLevel: 90, successRate: 0.10 }
+        };
+
+        // 词条品质配置
+        const inscriptionQualities = {
+            common: { name: '普通', color: '#FFFFFF' },
+            fine: { name: '优秀', color: '#4169E1' },
+            excellent: { name: '精良', color: '#9370DB' },
+            perfect: { name: '极品', color: '#FFD700' }
+        };
+
+        // 词条类型定义
+        const inscriptionTypes = {
+            // 输出类
+            pierceDef: { name: '锋利破防', category: '输出', values: [8, 16, 28, 45], unit: '' },
+            largeDmg: { name: '大体型增伤', category: '输出', values: [3, 6, 10, 15], unit: '%' },
+            mediumDmg: { name: '中体型增伤', category: '输出', values: [3, 6, 10, 15], unit: '%' },
+            smallDmg: { name: '小体型增伤', category: '输出', values: [3, 6, 10, 15], unit: '%' },
+            critChance: { name: '暴击几率', category: '输出', values: [1.5, 3, 5, 8], unit: '%' },
+            critDmg: { name: '暴击伤害', category: '输出', values: [8, 15, 25, 40], unit: '%' },
+            atkSpeed: { name: '攻击速度', category: '输出', values: [2, 4, 7, 11], unit: '%' },
+            fireDmg: { name: '附加火伤', category: '输出', values: [12, 25, 42, 68], unit: '' },
+            iceDmg: { name: '附加冰伤', category: '输出', values: [10, 22, 38, 62], unit: '' },
+            poisonDmg: { name: '附加毒伤', category: '输出', values: [9, 20, 35, 58], unit: '' },
+            // 续航类
+            hpSteal: { name: '生命汲取', category: '续航', values: [1.2, 2.5, 4.5, 8], unit: '%' },
+            mpSteal: { name: '精气汲取', category: '续航', values: [1.5, 3, 5, 7.5], unit: '%' },
+            staSteal: { name: '体力汲取', category: '续航', values: [2, 4, 6.5, 9], unit: '%' },
+            dmgReduce: { name: '伤害减免', category: '续航', values: [2, 4, 7, 10], unit: '%' },
+            hpBonus: { name: '生命上限', category: '续航', values: [60, 120, 210, 350], unit: '' },
+            // 养成类
+            expBonus: { name: '人物经验加成', category: '养成', values: [2, 4, 7, 10], unit: '%' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', values: [3, 6, 9, 13], unit: '%' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', values: [5, 10, 18, 28], unit: '%' }
+        };
+
+        // 词条品质权重
+        const inscriptionQualityWeights = [0.50, 0.30, 0.15, 0.05]; // 普通/优秀/精良/极品
+
+        // 连击计数器
+        let comboCount = 0;
+        let comboTimer = 0;
+
+        // ========== 绿武系统函数 ==========
+
+        // 创建深绿武器实例
+        function createGreenWeaponInstance(weaponId) {
+            const template = greenWeapons[weaponId];
+            if (!template) return null;
+            return {
+                weaponId: weaponId,
+                name: template.name,
+                level: template.reqLevel,
+                exp: 0,
+                expToNext: getWeaponExpNeeded(template.reqLevel),
+                totalBurstAtk: 0,
+                durability: 24,
+                maxDurability: 24,
+                bound: false,
+                stage: 0,
+                inscriptions: [],
+                inscriptionsUnlocked: 0,
+                type: 'greenWeapon',
+                quality: 'green'
+            };
+        }
+
+        // 创建浅绿武器实例
+        function createLightGreenWeaponInstance(weaponId) {
+            const template = lightGreenWeapons[weaponId];
+            if (!template) return null;
+            return {
+                weaponId: weaponId,
+                name: template.name,
+                level: template.reqLevel,
+                exp: 0,
+                expToNext: getWeaponExpNeeded(template.reqLevel),
+                totalBurstAtk: 0,
+                durability: 20,
+                maxDurability: 20,
+                bound: false,
+                stage: 0,
+                inscriptions: [],
+                inscriptionsUnlocked: 0,
+                type: 'lightGreenWeapon',
+                quality: 'lightGreen'
+            };
+        }
+
+        // 获取武器升级所需经验
+        function getWeaponExpNeeded(level) {
+            if (level < 30) return 80 + level * 5;       // 9-30级：低经验
+            if (level < 60) return 200 + (level - 30) * 12; // 31-60级：中经验
+            if (level < 90) return 560 + (level - 60) * 20; // 61-90级：高经验
+            return 1160 + (level - 90) * 35;              // 91-99级：超高经验
+        }
+
+        // 计算武器当前攻击力
+        function calcWeaponAtk(weapon) {
+            if (!weapon) return { minAtk: 0, maxAtk: 0, finalMinAtk: 0, finalMaxAtk: 0 };
+            let isDeepGreen = weapon.type === 'greenWeapon';
+            let template = isDeepGreen ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
+            if (!template) return { minAtk: 0, maxAtk: 0, finalMinAtk: 0, finalMaxAtk: 0 };
+
+            let levelDiff = weapon.level - template.reqLevel;
+            let currentMinAtk = template.minAtk + levelDiff * template.growth;
+            let currentMaxAtk = template.maxAtk + levelDiff * template.growth;
+
+            // 进阶加成（仅深绿）
+            let stageBonus = 0;
+            if (isDeepGreen && weapon.stage > 0) {
+                stageBonus = weaponStages[weapon.stage].bonusPercent / 100;
+            }
+
+            // 绑定固定伤害加成
+            let boundBonus = weapon.bound ? 15 : 0;
+
+            let finalMinAtk = currentMinAtk * (1 + stageBonus) + boundBonus;
+            let finalMaxAtk = currentMaxAtk * (1 + stageBonus) + boundBonus;
+
+            // 爆攻加成
+            finalMinAtk += weapon.totalBurstAtk;
+            finalMaxAtk += weapon.totalBurstAtk;
+
+            return {
+                minAtk: Math.floor(currentMinAtk),
+                maxAtk: Math.floor(currentMaxAtk),
+                finalMinAtk: Math.floor(finalMinAtk),
+                finalMaxAtk: Math.floor(finalMaxAtk)
+            };
+        }
+
+        // 获取武器最大耐久
+        function getWeaponMaxDurability(level) {
+            return Math.min(24 + Math.floor((level - 9) * 0.3), 48);
+        }
+
+        // 武器获取经验
+        function addWeaponExp(weapon, baseExp) {
+            if (!weapon) return;
+            let isDeepGreen = weapon.type === 'greenWeapon';
+            let template = isDeepGreen ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
+            if (!template) return;
+            if (weapon.level >= template.maxLevel) return;
+
+            // 连击加成
+            let comboMultiplier = 1.0;
+            if (comboCount >= 100) comboMultiplier = 1.3;
+            else if (comboCount >= 50) comboMultiplier = 1.15;
+
+            // 绑定经验加成
+            let expMultiplier = comboMultiplier * (weapon.bound ? 1.08 : 1.0);
+
+            // 武具经验加成词条
+            let weaponExpBonus = 0;
+            weapon.inscriptions.forEach(ins => {
+                if (ins.type === 'weaponExpBonus') weaponExpBonus += ins.value;
+            });
+            expMultiplier *= (1 + weaponExpBonus / 100);
+
+            let finalExp = Math.floor(baseExp * expMultiplier);
+            weapon.exp += finalExp;
+
+            // 检查升级
+            while (weapon.exp >= weapon.expToNext && weapon.level < template.maxLevel) {
+                weapon.exp -= weapon.expToNext;
+                weapon.level++;
+                weapon.expToNext = getWeaponExpNeeded(weapon.level);
+                weapon.maxDurability = getWeaponMaxDurability(weapon.level);
+
+                // 爆攻判定
+                if (isDeepGreen) {
+                    let burstChance = 0.20;
+                    if (comboCount >= 100) burstChance += 0.05;
+                    else if (comboCount >= 50) burstChance += 0.03;
+
+                    let rand = Math.random();
+                    if (rand < 0.01) {
+                        weapon.totalBurstAtk += 3;
+                        showWeaponBurstAtk(3);
+                    } else if (rand < 0.05) {
+                        weapon.totalBurstAtk += 2;
+                        showWeaponBurstAtk(2);
+                    } else if (rand < 0.25) {
+                        weapon.totalBurstAtk += 1;
+                        showWeaponBurstAtk(1);
+                    }
+                    // 累计爆攻上限60
+                    weapon.totalBurstAtk = Math.min(weapon.totalBurstAtk, 60);
+                }
+
+                // 检查词条解锁（深绿10级起每10级解锁一条）
+                if (isDeepGreen && weapon.level >= 10 && weapon.level % 10 === 0 && weapon.inscriptionsUnlocked < 6) {
+                    weapon.inscriptionsUnlocked++;
+                    let newInscription = generateInscription();
+                    weapon.inscriptions.push(newInscription);
+                    showInscriptionUnlock(newInscription);
+                }
+
+                showWeaponLevelUp(weapon.name, weapon.level);
+            }
+
+            // 更新装备栏显示
+            if (equipPanel.style.display === 'block') updateEquipPanel();
+        }
+
+        // 生成随机词条
+        function generateInscription() {
+            let rand = Math.random();
+            let qualityIndex = 0;
+            let cumulative = 0;
+            for (let i = 0; i < inscriptionQualityWeights.length; i++) {
+                cumulative += inscriptionQualityWeights[i];
+                if (rand < cumulative) { qualityIndex = i; break; }
+            }
+            const qualityKeys = ['common', 'fine', 'excellent', 'perfect'];
+            const quality = qualityKeys[qualityIndex];
+
+            const typeKeys = Object.keys(inscriptionTypes);
+            const typeKey = typeKeys[Math.floor(Math.random() * typeKeys.length)];
+            const typeDef = inscriptionTypes[typeKey];
+            const value = typeDef.values[qualityIndex];
+
+            return {
+                type: typeKey,
+                quality: quality,
+                value: value
+            };
+        }
+
+        // 武器进阶
+        function attemptWeaponStageUp(weapon) {
+            if (!weapon || weapon.type !== 'greenWeapon') return false;
+            if (weapon.stage >= 4) return false;
+            let nextStage = weapon.stage + 1;
+            let req = stageRequirements[nextStage];
+            if (!req) return false;
+            if (weapon.level < req.reqLevel) return false;
+
+            let success = Math.random() < req.successRate;
+            if (success) {
+                weapon.stage = nextStage;
+                showWeaponStageUp(weapon.name, weaponStages[nextStage].name, weaponStages[nextStage].color);
+            } else {
+                showWeaponStageFail(weapon.name);
+            }
+            return success;
+        }
+
+        // 武器认主绑定
+        function bindWeapon(weapon) {
+            if (!weapon || weapon.bound) return false;
+            weapon.bound = true;
+            showWeaponBind(weapon.name);
+            return true;
+        }
+
+        // 消耗耐久
+        function consumeWeaponDurability(weapon) {
+            if (!weapon) return;
+            // 耐久消耗降低词条
+            let duraReduce = 0;
+            weapon.inscriptions.forEach(ins => {
+                if (ins.type === 'duraReduce') duraReduce += ins.value;
+            });
+            if (Math.random() * 100 < duraReduce) return; // 概率免消耗
+
+            weapon.durability--;
+            if (weapon.durability < 0) weapon.durability = 0;
+        }
+
+        // 修复武器耐久
+        function repairWeapon(weapon) {
+            if (!weapon) return;
+            weapon.durability = weapon.maxDurability;
+        }
+
+        // 获取武器经验（击杀怪物时调用）
+        function onEnemyKilled(enemy) {
+            // 连击
+            comboCount++;
+            comboTimer = 120; // 2秒内没有击杀则连击重置
+
+            // 给当前装备武器加经验
+            if (player.equippedWeapon) {
+                let baseExp = enemy.tier * 3 + 2;
+                addWeaponExp(player.equippedWeapon, baseExp);
+            }
+
+            // 消耗耐久
+            if (player.equippedWeapon) {
+                consumeWeaponDurability(player.equippedWeapon);
+            }
+        }
+
+        // ========== 特效提示 ==========
+
+        function showWeaponLevelUp(name, level) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);
+                font-size:28px;font-weight:bold;color:#90EE90;
+                text-shadow:0 0 15px #90EE90,0 0 30px #90EE90;
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 2s ease-out forwards;
+            `;
+            div.innerHTML = `${name} 升至 ${level}级`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
+
+        function showWeaponBurstAtk(amount) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);
+                font-size:24px;font-weight:bold;color:#FF4500;
+                text-shadow:0 0 15px #FF4500,0 0 30px #FF4500;
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 1.5s ease-out forwards;
+            `;
+            div.innerHTML = `爆攻 +${amount}!`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 1500);
+        }
+
+        function showInscriptionUnlock(inscription) {
+            const typeDef = inscriptionTypes[inscription.type];
+            const qualityDef = inscriptionQualities[inscription.quality];
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);
+                font-size:22px;font-weight:bold;color:${qualityDef.color};
+                text-shadow:0 0 15px ${qualityDef.color};
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 2s ease-out forwards;
+            `;
+            div.innerHTML = `解锁词条: [${qualityDef.name}]${typeDef.name} +${inscription.value}${typeDef.unit}`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
+
+        function showWeaponStageUp(name, stageName, color) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);
+                font-size:32px;font-weight:bold;color:${color};
+                text-shadow:0 0 20px ${color},0 0 40px ${color};
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 2.5s ease-out forwards;
+            `;
+            div.innerHTML = `${name} 进阶成功! [${stageName}]`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2500);
+        }
+
+        function showWeaponStageFail(name) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:35%;left:50%;transform:translate(-50%,-50%);
+                font-size:24px;font-weight:bold;color:#dc143c;
+                text-shadow:0 0 15px #dc143c;
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 1.5s ease-out forwards;
+            `;
+            div.innerHTML = `${name} 进阶失败!`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 1500);
+        }
+
+        function showWeaponBind(name) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);
+                font-size:24px;font-weight:bold;color:#FFD700;
+                text-shadow:0 0 15px #FFD700;
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 2s ease-out forwards;
+            `;
+            div.innerHTML = `${name} 已认主绑定!`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
 
         // 背包系统
         const bag = {
@@ -339,15 +738,6 @@
             necklace: { name: '项链', icon: '📿', stat: 'all' },
             ring: { name: '戒指', icon: '💍', stat: 'attack' },
             leftHand: { name: '法宝', icon: '🔮', stat: 'special' }
-        };
-
-        // 绿武阶段配置
-        const greenWeaponStages = {
-            1: { name: '嫩芽', color: '#90EE90', maxGrowth: 100, attackBonus: 0, critBonus: 0, skill: null },
-            2: { name: '幼苗', color: '#4CAF50', maxGrowth: 300, attackBonus: 0.2, critBonus: 0.05, skill: 'lifeSteal' },
-            3: { name: '青藤', color: '#2E7D32', maxGrowth: 600, attackBonus: 0.4, critBonus: 0.10, skill: 'slow' },
-            4: { name: '翠竹', color: '#1B5E20', maxGrowth: 1000, attackBonus: 0.6, critBonus: 0.15, skill: 'defense' },
-            5: { name: '古木', color: '#0D3B0D', maxGrowth: 999999, attackBonus: 1.0, critBonus: 0.25, skill: 'ultimate' }
         };
 
         let enemies = [];
@@ -772,61 +1162,17 @@
             });
         }
 
-        // 绿武成长系统
+        // 绿武击杀处理（由updateProjectiles中调用）
         function addGreenWeaponGrowth(enemyTier) {
-            const gw = player.greenWeapon;
-            if (gw.stage >= 5) return; // 已满级
-            
-            // 根据怪物等级给予成长值
-            const growthValue = enemyTier;
-            gw.growth += growthValue;
-            
-            // 检查是否突破
-            if (gw.growth >= gw.maxGrowth) {
-                levelUpGreenWeapon();
-            }
+            // 已由 onEnemyKilled 替代
         }
 
         function levelUpGreenWeapon() {
-            const gw = player.greenWeapon;
-            if (gw.stage >= 5) return;
-            
-            gw.stage++;
-            const stageConfig = greenWeaponStages[gw.stage];
-            gw.stageName = stageConfig.name;
-            gw.color = stageConfig.color;
-            gw.maxGrowth = stageConfig.maxGrowth;
-            gw.bonusAttack = stageConfig.attackBonus;
-            gw.bonusCrit = stageConfig.critBonus;
-            gw.skill = stageConfig.skill;
-            gw.growth = 0;
-            
-            // 显示突破提示
-            showGreenWeaponLevelUp(gw.stageName, gw.color);
+            // 已由 addWeaponExp 替代
         }
 
         function showGreenWeaponLevelUp(stageName, color) {
-            const levelUpDiv = document.createElement('div');
-            levelUpDiv.style.cssText = `
-                position: fixed;
-                top: 30%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 36px;
-                font-weight: bold;
-                color: ${color};
-                text-shadow: 0 0 20px ${color}, 0 0 40px ${color};
-                z-index: 10001;
-                text-align: center;
-                animation: levelUpPulse 2s ease-out forwards;
-            `;
-            levelUpDiv.innerHTML = `🌿 绿武突破 🌿<br><span style="font-size: 28px;">${stageName}</span>`;
-            
-            document.body.appendChild(levelUpDiv);
-            
-            setTimeout(() => {
-                levelUpDiv.remove();
-            }, 2000);
+            // 已由 showWeaponLevelUp 替代
         }
 
         function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
@@ -997,8 +1343,8 @@
                                 score += enemy.score;
                                 kills++;
                                 enemies.splice(i, 1);
-                                // 增加绿武成长值
-                                addGreenWeaponGrowth(enemy.tier);
+                                // 绿武系统：击杀处理（经验、耐久消耗）
+                                onEnemyKilled(enemy);
                                 // 掉落装备
                                 if (Math.random() < 0.3) {
                                     const drop = generateRandomEquip();
@@ -1132,28 +1478,122 @@
 
         // 更新装备栏显示
         function updateEquipPanel() {
-            const gw = player.greenWeapon;
-            document.getElementById('gwStage').textContent = gw.stageName;
-            document.getElementById('gwStage').style.color = gw.color;
-            document.getElementById('gwGrowth').textContent = gw.growth;
-            document.getElementById('gwMaxGrowth').textContent = gw.maxGrowth;
-            document.getElementById('gwBar').style.width = (gw.growth / gw.maxGrowth * 100) + '%';
-            document.getElementById('gwAtk').textContent = '+' + Math.floor(gw.bonusAttack * 100) + '%';
-            document.getElementById('gwCrit').textContent = '+' + Math.floor(gw.bonusCrit * 100) + '%';
-            
-            const skillNames = {
-                null: '无',
-                'lifeSteal': '回春剑气(吸血5%)',
-                'slow': '缠绕斩(减速20%)',
-                'defense': '坚韧之刃(防御+30%)',
-                'ultimate': '万木归宗(范围+50%,伤害+50%)'
-            };
-            document.getElementById('gwSkill').textContent = skillNames[gw.skill] || '无';
-            
-            // 更新武器槽边框颜色
+            const weapon = player.equippedWeapon;
+            const content = document.getElementById('weaponInfoContent');
             const weaponSlot = document.getElementById('weaponSlot');
-            weaponSlot.style.borderColor = gw.color;
-            weaponSlot.style.boxShadow = '0 0 10px ' + gw.color;
+
+            if (!weapon) {
+                content.innerHTML = '<div style="color:#888;">未装备武器</div>';
+                weaponSlot.style.borderColor = '#666';
+                weaponSlot.style.boxShadow = 'none';
+                weaponSlot.innerHTML = '🗡️';
+                return;
+            }
+
+            // 更新武器槽外观
+            let stageColor = '#2E8B57';
+            if (weapon.type === 'greenWeapon' && weapon.stage > 0) {
+                stageColor = weaponStages[weapon.stage].color;
+            } else if (weapon.type === 'lightGreenWeapon') {
+                stageColor = '#90EE90';
+            }
+            weaponSlot.style.borderColor = stageColor;
+            weaponSlot.style.boxShadow = '0 0 10px ' + stageColor;
+            weaponSlot.innerHTML = '🗡️';
+
+            // 计算攻击力
+            let atkInfo = calcWeaponAtk(weapon);
+            let isDeepGreen = weapon.type === 'greenWeapon';
+            let template = isDeepGreen ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
+
+            let html = '';
+            // 武器名称
+            html += `<div style="font-size:16px;color:${stageColor};margin-bottom:8px;font-weight:bold;">${weapon.name}</div>`;
+
+            // 等级和经验
+            html += `<div style="margin-bottom:5px;">等级: <span style="color:#fff;">${weapon.level}</span>/${template ? template.maxLevel : '?'}</div>`;
+            let expPercent = weapon.expToNext > 0 ? (weapon.exp / weapon.expToNext * 100) : 0;
+            html += `<div style="margin-bottom:5px;">经验: ${weapon.exp}/${weapon.expToNext}</div>`;
+            html += `<div style="width:100%;height:8px;background:#333;border-radius:4px;margin:5px 0 10px 0;overflow:hidden;">
+                <div style="width:${expPercent}%;height:100%;background:linear-gradient(90deg,#90EE90,#4CAF50);transition:width 0.3s;"></div>
+            </div>`;
+
+            // 攻击力
+            html += `<div style="margin-bottom:3px;">基础攻击: <span style="color:#FF6347;">${atkInfo.minAtk}~${atkInfo.maxAtk}</span></div>`;
+            html += `<div style="margin-bottom:3px;">最终攻击: <span style="color:#FF4500;font-weight:bold;">${atkInfo.finalMinAtk}~${atkInfo.finalMaxAtk}</span></div>`;
+
+            // 爆攻（仅深绿）
+            if (isDeepGreen) {
+                html += `<div style="margin-bottom:3px;">爆攻: <span style="color:#FF8C00;">+${weapon.totalBurstAtk}</span>/60</div>`;
+            }
+
+            // 耐久
+            let duraColor = weapon.durability > weapon.maxDurability * 0.3 ? '#22c55e' : '#dc2626';
+            html += `<div style="margin-bottom:3px;">耐久: <span style="color:${duraColor};">${weapon.durability}</span>/${weapon.maxDurability}</div>`;
+
+            // 进阶（仅深绿）
+            if (isDeepGreen) {
+                let stageName = weaponStages[weapon.stage].name;
+                let nextReq = stageRequirements[weapon.stage + 1];
+                html += `<div style="margin-bottom:3px;">进阶: <span style="color:${stageColor};">${stageName}</span>`;
+                if (nextReq && weapon.level < nextReq.reqLevel) {
+                    html += ` <span style="color:#888;font-size:11px;">(需${nextReq.reqLevel}级)</span>`;
+                } else if (nextReq) {
+                    html += ` <span style="color:#FFD700;font-size:11px;">(可进阶 ${Math.floor(nextReq.successRate*100)}%)</span>`;
+                }
+                html += `</div>`;
+            }
+
+            // 绑定状态
+            html += `<div style="margin-bottom:3px;">绑定: <span style="color:${weapon.bound ? '#FFD700' : '#888'};">${weapon.bound ? '已认主' : '未绑定'}</span></div>`;
+
+            // 元素属性
+            if (template && template.element) {
+                let elemColor = template.element === '火攻' ? '#FF4500' : (template.element === '冰攻' ? '#00BFFF' : '#32CD32');
+                html += `<div style="margin-bottom:3px;">元素: <span style="color:${elemColor};">${template.element}</span></div>`;
+            }
+
+            // 词条（仅深绿）
+            if (isDeepGreen && weapon.inscriptionsUnlocked > 0) {
+                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#d4af37;">词条 (${weapon.inscriptionsUnlocked}/6):</div>`;
+                weapon.inscriptions.forEach((ins, idx) => {
+                    let typeDef = inscriptionTypes[ins.type];
+                    let qualityDef = inscriptionQualities[ins.quality];
+                    html += `<div style="color:${qualityDef.color};font-size:11px;margin-left:8px;">[${qualityDef.name}] ${typeDef.name} +${ins.value}${typeDef.unit}</div>`;
+                });
+                // 未解锁的词条槽
+                for (let i = weapon.inscriptionsUnlocked; i < 6; i++) {
+                    let unlockLevel = 10 + i * 10;
+                    html += `<div style="color:#555;font-size:11px;margin-left:8px;">[未解锁] ${unlockLevel}级解锁</div>`;
+                }
+            } else if (isDeepGreen) {
+                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;">词条: 10级开始解锁</div>`;
+            }
+
+            // 操作按钮
+            html += `<div style="margin-top:10px;display:flex;gap:8px;">`;
+            if (isDeepGreen && !weapon.bound) {
+                html += `<button onclick="bindWeapon(player.equippedWeapon);updateEquipPanel();" style="background:#8b4513;color:#FFD700;border:1px solid #d4af37;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">认主绑定</button>`;
+            }
+            if (isDeepGreen && stageRequirements[weapon.stage + 1] && weapon.level >= stageRequirements[weapon.stage + 1].reqLevel) {
+                html += `<button onclick="attemptWeaponStageUp(player.equippedWeapon);updateEquipPanel();" style="background:#4a7c59;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">尝试进阶</button>`;
+            }
+            // 卸下武器
+            html += `<button onclick="unequipWeapon();" style="background:#555;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">卸下</button>`;
+            html += `</div>`;
+
+            content.innerHTML = html;
+        }
+
+        // 卸下武器
+        function unequipWeapon() {
+            if (!player.equippedWeapon) return;
+            if (addToBag(player.equippedWeapon)) {
+                player.equippedWeapon = null;
+                updateEquipPanel();
+                updateEquipSlots();
+                createFloatingText(player.x, player.y - 40, '卸下武器', '#888');
+            }
         }
 
         // 定期更新装备栏（如果打开状态）
@@ -1176,7 +1616,7 @@
             for (let i = 0; i < bag.maxSize; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'bag-slot';
-                slot.style.cssText = 'width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #555;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;position:relative;';
+                slot.style.cssText = 'width:55px;height:55px;background:rgba(0,0,0,0.5);border:2px solid #555;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;overflow:hidden;';
                 slot.dataset.index = i;
                 slot.addEventListener('click', () => useBagItem(i));
                 bagGrid.appendChild(slot);
@@ -1190,12 +1630,27 @@
             slots.forEach((slot, i) => {
                 const item = bag.items[i];
                 if (item) {
-                    const equipType = equipTypes[item.type];
-                    const quality = itemQualities[item.quality];
-                    slot.innerHTML = equipType.icon;
-                    slot.style.borderColor = quality.color;
-                    slot.style.boxShadow = '0 0 5px ' + quality.color;
-                    slot.title = `${quality.name}${equipType.name}`;
+                    // 判断是否是绿武/浅绿武
+                    if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                        let borderColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
+                        let glowColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
+                        if (item.type === 'greenWeapon' && item.stage > 0) {
+                            borderColor = weaponStages[item.stage].color;
+                            glowColor = weaponStages[item.stage].color;
+                        }
+                        slot.innerHTML = `<span style="font-size:18px;">🗡️</span><span style="font-size:8px;color:${borderColor};position:absolute;bottom:2px;">Lv.${item.level}</span>`;
+                        slot.style.borderColor = borderColor;
+                        slot.style.boxShadow = `0 0 8px ${glowColor}, inset 0 0 5px ${glowColor}40`;
+                        slot.title = `${item.name} Lv.${item.level}${item.bound ? ' [已绑定]' : ''}`;
+                    } else {
+                        // 普通装备
+                        const equipType = equipTypes[item.type];
+                        const quality = itemQualities[item.quality];
+                        slot.innerHTML = equipType.icon;
+                        slot.style.borderColor = quality.color;
+                        slot.style.boxShadow = '0 0 5px ' + quality.color;
+                        slot.title = `${quality.name}${equipType.name}`;
+                    }
                 } else {
                     slot.innerHTML = '';
                     slot.style.borderColor = '#555';
@@ -1211,10 +1666,24 @@
             const item = bag.items[index];
             if (!item) return;
 
-            // 装备物品
+            // 绿武/浅绿武：装备到武器栏
+            if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                // 卸下当前武器放回背包
+                if (player.equippedWeapon) {
+                    bag.items.push(player.equippedWeapon);
+                }
+                player.equippedWeapon = item;
+                bag.items.splice(index, 1);
+                createFloatingText(player.x, player.y - 40, `装备${item.name}`, '#90EE90');
+                updateBagDisplay();
+                updateEquipSlots();
+                updateEquipPanel();
+                return;
+            }
+
+            // 普通装备
             const currentEquip = player.equipped[item.type];
             if (currentEquip) {
-                // 卸下当前装备，放回背包
                 bag.items.push(currentEquip);
             }
             player.equipped[item.type] = item;
@@ -1230,19 +1699,32 @@
             const slots = document.querySelectorAll('.equip-slot');
             slots.forEach(slot => {
                 const type = slot.dataset.slot;
+                if (type === 'weapon') {
+                    // 武器槽
+                    const weapon = player.equippedWeapon;
+                    if (weapon) {
+                        let borderColor = '#2E8B57';
+                        if (weapon.type === 'greenWeapon' && weapon.stage > 0) {
+                            borderColor = weaponStages[weapon.stage].color;
+                        } else if (weapon.type === 'lightGreenWeapon') {
+                            borderColor = '#90EE90';
+                        }
+                        slot.style.borderColor = borderColor;
+                        slot.style.boxShadow = '0 0 10px ' + borderColor;
+                    } else {
+                        slot.style.borderColor = '#666';
+                        slot.style.boxShadow = 'none';
+                    }
+                    return;
+                }
                 const item = player.equipped[type];
                 if (item) {
                     const quality = itemQualities[item.quality];
                     slot.style.borderColor = quality.color;
                     slot.style.boxShadow = '0 0 8px ' + quality.color;
                 } else {
-                    if (type === 'weapon') {
-                        slot.style.borderColor = player.greenWeapon.color;
-                        slot.style.boxShadow = '0 0 10px ' + player.greenWeapon.color;
-                    } else {
-                        slot.style.borderColor = '#666';
-                        slot.style.boxShadow = 'none';
-                    }
+                    slot.style.borderColor = '#666';
+                    slot.style.boxShadow = 'none';
                 }
             });
         }
@@ -1250,11 +1732,21 @@
         // 自动整理背包
         function sortBagItems() {
             bag.items.sort((a, b) => {
+                // 绿武优先
+                const typeOrder = { greenWeapon: 0, lightGreenWeapon: 1 };
+                const aTypeOrder = typeOrder[a.type] !== undefined ? typeOrder[a.type] : 2;
+                const bTypeOrder = typeOrder[b.type] !== undefined ? typeOrder[b.type] : 2;
+                if (aTypeOrder !== bTypeOrder) return aTypeOrder - bTypeOrder;
+
+                // 同类型按品质排
+                if (a.type === 'greenWeapon' || a.type === 'lightGreenWeapon') {
+                    return b.level - a.level;
+                }
                 const qualityOrder = ['mythic', 'legendary', 'epic', 'rare', 'uncommon', 'common'];
-                const typeOrder = ['helmet', 'armor', 'shoes', 'necklace', 'ring', 'leftHand'];
+                const equipTypeOrder = ['helmet', 'armor', 'shoes', 'necklace', 'ring', 'leftHand'];
                 const qualityDiff = qualityOrder.indexOf(a.quality) - qualityOrder.indexOf(b.quality);
                 if (qualityDiff !== 0) return qualityDiff;
-                return typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type);
+                return equipTypeOrder.indexOf(a.type) - equipTypeOrder.indexOf(b.type);
             });
             updateBagDisplay();
             createFloatingText(centerX, centerY - 50, '背包已整理', '#4CAF50');
@@ -1312,7 +1804,11 @@
         document.querySelectorAll('.equip-slot').forEach(slot => {
             slot.addEventListener('click', () => {
                 const type = slot.dataset.slot;
-                if (type === 'weapon') return; // 绿武不能卸下
+                if (type === 'weapon') {
+                    // 卸下武器
+                    unequipWeapon();
+                    return;
+                }
 
                 const item = player.equipped[type];
                 if (item) {
@@ -1334,6 +1830,13 @@
             updateParticles();
             updateDamageTexts();
             updateFloatingTexts();
+            // 连击计时器更新
+            if (comboTimer > 0) {
+                comboTimer--;
+                if (comboTimer <= 0) {
+                    comboCount = 0;
+                }
+            }
             if (playerAlive && enemies.length === 0 && frameCount % 60 === 0) {
                 wave++;
                 updateUI();
@@ -1349,6 +1852,10 @@
             drawFloatingTexts();
             requestAnimationFrame(gameLoop);
         }
+
+        // 初始化：自动创建如意刀放入背包
+        const initialWeapon = createGreenWeaponInstance('ruyidao');
+        addToBag(initialWeapon);
 
         updateUI();
         spawnWave();
