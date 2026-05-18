@@ -427,37 +427,45 @@
             perfect: { name: '极品', color: '#FFD700' }
         };
 
-        // 词条类型定义
+        // 词条类型定义 - 格式: {name, category, maxValue, scorePerUnit, unit}
         const inscriptionTypes = {
             // 输出类
-            pierceDef: { name: '锋利破防', category: '输出', values: [8, 16, 28, 45], unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', values: [3, 6, 10, 15], unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', values: [3, 6, 10, 15], unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', values: [3, 6, 10, 15], unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', values: [1.5, 3, 5, 8], unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', values: [8, 15, 25, 40], unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', values: [2, 4, 7, 11], unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', values: [3, 6, 10, 15], unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', values: [12, 25, 42, 68], unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', values: [10, 22, 38, 62], unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', values: [9, 20, 35, 58], unit: '' },
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 45, scorePerUnit: 100/45, unit: '' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 8, scorePerUnit: 100/8, unit: '%' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 40, scorePerUnit: 100/40, unit: '%' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 11, scorePerUnit: 100/11, unit: '%' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 25, scorePerUnit: 100/25, unit: '%' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 68, scorePerUnit: 100/68, unit: '' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 62, scorePerUnit: 100/62, unit: '' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 58, scorePerUnit: 100/58, unit: '' },
             // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', values: [1.2, 2.5, 4.5, 8], unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', values: [1.5, 3, 5, 7.5], unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', values: [2, 4, 6.5, 9], unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', values: [2, 4, 7, 10], unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', values: [60, 120, 210, 350], unit: '' },
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 8, scorePerUnit: 100/8, unit: '%' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 7.5, scorePerUnit: 100/7.5, unit: '%' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 9, scorePerUnit: 100/9, unit: '%' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 10, scorePerUnit: 100/10, unit: '%' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 350, scorePerUnit: 100/350, unit: '' },
             // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', values: [2, 4, 7, 10], unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', values: [3, 6, 9, 13], unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', values: [5, 10, 18, 28], unit: '%' }
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 10, scorePerUnit: 100/10, unit: '%' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 13, scorePerUnit: 100/13, unit: '%' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 28, scorePerUnit: 100/28, unit: '%' }
         };
 
         // 攻击范围全局上限
         const ATK_RANGE_MAX = 0.25; // 25%
 
-        // 词条品质权重
-        const inscriptionQualityWeights = [0.50, 0.30, 0.15, 0.05]; // 普通/优秀/精良/极品
+        // 词条最大叠加次数
+        const INSCRIPTION_MAX_STACK = 10;
+
+        // 品质波动系数
+        const qualityFluctuation = {
+            common: { min: 0.6, max: 0.9 },    // 普通
+            fine: { min: 0.8, max: 1.1 },      // 优秀
+            excellent: { min: 1.0, max: 1.3 }, // 精良
+            perfect: { min: 1.2, max: 1.6 }    // 极品
+        };
 
         // 连击计数器
         let comboCount = 0;
@@ -605,7 +613,8 @@
                 bound: false,
                 stage: 0,
                 inscriptions: [],
-                inscriptionsUnlocked: 0,
+                totalScore: 0,
+                scoreRating: getScoreRating(0),
                 type: 'greenWeapon',
                 quality: 'green'
             };
@@ -627,7 +636,8 @@
                 bound: false,
                 stage: 0,
                 inscriptions: [],
-                inscriptionsUnlocked: 0,
+                totalScore: 0,
+                scoreRating: getScoreRating(0),
                 type: 'lightGreenWeapon',
                 quality: 'lightGreen'
             };
@@ -705,44 +715,51 @@
             expMultiplier *= (1 + weaponExpBonus / 100);
 
             let finalExp = Math.floor(baseExp * expMultiplier);
+            
+            // 检查是否解锁新词条（每3级一次）
+            const prevLevel = weapon.level;
             weapon.exp += finalExp;
-
-            // 检查升级
-            while (weapon.exp >= weapon.expToNext && weapon.level < template.maxLevel) {
+            
+            // 计算新等级
+            let newLevel = prevLevel;
+            while (weapon.exp >= weapon.expToNext && newLevel < template.maxLevel) {
                 weapon.exp -= weapon.expToNext;
-                weapon.level++;
+                newLevel++;
+            }
+            
+            if (newLevel > prevLevel) {
+                // 每3级获得一次词条
+                for (let lvl = prevLevel + 1; lvl <= newLevel; lvl++) {
+                    if (lvl >= 12 && (lvl - 12) % 3 === 0) {
+                        unlockInscription(weapon);
+                    }
+                    
+                    // 爆攻判定（深绿武器）
+                    if (isDeepGreen) {
+                        let burstChance = 0.20;
+                        if (comboCount >= 100) burstChance += 0.05;
+                        else if (comboCount >= 50) burstChance += 0.03;
+
+                        let rand = Math.random();
+                        if (rand < 0.01) {
+                            weapon.totalBurstAtk += 3;
+                            showWeaponBurstAtk(3);
+                        } else if (rand < 0.05) {
+                            weapon.totalBurstAtk += 2;
+                            showWeaponBurstAtk(2);
+                        } else if (rand < 0.25) {
+                            weapon.totalBurstAtk += 1;
+                            showWeaponBurstAtk(1);
+                        }
+                        // 累计爆攻上限60
+                        weapon.totalBurstAtk = Math.min(weapon.totalBurstAtk, 60);
+                    }
+                }
+                
+                weapon.level = newLevel;
                 weapon.expToNext = getWeaponExpNeeded(weapon.level);
                 weapon.maxDurability = getWeaponMaxDurability(weapon.level);
-
-                // 爆攻判定
-                if (isDeepGreen) {
-                    let burstChance = 0.20;
-                    if (comboCount >= 100) burstChance += 0.05;
-                    else if (comboCount >= 50) burstChance += 0.03;
-
-                    let rand = Math.random();
-                    if (rand < 0.01) {
-                        weapon.totalBurstAtk += 3;
-                        showWeaponBurstAtk(3);
-                    } else if (rand < 0.05) {
-                        weapon.totalBurstAtk += 2;
-                        showWeaponBurstAtk(2);
-                    } else if (rand < 0.25) {
-                        weapon.totalBurstAtk += 1;
-                        showWeaponBurstAtk(1);
-                    }
-                    // 累计爆攻上限60
-                    weapon.totalBurstAtk = Math.min(weapon.totalBurstAtk, 60);
-                }
-
-                // 检查词条解锁（深绿10级起每10级解锁一条）
-                if (isDeepGreen && weapon.level >= 10 && weapon.level % 10 === 0 && weapon.inscriptionsUnlocked < 6) {
-                    weapon.inscriptionsUnlocked++;
-                    let newInscription = generateInscription();
-                    weapon.inscriptions.push(newInscription);
-                    showInscriptionUnlock(newInscription);
-                }
-
+                
                 showWeaponLevelUp(weapon.name, weapon.level);
             }
 
@@ -751,27 +768,112 @@
         }
 
         // 生成随机词条
-        function generateInscription() {
-            let rand = Math.random();
-            let qualityIndex = 0;
-            let cumulative = 0;
-            for (let i = 0; i < inscriptionQualityWeights.length; i++) {
-                cumulative += inscriptionQualityWeights[i];
-                if (rand < cumulative) { qualityIndex = i; break; }
+        function generateInscription(weapon) {
+            const types = Object.keys(inscriptionTypes);
+            const qualities = ['common', 'fine', 'excellent', 'perfect'];
+            const qualityWeights = [0.55, 0.30, 0.12, 0.03];
+            
+            // 随机选择词条类型
+            let availableTypes = types.filter(type => {
+                const count = weapon.inscriptions.filter(i => i.type === type).length;
+                return count < INSCRIPTION_MAX_STACK;
+            });
+            
+            // 如果所有词条都满了，返回null（触发转换）
+            if (availableTypes.length === 0) {
+                return null;
             }
-            const qualityKeys = ['common', 'fine', 'excellent', 'perfect'];
-            const quality = qualityKeys[qualityIndex];
-
-            const typeKeys = Object.keys(inscriptionTypes);
-            const typeKey = typeKeys[Math.floor(Math.random() * typeKeys.length)];
-            const typeDef = inscriptionTypes[typeKey];
-            const value = typeDef.values[qualityIndex];
-
+            
+            const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+            const typeConfig = inscriptionTypes[type];
+            
+            // 随机品质
+            let rand = Math.random();
+            let quality = 'common';
+            for (let i = 0; i < qualities.length; i++) {
+                rand -= qualityWeights[i];
+                if (rand <= 0) {
+                    quality = qualities[i];
+                    break;
+                }
+            }
+            
+            // 计算波动值
+            const fluctuation = qualityFluctuation[quality];
+            const baseValue = typeConfig.maxValue / INSCRIPTION_MAX_STACK;
+            const minValue = baseValue * fluctuation.min;
+            const maxValue = baseValue * fluctuation.max;
+            const actualValue = minValue + Math.random() * (maxValue - minValue);
+            
+            // 计算分数
+            const score = actualValue * typeConfig.scorePerUnit;
+            
             return {
-                type: typeKey,
+                type: type,
                 quality: quality,
-                value: value
+                value: actualValue,
+                score: Math.floor(score)
             };
+        }
+
+        // 词条解锁函数
+        function unlockInscription(weapon) {
+            const newInscription = generateInscription(weapon);
+            
+            if (newInscription) {
+                // 检查是否已有同类型词条
+                const existingIndex = weapon.inscriptions.findIndex(i => i.type === newInscription.type);
+                
+                if (existingIndex >= 0) {
+                    // 合并叠加
+                    const existing = weapon.inscriptions[existingIndex];
+                    existing.value += newInscription.value;
+                    existing.score += newInscription.score;
+                    
+                    // 检查是否达到上限
+                    const typeConfig = inscriptionTypes[newInscription.type];
+                    if (existing.value > typeConfig.maxValue) {
+                        existing.value = typeConfig.maxValue;
+                        existing.score = 100; // 满分
+                    }
+                    
+                    showInscriptionMerge(weapon.name, typeConfig.name, existing.value, existing.score);
+                } else {
+                    // 新词条
+                    weapon.inscriptions.push(newInscription);
+                    showInscriptionUnlock(weapon.name, inscriptionTypes[newInscription.type].name, newInscription.quality);
+                }
+            } else {
+                // 所有词条都满了，转换为经验
+                const bonusExp = 5000;
+                weapon.exp += bonusExp;
+                showInscriptionConvertExp(weapon.name, bonusExp);
+            }
+            
+            // 更新武器评分
+            updateWeaponScore(weapon);
+        }
+
+        // 武器评分系统
+        function updateWeaponScore(weapon) {
+            let totalScore = 0;
+            
+            // 词条分数累计
+            weapon.inscriptions.forEach(ins => {
+                totalScore += ins.score || 0;
+            });
+            
+            weapon.totalScore = totalScore;
+            weapon.scoreRating = getScoreRating(totalScore);
+        }
+
+        function getScoreRating(score) {
+            if (score >= 1500) return { name: '神话', color: '#FF0000', title: '圣物' };
+            if (score >= 1200) return { name: '史诗', color: '#FFD700', title: '神器' };
+            if (score >= 900) return { name: '传说', color: '#FF8C00', title: '仙兵' };
+            if (score >= 600) return { name: '精良', color: '#9370DB', title: '灵器' };
+            if (score >= 300) return { name: '优秀', color: '#4169E1', title: '精钢' };
+            return { name: '普通', color: '#FFFFFF', title: '凡铁' };
         }
 
         // 武器进阶
@@ -893,9 +995,8 @@
             setTimeout(() => div.remove(), 1500);
         }
 
-        function showInscriptionUnlock(inscription) {
-            const typeDef = inscriptionTypes[inscription.type];
-            const qualityDef = inscriptionQualities[inscription.quality];
+        function showInscriptionUnlock(weaponName, insName, quality) {
+            const qualityDef = inscriptionQualities[quality];
             const div = document.createElement('div');
             div.style.cssText = `
                 position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);
@@ -904,7 +1005,35 @@
                 z-index:10001;text-align:center;pointer-events:none;
                 animation:levelUpPulse 2s ease-out forwards;
             `;
-            div.innerHTML = `解锁词条: [${qualityDef.name}]${typeDef.name} +${inscription.value}${typeDef.unit}`;
+            div.innerHTML = `${weaponName} 解锁词条: [${qualityDef.name}]${insName}`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
+
+        function showInscriptionMerge(weaponName, insName, totalValue, totalScore) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);
+                font-size:22px;font-weight:bold;color:#9370DB;
+                text-shadow:0 0 15px #9370DB;
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 2s ease-out forwards;
+            `;
+            div.innerHTML = `${weaponName} ${insName}叠加 ${totalValue.toFixed(1)} [${totalScore}分]`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
+
+        function showInscriptionConvertExp(weaponName, exp) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);
+                font-size:22px;font-weight:bold;color:#FFD700;
+                text-shadow:0 0 15px #FFD700;
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 2s ease-out forwards;
+            `;
+            div.innerHTML = `${weaponName} 词条已满 → 转换${exp}经验`;
             document.body.appendChild(div);
             setTimeout(() => div.remove(), 2000);
         }
@@ -1792,21 +1921,25 @@
                 html += `<div style="margin-bottom:3px;">元素: <span style="color:${elemColor};">${template.element}</span></div>`;
             }
 
+            // 武器评分
+            if (isDeepGreen) {
+                let rating = weapon.scoreRating || getScoreRating(weapon.totalScore || 0);
+                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;">
+                    <div style="color:#d4af37;">武器评分: <span style="color:${rating.color};font-weight:bold;">${weapon.totalScore || 0}</span> <span style="color:${rating.color};">[${rating.name}]</span></div>
+                    <div style="color:#888;font-size:11px;">称号: ${rating.title}</div>
+                </div>`;
+            }
+
             // 词条（仅深绿）
-            if (isDeepGreen && weapon.inscriptionsUnlocked > 0) {
-                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#d4af37;">词条 (${weapon.inscriptionsUnlocked}/6):</div>`;
+            if (isDeepGreen && weapon.inscriptions && weapon.inscriptions.length > 0) {
+                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#d4af37;">词条 (${weapon.inscriptions.length}种):</div>`;
                 weapon.inscriptions.forEach((ins, idx) => {
                     let typeDef = inscriptionTypes[ins.type];
                     let qualityDef = inscriptionQualities[ins.quality];
-                    html += `<div style="color:${qualityDef.color};font-size:11px;margin-left:8px;">[${qualityDef.name}] ${typeDef.name} +${ins.value}${typeDef.unit}</div>`;
+                    html += `<div style="color:${qualityDef.color};font-size:11px;margin-left:8px;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} [${ins.score}分]</div>`;
                 });
-                // 未解锁的词条槽
-                for (let i = weapon.inscriptionsUnlocked; i < 6; i++) {
-                    let unlockLevel = 10 + i * 10;
-                    html += `<div style="color:#555;font-size:11px;margin-left:8px;">[未解锁] ${unlockLevel}级解锁</div>`;
-                }
             } else if (isDeepGreen) {
-                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;">词条: 10级开始解锁</div>`;
+                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;">词条: 12级开始解锁，每3级获得一次</div>`;
             }
 
             // 操作按钮
@@ -1877,10 +2010,20 @@
                             borderColor = weaponStages[item.stage].color;
                             glowColor = weaponStages[item.stage].color;
                         }
-                        slot.innerHTML = `<span style="font-size:18px;">🗡️</span><span style="font-size:8px;color:${borderColor};position:absolute;bottom:2px;">Lv.${item.level}</span>`;
+                        // 获取评分颜色
+                        let rating = item.scoreRating || getScoreRating(item.totalScore || 0);
+                        let scoreHtml = '';
+                        if (item.type === 'greenWeapon' && item.totalScore > 0) {
+                            scoreHtml = `<span style="font-size:8px;color:${rating.color};position:absolute;top:2px;right:2px;font-weight:bold;">${item.totalScore}</span>`;
+                        }
+                        slot.innerHTML = `<span style="font-size:18px;">🗡️</span>${scoreHtml}<span style="font-size:8px;color:${borderColor};position:absolute;bottom:2px;">Lv.${item.level}</span>`;
                         slot.style.borderColor = borderColor;
                         slot.style.boxShadow = `0 0 8px ${glowColor}, inset 0 0 5px ${glowColor}40`;
-                        slot.title = `${item.name} Lv.${item.level}${item.bound ? ' [已绑定]' : ''}`;
+                        let titleText = `${item.name} Lv.${item.level}${item.bound ? ' [已绑定]' : ''}`;
+                        if (item.type === 'greenWeapon' && item.totalScore > 0) {
+                            titleText += `\n评分: ${item.totalScore} [${rating.name}] - ${rating.title}`;
+                        }
+                        slot.title = titleText;
                     } else {
                         // 普通装备
                         const equipType = equipTypes[item.type];
