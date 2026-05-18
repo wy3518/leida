@@ -480,8 +480,31 @@
             const effects = attributeEffects;
             
             // 基础值 + 属性加成
+            let physicalAtk = 30 + attr.strength * effects.strength.physicalAtk;
+            
+            // 绿武攻击加成
+            if (player.equippedWeapon) {
+                const weapon = player.equippedWeapon;
+                const template = greenWeapons[weapon.weaponId];
+                if (template) {
+                    // 计算武器攻击力（基础+成长+爆攻）
+                    const levelDiff = weapon.level - template.reqLevel;
+                    const baseMinAtk = template.minAtk + template.growth * levelDiff;
+                    const baseMaxAtk = template.maxAtk + template.growth * levelDiff;
+                    const finalMinAtk = baseMinAtk + weapon.totalBurstAtk;
+                    const finalMaxAtk = baseMaxAtk + weapon.totalBurstAtk;
+                    const avgAtk = (finalMinAtk + finalMaxAtk) / 2;
+                    
+                    // 进阶加成
+                    const stageBonus = weaponStages[weapon.stage].bonusPercent / 100;
+                    const finalAtk = avgAtk * (1 + stageBonus);
+                    
+                    physicalAtk += finalAtk;
+                }
+            }
+            
             player.computedStats = {
-                physicalAtk: 30 + attr.strength * effects.strength.physicalAtk,
+                physicalAtk: physicalAtk,
                 maxHp: 100 + attr.constitution * effects.constitution.maxHp,
                 maxMp: 50 + attr.spirit * effects.spirit.maxMp,
                 physicalDef: attr.constitution * effects.constitution.physicalDef,
@@ -761,6 +784,9 @@
                 weapon.maxDurability = getWeaponMaxDurability(weapon.level);
                 
                 showWeaponLevelUp(weapon.name, weapon.level);
+                
+                // 重新计算角色属性（武器升级影响攻击力）
+                calculatePlayerStats();
             }
 
             // 更新装备栏显示
