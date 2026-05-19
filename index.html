@@ -302,25 +302,25 @@
         
         <!-- 背包界面 -->
         <!-- 背包+储物箱面板 -->
-        <div id="bagPanel" style="display:none;position:fixed;top:50%;right:10px;transform:translateY(-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:15px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:360px;max-height:90vh;overflow-y:auto;">
-            <div style="text-align:center;color:#ffd700;font-size:18px;margin-bottom:10px;">🎒 背包</div>
-            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;">
+        <div id="bagPanel" style="display:none;position:fixed;top:50%;right:5px;transform:translateY(-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:10px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:280px;max-height:95vh;overflow-y:auto;">
+            <div style="text-align:center;color:#ffd700;font-size:16px;margin-bottom:8px;">🎒 背包</div>
+            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:8px;">
                 <!-- 背包格子由JS生成 -->
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <span id="bagCount" style="color:#888;font-size:12px;">0/20</span>
-                <button id="sortBag" style="background:#4a7c59;color:#fff;border:none;padding:4px 12px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:11px;">自动整理</button>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span id="bagCount" style="color:#888;font-size:11px;">0/20</span>
+                <button id="sortBag" style="background:#4a7c59;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:10px;">整理</button>
             </div>
-            <div style="border-top:2px solid #8b4513;margin:8px 0;"></div>
-            <div style="text-align:center;color:#4169E1;font-size:18px;margin-bottom:10px;">📦 储物箱</div>
-            <div id="storageGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:10px;">
+            <div style="border-top:2px solid #8b4513;margin:6px 0;"></div>
+            <div style="text-align:center;color:#4169E1;font-size:16px;margin-bottom:8px;">📦 储物箱</div>
+            <div id="storageGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:8px;">
                 <!-- 储物箱格子由JS生成 -->
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span id="storageCount" style="color:#888;font-size:12px;">0/100</span>
-                <span style="color:#666;font-size:10px;">右键存入 / 左键取出</span>
+                <span id="storageCount" style="color:#888;font-size:11px;">0/100</span>
+                <span style="color:#666;font-size:9px;">右键存 / 左键取</span>
             </div>
-            <button id="closeBag" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
+            <button id="closeBag" style="position:absolute;top:8px;right:8px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:3px 8px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:12px;">✕</button>
         </div>
     </div>
 
@@ -2593,7 +2593,7 @@
             for (let i = 0; i < bag.maxSize; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'bag-slot';
-                slot.style.cssText = 'width:55px;height:55px;background:rgba(0,0,0,0.5);border:2px solid #555;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;overflow:hidden;';
+                slot.style.cssText = 'width:42px;height:42px;background:rgba(0,0,0,0.5);border:1px solid #555;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;overflow:hidden;';
                 slot.dataset.index = i;
                 // 左键：使用/装备
                 slot.addEventListener('click', () => useBagItem(i));
@@ -2628,7 +2628,7 @@
             for (let i = 0; i < storage.maxSize; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'storage-slot';
-                slot.style.cssText = 'width:30px;height:30px;background:rgba(0,0,0,0.5);border:1px solid #444;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;';
+                slot.style.cssText = 'width:22px;height:22px;background:rgba(0,0,0,0.5);border:1px solid #444;border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;position:relative;';
                 slot.dataset.index = i;
                 // 左键：取出到背包
                 slot.addEventListener('click', () => storageToBag(i));
