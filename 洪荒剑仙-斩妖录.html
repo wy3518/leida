@@ -456,8 +456,14 @@
         // 攻击范围全局上限
         const ATK_RANGE_MAX = 0.25; // 25%
 
-        // 词条最大叠加次数
+        // 词条最大叠加次数（每种类型）
         const INSCRIPTION_MAX_STACK = 10;
+
+        // 武器最大词条数量（总词条槽数）
+        const WEAPON_MAX_INSCRIPTIONS = 10;
+
+        // ========== 测试用常量 ==========
+        const WEAPON_EXP_MULTIPLIER = 100; // 武器经验倍率（测试用，100倍）
 
         // 品质波动系数
         const qualityFluctuation = {
@@ -737,6 +743,9 @@
             });
             expMultiplier *= (1 + weaponExpBonus / 100);
 
+            // 测试用经验倍率
+            expMultiplier *= WEAPON_EXP_MULTIPLIER;
+
             let finalExp = Math.floor(baseExp * expMultiplier);
             
             // 检查是否解锁新词条（每3级一次）
@@ -793,25 +802,49 @@
             if (equipPanel.style.display === 'block') updateEquipPanel();
         }
 
+        // 体型增伤词条类型
+        const sizeDamageTypes = ['largeDmg', 'mediumDmg', 'smallDmg'];
+        
         // 生成随机词条
         function generateInscription(weapon) {
             const types = Object.keys(inscriptionTypes);
             const qualities = ['common', 'fine', 'excellent', 'perfect'];
             const qualityWeights = [0.55, 0.30, 0.12, 0.03];
             
-            // 随机选择词条类型
-            let availableTypes = types.filter(type => {
-                const count = weapon.inscriptions.filter(i => i.type === type).length;
-                return count < INSCRIPTION_MAX_STACK;
-            });
+            let selectedType;
             
-            // 如果所有词条都满了，返回null（触发转换）
-            if (availableTypes.length === 0) {
-                return null;
+            // 检查是否已有10个词条
+            if (weapon.inscriptions.length >= WEAPON_MAX_INSCRIPTIONS) {
+                // 满10条后，从已有词条中随机选择一个类型进行叠加
+                const randomIndex = Math.floor(Math.random() * weapon.inscriptions.length);
+                selectedType = weapon.inscriptions[randomIndex].type;
+            } else {
+                // 未满10条，随机选择词条类型（排除已满10层的类型）
+                let availableTypes = types.filter(type => {
+                    const count = weapon.inscriptions.filter(i => i.type === type).length;
+                    return count < INSCRIPTION_MAX_STACK;
+                });
+                
+                // 检查已拥有的体型增伤词条数量
+                const existingSizeDmgCount = weapon.inscriptions.filter(i => 
+                    sizeDamageTypes.includes(i.type)
+                ).length;
+                
+                // 如果已有2种体型增伤，排除剩余的体型增伤类型
+                if (existingSizeDmgCount >= 2) {
+                    availableTypes = availableTypes.filter(type => !sizeDamageTypes.includes(type));
+                }
+                
+                // 如果没有可用类型（理论上不会发生，因为总词条数<10时必有空位），从已有类型中选择
+                if (availableTypes.length === 0) {
+                    const randomIndex = Math.floor(Math.random() * weapon.inscriptions.length);
+                    selectedType = weapon.inscriptions[randomIndex].type;
+                } else {
+                    selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                }
             }
             
-            const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-            const typeConfig = inscriptionTypes[type];
+            const typeConfig = inscriptionTypes[selectedType];
             
             // 随机品质
             let rand = Math.random();
@@ -835,7 +868,7 @@
             const score = actualValue * typeConfig.scorePerUnit;
             
             return {
-                type: type,
+                type: selectedType,
                 quality: quality,
                 value: actualValue,
                 score: Math.floor(score)
@@ -846,34 +879,38 @@
         function unlockInscription(weapon) {
             const newInscription = generateInscription(weapon);
             
-            if (newInscription) {
-                // 检查是否已有同类型词条
-                const existingIndex = weapon.inscriptions.findIndex(i => i.type === newInscription.type);
+            // 检查是否已有同类型词条
+            const existingIndex = weapon.inscriptions.findIndex(i => i.type === newInscription.type);
+            
+            if (existingIndex >= 0) {
+                // 合并叠加
+                const existing = weapon.inscriptions[existingIndex];
+                existing.value += newInscription.value;
+                existing.score += newInscription.score;
                 
-                if (existingIndex >= 0) {
-                    // 合并叠加
-                    const existing = weapon.inscriptions[existingIndex];
-                    existing.value += newInscription.value;
-                    existing.score += newInscription.score;
-                    
-                    // 检查是否达到上限
-                    const typeConfig = inscriptionTypes[newInscription.type];
-                    if (existing.value > typeConfig.maxValue) {
-                        existing.value = typeConfig.maxValue;
-                        existing.score = 100; // 满分
-                    }
-                    
-                    showInscriptionMerge(weapon.name, typeConfig.name, existing.value, existing.score);
-                } else {
-                    // 新词条
-                    weapon.inscriptions.push(newInscription);
-                    showInscriptionUnlock(weapon.name, inscriptionTypes[newInscription.type].name, newInscription.quality);
+                // 检查是否达到上限
+                const typeConfig = inscriptionTypes[newInscription.type];
+                if (existing.value > typeConfig.maxValue) {
+                    existing.value = typeConfig.maxValue;
+                    existing.score = 100; // 满分
                 }
+                
+                showInscriptionMerge(weapon.name, typeConfig.name, existing.value, existing.score);
+            } else if (weapon.inscriptions.length < WEAPON_MAX_INSCRIPTIONS) {
+                // 新词条（未满10条时）
+                weapon.inscriptions.push(newInscription);
+                showInscriptionUnlock(weapon.name, inscriptionTypes[newInscription.type].name, newInscription.quality);
             } else {
-                // 所有词条都满了，转换为经验
-                const bonusExp = 5000;
-                weapon.exp += bonusExp;
-                showInscriptionConvertExp(weapon.name, bonusExp);
+                // 已满10条，但生成了新类型（理论上不会发生），强制叠加到第一个词条
+                const existing = weapon.inscriptions[0];
+                existing.value += newInscription.value;
+                existing.score += newInscription.score;
+                const typeConfig = inscriptionTypes[existing.type];
+                if (existing.value > typeConfig.maxValue) {
+                    existing.value = typeConfig.maxValue;
+                    existing.score = 100;
+                }
+                showInscriptionMerge(weapon.name, typeConfig.name, existing.value, existing.score);
             }
             
             // 更新武器评分
@@ -2054,6 +2091,32 @@
             }
         }, 500);
 
+        // ========== 后台运行支持 ==========
+        let isPageVisible = true;
+        let backgroundInterval = null;
+        const BACKUP_FPS = 10; // 后台运行帧率
+        const BACKUP_INTERVAL = 1000 / BACKUP_FPS;
+
+        // 页面可见性变化处理
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // 页面隐藏：切换到 setInterval 模式
+                isPageVisible = false;
+                if (!backgroundInterval) {
+                    backgroundInterval = setInterval(gameLoopBackup, BACKUP_INTERVAL);
+                }
+            } else {
+                // 页面显示：切回 requestAnimationFrame 模式
+                isPageVisible = true;
+                if (backgroundInterval) {
+                    clearInterval(backgroundInterval);
+                    backgroundInterval = null;
+                }
+                // 重新启动 RAF 循环
+                requestAnimationFrame(gameLoop);
+            }
+        });
+
         // 背包系统交互
         const bagBtn = document.getElementById('bagBtn');
         const bagPanel = document.getElementById('bagPanel');
@@ -2283,7 +2346,8 @@
             });
         });
 
-        function gameLoop() {
+        // 游戏主循环逻辑（与渲染分离）
+        function gameLogic() {
             frameCount++;
             updatePlayer();
             playerAutoAttack();
@@ -2304,6 +2368,13 @@
                 updateUI();
                 spawnWave();
             }
+        }
+
+        // 前台渲染循环（使用 requestAnimationFrame）
+        function gameLoop() {
+            if (!isPageVisible) return; // 后台时不执行 RAF
+            
+            gameLogic();
             drawBackground();
             drawAttackRange();
             drawEnemies();
@@ -2313,6 +2384,12 @@
             drawDamageTexts();
             drawFloatingTexts();
             requestAnimationFrame(gameLoop);
+        }
+
+        // 后台运行循环（使用 setInterval）
+        function gameLoopBackup() {
+            gameLogic();
+            // 后台模式下不渲染，只更新游戏逻辑
         }
 
         // 初始化：自动创建如意刀放入背包
