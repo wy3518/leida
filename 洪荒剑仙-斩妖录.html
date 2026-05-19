@@ -295,14 +295,24 @@
         </div>
         
         <!-- 背包界面 -->
-        <div id="bagPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:20px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:400px;">
-            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:15px;">背包</div>
-            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:15px;">
+        <!-- 背包+储物箱面板 -->
+        <div id="bagPanel" style="display:none;position:fixed;top:50%;right:10px;transform:translateY(-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:15px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:360px;max-height:90vh;overflow-y:auto;">
+            <div style="text-align:center;color:#ffd700;font-size:18px;margin-bottom:10px;">🎒 背包</div>
+            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px;">
                 <!-- 背包格子由JS生成 -->
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span id="bagCount" style="color:#888;font-size:12px;">0/20</span>
-                <button id="sortBag" style="background:#4a7c59;color:#fff;border:none;padding:5px 15px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:12px;">自动整理</button>
+                <button id="sortBag" style="background:#4a7c59;color:#fff;border:none;padding:4px 12px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:11px;">自动整理</button>
+            </div>
+            <div style="border-top:2px solid #8b4513;margin:8px 0;"></div>
+            <div style="text-align:center;color:#4169E1;font-size:18px;margin-bottom:10px;">📦 储物箱</div>
+            <div id="storageGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:10px;">
+                <!-- 储物箱格子由JS生成 -->
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span id="storageCount" style="color:#888;font-size:12px;">0/100</span>
+                <span style="color:#666;font-size:10px;">右键存入 / 左键取出</span>
             </div>
             <button id="closeBag" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
         </div>
@@ -1293,6 +1303,12 @@
         // 背包系统
         const bag = {
             maxSize: 20,
+            items: []
+        };
+
+        // 储物箱
+        const storage = {
+            maxSize: 100,
             items: []
         };
 
@@ -2493,8 +2509,14 @@
                 slot.className = 'bag-slot';
                 slot.style.cssText = 'width:55px;height:55px;background:rgba(0,0,0,0.5);border:2px solid #555;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;overflow:hidden;';
                 slot.dataset.index = i;
+                // 左键：使用/装备
                 slot.addEventListener('click', () => useBagItem(i));
-                // tooltip事件
+                // 右键：存入储物箱
+                slot.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    bagToStorage(i);
+                });
+                // tooltip
                 slot.addEventListener('mouseenter', (e) => {
                     const item = bag.items[i];
                     if (!item) return;
@@ -2510,6 +2532,98 @@
                 bagGrid.appendChild(slot);
             }
             updateBagDisplay();
+            initStorageGrid();
+        }
+
+        // 初始化储物箱
+        function initStorageGrid() {
+            const storageGrid = document.getElementById('storageGrid');
+            storageGrid.innerHTML = '';
+            for (let i = 0; i < storage.maxSize; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'storage-slot';
+                slot.style.cssText = 'width:30px;height:30px;background:rgba(0,0,0,0.5);border:1px solid #444;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;';
+                slot.dataset.index = i;
+                // 左键：取出到背包
+                slot.addEventListener('click', () => storageToBag(i));
+                // 右键：无操作
+                slot.addEventListener('contextmenu', (e) => e.preventDefault());
+                // tooltip
+                slot.addEventListener('mouseenter', (e) => {
+                    const item = storage.items[i];
+                    if (!item) return;
+                    let html = '';
+                    if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                        html = buildWeaponTooltip(item);
+                    } else {
+                        html = buildEquipTooltip(item);
+                    }
+                    if (html) showTooltip(e, html);
+                });
+                slot.addEventListener('mouseleave', hideTooltip);
+                storageGrid.appendChild(slot);
+            }
+            updateStorageDisplay();
+        }
+
+        // 更新储物箱显示
+        function updateStorageDisplay() {
+            const slots = document.querySelectorAll('.storage-slot');
+            slots.forEach((slot, i) => {
+                const item = storage.items[i];
+                if (item) {
+                    if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                        let borderColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
+                        if (item.type === 'greenWeapon' && item.stage > 0) {
+                            borderColor = weaponStages[item.stage].color;
+                        }
+                        slot.innerHTML = `<span style="font-size:12px;">🗡️</span>`;
+                        slot.style.borderColor = borderColor;
+                        slot.title = `${item.name} Lv.${item.level}`;
+                    } else {
+                        const equipType = equipTypes[item.type];
+                        const quality = itemQualities[item.quality];
+                        slot.innerHTML = `<span style="font-size:10px;">${equipType.icon}</span>`;
+                        slot.style.borderColor = quality.color;
+                        slot.title = `${quality.name}${equipType.name}`;
+                    }
+                } else {
+                    slot.innerHTML = '';
+                    slot.style.borderColor = '#444';
+                    slot.title = '空';
+                }
+            });
+            document.getElementById('storageCount').textContent = `${storage.items.length}/${storage.maxSize}`;
+        }
+
+        // 背包→储物箱
+        function bagToStorage(bagIndex) {
+            const item = bag.items[bagIndex];
+            if (!item) return;
+            if (storage.items.length >= storage.maxSize) {
+                createFloatingText(player.x, player.y - 40, '储物箱已满!', '#ff0000');
+                return;
+            }
+            storage.items.push(item);
+            bag.items.splice(bagIndex, 1);
+            createFloatingText(player.x, player.y - 40, `存入${item.name || '物品'}`, '#4169E1');
+            updateBagDisplay();
+            updateStorageDisplay();
+        }
+
+        // 储物箱→背包
+        function storageToBag(storageIndex) {
+            const item = storage.items[storageIndex];
+            if (!item) return;
+            if (bag.items.length >= bag.maxSize) {
+                createFloatingText(player.x, player.y - 40, '背包已满!', '#ff0000');
+                return;
+            }
+            bag.items.push(item);
+            storage.items.splice(storageIndex, 1);
+            createFloatingText(player.x, player.y - 40, `取出${item.name || '物品'}`, '#FFD700');
+            updateBagDisplay();
+            updateStorageDisplay();
         }
 
         // 更新背包显示
