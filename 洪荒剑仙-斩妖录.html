@@ -428,29 +428,30 @@
         };
 
         // 词条类型定义 - 格式: {name, category, maxValue, scorePerUnit, unit}
+        // 数值上限2倍版本
         const inscriptionTypes = {
             // 输出类
-            pierceDef: { name: '锋利破防', category: '输出', maxValue: 45, scorePerUnit: 100/45, unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', maxValue: 8, scorePerUnit: 100/8, unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', maxValue: 40, scorePerUnit: 100/40, unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 11, scorePerUnit: 100/11, unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', maxValue: 25, scorePerUnit: 100/25, unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', maxValue: 68, scorePerUnit: 100/68, unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 62, scorePerUnit: 100/62, unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 58, scorePerUnit: 100/58, unit: '' },
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 90, scorePerUnit: 100/90, unit: '' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 16, scorePerUnit: 100/16, unit: '%' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 80, scorePerUnit: 100/80, unit: '%' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 22, scorePerUnit: 100/22, unit: '%' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 100/50, unit: '%' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 136, scorePerUnit: 100/136, unit: '' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 124, scorePerUnit: 100/124, unit: '' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 116, scorePerUnit: 100/116, unit: '' },
             // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', maxValue: 8, scorePerUnit: 100/8, unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', maxValue: 7.5, scorePerUnit: 100/7.5, unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', maxValue: 9, scorePerUnit: 100/9, unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 10, scorePerUnit: 100/10, unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', maxValue: 350, scorePerUnit: 100/350, unit: '' },
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 16, scorePerUnit: 100/16, unit: '%' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 18, scorePerUnit: 100/18, unit: '%' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 20, scorePerUnit: 100/20, unit: '%' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 700, scorePerUnit: 100/700, unit: '' },
             // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', maxValue: 10, scorePerUnit: 100/10, unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 13, scorePerUnit: 100/13, unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 28, scorePerUnit: 100/28, unit: '%' }
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 20, scorePerUnit: 100/20, unit: '%' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 26, scorePerUnit: 100/26, unit: '%' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 56, scorePerUnit: 100/56, unit: '%' }
         };
 
         // 攻击范围全局上限
@@ -465,12 +466,12 @@
         // ========== 测试用常量 ==========
         const WEAPON_EXP_MULTIPLIER = 100; // 武器经验倍率（测试用，100倍）
 
-        // 品质波动系数
+        // 品质波动系数（更集中在中间值）
         const qualityFluctuation = {
-            common: { min: 0.6, max: 0.9 },    // 普通
-            fine: { min: 0.8, max: 1.1 },      // 优秀
-            excellent: { min: 1.0, max: 1.3 }, // 精良
-            perfect: { min: 1.2, max: 1.6 }    // 极品
+            common: { min: 0.75, max: 0.95 },  // 普通：范围0.2，更集中
+            fine: { min: 0.88, max: 1.08 },    // 优秀：范围0.2
+            excellent: { min: 1.0, max: 1.2 }, // 精良：范围0.2
+            perfect: { min: 1.15, max: 1.35 }  // 极品：范围0.2
         };
 
         // 连击计数器
