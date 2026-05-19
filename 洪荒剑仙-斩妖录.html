@@ -500,31 +500,30 @@
             perfect: { name: '极品', color: '#FFD700' }
         };
 
-        // 词条类型定义 - 格式: {name, category, maxValue, scorePerUnit, unit}
-        // 新评分系统：每种词条满分300分（原100分 × 3）
+        // 词条类型定义 - 每种词条满分400分（×4倍率）
         const inscriptionTypes = {
-            // 输出类 - 原数值×4上限，scorePerUnit×3让满分=300
-            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 300/180, unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 300/60, unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 300/60, unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 300/60, unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 300/32, unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 300/160, unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 300/44, unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 300/50, unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 300/272, unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 300/248, unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 300/232, unit: '' },
+            // 输出类
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 400/180, unit: '' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 400/32, unit: '%' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 400/160, unit: '%' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 400/44, unit: '%' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 400/50, unit: '%' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 400/272, unit: '' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 400/248, unit: '' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 400/232, unit: '' },
             // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 300/32, unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 300/30, unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 300/36, unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 300/40, unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 300/1400, unit: '' },
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 400/32, unit: '%' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 400/30, unit: '%' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 400/36, unit: '%' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 400/40, unit: '%' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 400/1400, unit: '' },
             // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 300/40, unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 300/52, unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 300/80, unit: '%' }
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 400/40, unit: '%' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 400/52, unit: '%' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 400/80, unit: '%' }
         };
 
         // 攻击范围全局上限
@@ -867,9 +866,9 @@
             }
             
             if (newLevel > prevLevel) {
-                // 每3级获得一次词条
+                // 每2级获得一次词条（从12级开始）
                 for (let lvl = prevLevel + 1; lvl <= newLevel; lvl++) {
-                    if (lvl >= 12 && (lvl - 12) % 3 === 0) {
+                    if (lvl >= 12 && (lvl - 12) % 2 === 0) {
                         unlockInscription(weapon);
                     }
                     
@@ -920,8 +919,8 @@
             // 上古石效果：提升高品质词条概率
             let qualityWeights;
             if (ancientStone.count > 0) {
-                // 有上古石：白35% 蓝35% 紫20% 金10%
-                qualityWeights = [0.35, 0.35, 0.20, 0.10];
+                // 有上古石：白30% 蓝35% 紫25% 金10%
+                qualityWeights = [0.30, 0.35, 0.25, 0.10];
             } else {
                 // 无上古石：白55% 蓝30% 紫12% 金3%
                 qualityWeights = [0.55, 0.30, 0.12, 0.03];
@@ -1066,11 +1065,11 @@
         };
 
         function getScoreRating(score) {
-            if (score >= 1700) return { name: '神话', color: '#FF0000', title: '圣物', bonus: titleBonuses['圣物'] };
-            if (score >= 1100) return { name: '史诗', color: '#FFD700', title: '神器', bonus: titleBonuses['神器'] };
-            if (score >= 650) return { name: '传说', color: '#FF8C00', title: '仙兵', bonus: titleBonuses['仙兵'] };
-            if (score >= 350) return { name: '精良', color: '#9370DB', title: '灵器', bonus: titleBonuses['灵器'] };
-            if (score >= 150) return { name: '优秀', color: '#4169E1', title: '精钢', bonus: titleBonuses['精钢'] };
+            if (score >= 1530) return { name: '神话', color: '#FF0000', title: '圣物', bonus: titleBonuses['圣物'] };
+            if (score >= 1470) return { name: '史诗', color: '#FFD700', title: '神器', bonus: titleBonuses['神器'] };
+            if (score >= 1000) return { name: '传说', color: '#FF8C00', title: '仙兵', bonus: titleBonuses['仙兵'] };
+            if (score >= 500) return { name: '精良', color: '#9370DB', title: '灵器', bonus: titleBonuses['灵器'] };
+            if (score >= 200) return { name: '优秀', color: '#4169E1', title: '精钢', bonus: titleBonuses['精钢'] };
             return { name: '普通', color: '#FFFFFF', title: '凡铁', bonus: titleBonuses['凡铁'] };
         }
 
