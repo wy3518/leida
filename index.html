@@ -711,7 +711,11 @@
         // 角色获取经验
         function addPlayerExp(baseExp) {
             // 人物经验加成词条
-            const expBonus = getExpBonus();
+            let expBonus = getExpBonus();
+            // 称号经验加成
+            if (player.equippedWeapon && player.equippedWeapon.scoreRating && player.equippedWeapon.scoreRating.bonus) {
+                expBonus += player.equippedWeapon.scoreRating.bonus.playerExpBonus || 0;
+            }
             const finalExp = Math.floor(baseExp * (1 + expBonus));
             player.playerExp += finalExp;
             while (player.playerExp >= player.expToNext) {
@@ -840,6 +844,11 @@
                 if (ins.type === 'weaponExpBonus') weaponExpBonus += ins.value;
             });
             expMultiplier *= (1 + weaponExpBonus / 100);
+
+            // 称号武具经验加成
+            if (weapon.scoreRating && weapon.scoreRating.bonus) {
+                expMultiplier *= (1 + (weapon.scoreRating.bonus.weaponExpBonus || 0));
+            }
 
             // 测试用经验倍率
             expMultiplier *= WEAPON_EXP_MULTIPLIER;
@@ -1048,12 +1057,12 @@
 
         // 称号配置（新评分系统）
         const titleBonuses = {
-            '凡铁': { atkBonus: 0, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 },
-            '精钢': { atkBonus: 0.02, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 },
-            '灵器': { atkBonus: 0.03, hpBonus: 0.03, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 },
-            '仙兵': { atkBonus: 0.05, hpBonus: 0.05, critBonus: 0.01, dmgReduceBonus: 0, elementBonus: 0 },
-            '神器': { atkBonus: 0.07, hpBonus: 0.07, critBonus: 0.02, dmgReduceBonus: 0.03, elementBonus: 0 },
-            '圣物': { atkBonus: 0.10, hpBonus: 0.10, critBonus: 0.03, dmgReduceBonus: 0.05, elementBonus: 0.05 }
+            '凡铁': { atkBonus: 0, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0, weaponExpBonus: 0 },
+            '精钢': { atkBonus: 0.02, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.01, weaponExpBonus: 0 },
+            '灵器': { atkBonus: 0.03, hpBonus: 0.03, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.02, weaponExpBonus: 0.02 },
+            '仙兵': { atkBonus: 0.05, hpBonus: 0.05, critBonus: 0.01, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.03, weaponExpBonus: 0.03 },
+            '神器': { atkBonus: 0.07, hpBonus: 0.07, critBonus: 0.02, dmgReduceBonus: 0.03, elementBonus: 0, playerExpBonus: 0.04, weaponExpBonus: 0.05 },
+            '圣物': { atkBonus: 0.10, hpBonus: 0.10, critBonus: 0.03, dmgReduceBonus: 0.05, elementBonus: 0.05, playerExpBonus: 0.05, weaponExpBonus: 0.08 }
         };
 
         function getScoreRating(score) {
@@ -2431,11 +2440,18 @@
         // 右键取出上古石到背包
         document.getElementById('ancientStoneSlot').addEventListener('contextmenu', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             if (ancientStone.count > 0) {
+                // 检查背包空间
+                const existingStone = bag.items.find(item => item && item.type === 'ancientStone');
+                let canAdd = true;
+                if (!existingStone && bag.items.length >= bag.maxSize) {
+                    createFloatingText(player.x, player.y - 40, '背包已满!', '#ff0000');
+                    return;
+                }
                 const takeCount = Math.min(ancientStone.count, 100);
                 ancientStone.count -= takeCount;
                 // 放入背包
-                const existingStone = bag.items.find(item => item && item.type === 'ancientStone');
                 if (existingStone) {
                     existingStone.count += takeCount;
                 } else {
@@ -2534,6 +2550,8 @@
                     if (rating.bonus.critBonus > 0) bonuses.push(`暴击+${(rating.bonus.critBonus * 100).toFixed(0)}%`);
                     if (rating.bonus.dmgReduceBonus > 0) bonuses.push(`减伤+${(rating.bonus.dmgReduceBonus * 100).toFixed(0)}%`);
                     if (rating.bonus.elementBonus > 0) bonuses.push(`元素+${(rating.bonus.elementBonus * 100).toFixed(0)}%`);
+                    if (rating.bonus.playerExpBonus > 0) bonuses.push(`人物经验+${(rating.bonus.playerExpBonus * 100).toFixed(0)}%`);
+                    if (rating.bonus.weaponExpBonus > 0) bonuses.push(`武具经验+${(rating.bonus.weaponExpBonus * 100).toFixed(0)}%`);
                     if (bonuses.length > 0) bonusText = ` <span style="color:#4CAF50;">(${bonuses.join(', ')})</span>`;
                 }
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;font-size:13px;">
