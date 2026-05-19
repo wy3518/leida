@@ -60,6 +60,60 @@
             }
         }
         
+        /* 自定义tooltip */
+        #gameTooltip {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            background: rgba(10, 5, 2, 0.96);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #d4af37;
+            pointer-events: none;
+            max-width: 280px;
+            box-shadow: 0 0 15px rgba(139, 69, 19, 0.6);
+            font-family: 'SimSun', '宋体', serif;
+            line-height: 1.6;
+        }
+        #gameTooltip .tt-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #555;
+        }
+        #gameTooltip .tt-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        #gameTooltip .tt-label { color: #888; }
+        #gameTooltip .tt-value { color: #e8d5a3; text-align: right; }
+        #gameTooltip .tt-value.green { color: #4CAF50; }
+        #gameTooltip .tt-value.blue { color: #4169E1; }
+        #gameTooltip .tt-value.purple { color: #9370DB; }
+        #gameTooltip .tt-value.gold { color: #FFD700; }
+        #gameTooltip .tt-value.orange { color: #FF8C00; }
+        #gameTooltip .tt-value.red { color: #FF4500; }
+        #gameTooltip .tt-divider {
+            border-top: 1px solid #333;
+            margin: 5px 0;
+        }
+        #gameTooltip .tt-inscription {
+            font-size: 11px;
+            padding: 1px 0;
+        }
+        #gameTooltip .tt-score {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid #555;
+        }
+        
         body {
             background: linear-gradient(135deg, #1a0f0a 0%, #2d1810 50%, #1a0f0a 100%);
             display: flex;
@@ -253,6 +307,9 @@
             <button id="closeBag" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;">✕</button>
         </div>
     </div>
+
+    <!-- 自定义tooltip -->
+    <div id="gameTooltip"></div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -1845,6 +1902,139 @@
             });
         }
 
+        // ========== Tooltip系统 ==========
+
+        const tooltip = document.getElementById('gameTooltip');
+
+        // 显示tooltip
+        function showTooltip(e, html) {
+            tooltip.innerHTML = html;
+            tooltip.style.display = 'block';
+            moveTooltip(e);
+        }
+
+        // 移动tooltip
+        function moveTooltip(e) {
+            let x = e.clientX + 15;
+            let y = e.clientY + 15;
+            // 防止超出屏幕
+            const rect = tooltip.getBoundingClientRect();
+            if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 10;
+            if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - 10;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        }
+
+        // 隐藏tooltip
+        function hideTooltip() {
+            tooltip.style.display = 'none';
+        }
+
+        // 生成绿武tooltip HTML
+        function buildWeaponTooltip(item) {
+            if (!item || (item.type !== 'greenWeapon' && item.type !== 'lightGreenWeapon')) return '';
+            const template = item.type === 'greenWeapon' ? greenWeapons[item.weaponId] : lightGreenWeapons[item.weaponId];
+            if (!template) return '';
+
+            const stageInfo = item.type === 'greenWeapon' ? weaponStages[item.stage] : null;
+            const rating = item.scoreRating || getScoreRating(item.totalScore || 0);
+            const qualityColors = { common: '#FFFFFF', fine: '#4169E1', excellent: '#9370DB', perfect: '#FFD700' };
+
+            let html = `<div class="tt-title" style="color:${stageInfo ? stageInfo.color : '#90EE90'};">${item.name}</div>`;
+
+            // 基础信息
+            html += `<div class="tt-row"><span class="tt-label">类型</span><span class="tt-value">${item.type === 'greenWeapon' ? '深绿武器' : '浅绿武器'}</span></div>`;
+            html += `<div class="tt-row"><span class="tt-label">职业</span><span class="tt-value">${template.class}</span></div>`;
+            html += `<div class="tt-row"><span class="tt-label">等级</span><span class="tt-value">${item.level} / ${template.maxLevel}</span></div>`;
+
+            // 经验
+            if (item.type === 'greenWeapon') {
+                const expPercent = item.expToNext > 0 ? Math.floor(item.exp / item.expToNext * 100) : 100;
+                html += `<div class="tt-row"><span class="tt-label">经验</span><span class="tt-value">${item.exp} / ${item.expToNext} (${expPercent}%)</span></div>`;
+            }
+
+            // 攻击力
+            const levelDiff = item.level - template.reqLevel;
+            let minAtk = Math.floor(template.minAtk + template.growth * levelDiff);
+            let maxAtk = Math.floor(template.maxAtk + template.growth * levelDiff);
+            if (item.type === 'greenWeapon') {
+                minAtk += item.totalBurstAtk || 0;
+                maxAtk += item.totalBurstAtk || 0;
+            }
+            html += `<div class="tt-divider"></div>`;
+            html += `<div class="tt-row"><span class="tt-label">攻击力</span><span class="tt-value gold">${minAtk} - ${maxAtk}</span></div>`;
+
+            if (item.type === 'greenWeapon' && item.totalBurstAtk > 0) {
+                html += `<div class="tt-row"><span class="tt-label">爆攻累计</span><span class="tt-value orange">+${item.totalBurstAtk}</span></div>`;
+            }
+
+            // 元素
+            if (template.element) {
+                const elemDmg = Math.floor((template.elementGrowth || 0) * levelDiff);
+                html += `<div class="tt-row"><span class="tt-label">元素</span><span class="tt-value" style="color:#FF6347;">${template.element} +${elemDmg}</span></div>`;
+            }
+
+            // 进阶
+            if (item.type === 'greenWeapon' && stageInfo) {
+                html += `<div class="tt-divider"></div>`;
+                html += `<div class="tt-row"><span class="tt-label">进阶</span><span class="tt-value" style="color:${stageInfo.color};">${stageInfo.name}</span></div>`;
+                if (stageInfo.bonusPercent > 0) {
+                    html += `<div class="tt-row"><span class="tt-label">进阶加成</span><span class="tt-value green">+${stageInfo.bonusPercent}%</span></div>`;
+                }
+            }
+
+            // 耐久
+            html += `<div class="tt-row"><span class="tt-label">耐久</span><span class="tt-value" style="color:${item.durability > item.maxDurability * 0.3 ? '#4CAF50' : '#FF4500'};">${item.durability} / ${item.maxDurability}</span></div>`;
+
+            // 绑定
+            if (item.bound) {
+                html += `<div class="tt-row"><span class="tt-label">绑定</span><span class="tt-value orange">已认主</span></div>`;
+            }
+
+            // 词条
+            if (item.inscriptions && item.inscriptions.length > 0) {
+                html += `<div class="tt-divider"></div>`;
+                html += `<div style="color:#888;font-size:11px;margin-bottom:3px;">词条 (${item.inscriptions.length}种):</div>`;
+                item.inscriptions.forEach(ins => {
+                    const typeDef = inscriptionTypes[ins.type];
+                    const qColor = qualityColors[ins.quality] || '#FFFFFF';
+                    const qName = inscriptionQualities[ins.quality] ? inscriptionQualities[ins.quality].name : '';
+                    const maxVal = typeDef ? typeDef.maxValue : 0;
+                    const pct = maxVal > 0 ? Math.floor(ins.value / maxVal * 100) : 0;
+                    html += `<div class="tt-inscription"><span style="color:${qColor};">[${qName}]</span> ${typeDef ? typeDef.name : ins.type} <span style="color:#e8d5a3;">+${ins.value.toFixed(1)}${typeDef ? typeDef.unit : ''}</span> <span style="color:#666;">(${pct}%)</span></div>`;
+                });
+            }
+
+            // 评分
+            if (item.type === 'greenWeapon' && item.totalScore > 0) {
+                html += `<div class="tt-score" style="color:${rating.color};">${item.totalScore}分 - ${rating.name} [${rating.title}]</div>`;
+            }
+
+            return html;
+        }
+
+        // 生成普通装备tooltip HTML
+        function buildEquipTooltip(item) {
+            if (!item || !item.type || item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') return '';
+            const equipType = equipTypes[item.type];
+            const quality = itemQualities[item.quality];
+            if (!equipType || !quality) return '';
+
+            let html = `<div class="tt-title" style="color:${quality.color};">${quality.name}${equipType.name}</div>`;
+            html += `<div class="tt-row"><span class="tt-label">部位</span><span class="tt-value">${equipType.name}</span></div>`;
+            html += `<div class="tt-row"><span class="tt-label">品质</span><span class="tt-value" style="color:${quality.color};">${quality.name}</span></div>`;
+            html += `<div class="tt-row"><span class="tt-label">加成倍率</span><span class="tt-value gold">×${quality.bonus}</span></div>`;
+
+            return html;
+        }
+
+        // 全局鼠标移动监听
+        document.addEventListener('mousemove', (e) => {
+            if (tooltip.style.display === 'block') {
+                moveTooltip(e);
+            }
+        });
+
         // ========== 词条属性读取 ==========
 
         // 获取指定词条的总值
@@ -2304,6 +2494,19 @@
                 slot.style.cssText = 'width:55px;height:55px;background:rgba(0,0,0,0.5);border:2px solid #555;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative;overflow:hidden;';
                 slot.dataset.index = i;
                 slot.addEventListener('click', () => useBagItem(i));
+                // tooltip事件
+                slot.addEventListener('mouseenter', (e) => {
+                    const item = bag.items[i];
+                    if (!item) return;
+                    let html = '';
+                    if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                        html = buildWeaponTooltip(item);
+                    } else {
+                        html = buildEquipTooltip(item);
+                    }
+                    if (html) showTooltip(e, html);
+                });
+                slot.addEventListener('mouseleave', hideTooltip);
                 bagGrid.appendChild(slot);
             }
             updateBagDisplay();
@@ -2515,6 +2718,25 @@
                     }
                 }
             });
+            // 装备栏tooltip
+            slot.addEventListener('mouseenter', (e) => {
+                const type = slot.dataset.slot;
+                let item = null;
+                if (type === 'weapon') {
+                    item = player.equippedWeapon;
+                } else {
+                    item = player.equipped[type];
+                }
+                if (!item) return;
+                let html = '';
+                if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                    html = buildWeaponTooltip(item);
+                } else {
+                    html = buildEquipTooltip(item);
+                }
+                if (html) showTooltip(e, html);
+            });
+            slot.addEventListener('mouseleave', hideTooltip);
         });
 
         // 游戏主循环逻辑（与渲染分离）
