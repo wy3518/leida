@@ -287,7 +287,7 @@
                     <div class="equip-slot" data-slot="ring" style="position:absolute;top:150px;right:10px;width:40px;height:40px;background:rgba(0,0,0,0.5);border:2px solid #666;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;" title="戒指">💍</div>
                 </div>
                 <!-- 右侧：武器详细信息 -->
-                <div id="weaponInfoPanel" style="width:280px;color:#d4af37;font-size:14px;max-height:500px;overflow-y:auto;">
+                <div id="weaponInfoPanel" style="width:280px;color:#d4af37;font-size:14px;">
                     <div id="weaponInfoContent" style="color:#888;">未装备武器</div>
                 </div>
                 <!-- 上古石槽位 -->
@@ -2771,6 +2771,24 @@
             const item = bag.items[index];
             if (!item) return;
 
+            // 上古石：左键放入上古石槽位
+            if (item.type === 'ancientStone') {
+                const addCount = Math.min(item.count, ancientStone.maxStack - ancientStone.count);
+                if (addCount <= 0) {
+                    createFloatingText(player.x, player.y - 40, '上古石槽位已满!', '#ff0000');
+                    return;
+                }
+                ancientStone.count += addCount;
+                item.count -= addCount;
+                if (item.count <= 0) {
+                    bag.items.splice(index, 1);
+                }
+                createFloatingText(player.x, player.y - 40, `放入${addCount}个上古石`, '#FF8C00');
+                updateAncientStoneDisplay();
+                updateBagDisplay();
+                return;
+            }
+
             // 绿武/浅绿武：装备到武器栏
             if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
                 // 卸下当前武器放回背包
@@ -2997,7 +3015,7 @@
         addToBag(initialWeapon);
 
         // 初始化：生成上古石到背包（测试用）
-        bag.items.push({ type: 'ancientStone', name: '上古石', count: 100, icon: '🗿' });
+        bag.items.push({ type: 'ancientStone', name: '上古石', count: 9999, icon: '🗿' });
 
         // 初始化角色属性
         calculatePlayerStats();
