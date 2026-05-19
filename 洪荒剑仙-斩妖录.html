@@ -428,30 +428,30 @@
         };
 
         // 词条类型定义 - 格式: {name, category, maxValue, scorePerUnit, unit}
-        // 数值上限2倍版本
+        // 数值上限4倍版本（2*2）
         const inscriptionTypes = {
             // 输出类
-            pierceDef: { name: '锋利破防', category: '输出', maxValue: 90, scorePerUnit: 100/90, unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', maxValue: 16, scorePerUnit: 100/16, unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', maxValue: 80, scorePerUnit: 100/80, unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 22, scorePerUnit: 100/22, unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 100/50, unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', maxValue: 136, scorePerUnit: 100/136, unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 124, scorePerUnit: 100/124, unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 116, scorePerUnit: 100/116, unit: '' },
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 100/180, unit: '' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 100/60, unit: '%' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 100/60, unit: '%' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 100/60, unit: '%' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 100/32, unit: '%' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 100/160, unit: '%' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 100/44, unit: '%' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 100, scorePerUnit: 100/100, unit: '%' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 100/272, unit: '' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 100/248, unit: '' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 100/232, unit: '' },
             // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', maxValue: 16, scorePerUnit: 100/16, unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', maxValue: 15, scorePerUnit: 100/15, unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', maxValue: 18, scorePerUnit: 100/18, unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 20, scorePerUnit: 100/20, unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', maxValue: 700, scorePerUnit: 100/700, unit: '' },
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 100/32, unit: '%' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 100/36, unit: '%' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 100/40, unit: '%' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 100/1400, unit: '' },
             // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', maxValue: 20, scorePerUnit: 100/20, unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 26, scorePerUnit: 100/26, unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 56, scorePerUnit: 100/56, unit: '%' }
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 100/40, unit: '%' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 100/52, unit: '%' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 112, scorePerUnit: 100/112, unit: '%' }
         };
 
         // 攻击范围全局上限
