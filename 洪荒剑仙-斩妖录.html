@@ -384,16 +384,16 @@
 
         // 深绿武器模板
         const greenWeapons = {
-            ruyidao: { name: '如意刀', class: '剑客', minAtk: 38, maxAtk: 48, element: null, growth: 1.08, totalGrowth: 97.2, reqLevel: 9, maxLevel: 99 },
-            qiankun: { name: '乾坤剑', class: '剑客', minAtk: 32, maxAtk: 42, element: '火攻', growth: 0.72, totalGrowth: 64.8, reqLevel: 9, maxLevel: 99 },
-            emeici: { name: '峨眉刺', class: '游侠', minAtk: 30, maxAtk: 40, element: null, growth: 0.95, totalGrowth: 85.5, reqLevel: 9, maxLevel: 99 },
-            yuanyang: { name: '鸳鸯双环', class: '游侠', minAtk: 29, maxAtk: 39, element: '毒攻', growth: 0.92, totalGrowth: 82.8, reqLevel: 9, maxLevel: 99 },
-            zhenhun: { name: '镇魂锤', class: '力士', minAtk: 45, maxAtk: 55, element: null, growth: 1.57, totalGrowth: 141.3, reqLevel: 9, maxLevel: 99 },
-            lieshan: { name: '裂山斧', class: '力士', minAtk: 43, maxAtk: 53, element: '冰攻', growth: 1.52, totalGrowth: 136.8, reqLevel: 9, maxLevel: 99 },
-            hanying: { name: '寒影长枪', class: '武尊', minAtk: 35, maxAtk: 45, element: null, growth: 1.02, totalGrowth: 91.8, reqLevel: 9, maxLevel: 99 },
-            zhenyue: { name: '镇岳战旗', class: '武尊', minAtk: 33, maxAtk: 43, element: '火攻', growth: 0.88, totalGrowth: 79.2, reqLevel: 9, maxLevel: 99 },
-            biyu: { name: '碧玉短杖', class: '散仙', minAtk: 18, maxAtk: 26, element: '冰攻', growth: 0.55, totalGrowth: 49.5, reqLevel: 9, maxLevel: 99 },
-            tianpu: { name: '天瀑长杖', class: '散仙', minAtk: 16, maxAtk: 24, element: '火攻', growth: 0.50, totalGrowth: 45.0, reqLevel: 9, maxLevel: 99 }
+            ruyidao: { name: '如意刀', class: '剑客', minAtk: 38, maxAtk: 48, element: null, elementGrowth: 0, growth: 1.08, totalGrowth: 97.2, reqLevel: 9, maxLevel: 99 },
+            qiankun: { name: '乾坤剑', class: '剑客', minAtk: 32, maxAtk: 42, element: '火攻', elementGrowth: 0.7, growth: 0.72, totalGrowth: 64.8, reqLevel: 9, maxLevel: 99 },
+            emeici: { name: '峨眉刺', class: '游侠', minAtk: 30, maxAtk: 40, element: null, elementGrowth: 0, growth: 0.95, totalGrowth: 85.5, reqLevel: 9, maxLevel: 99 },
+            yuanyang: { name: '鸳鸯双环', class: '游侠', minAtk: 29, maxAtk: 39, element: '毒攻', elementGrowth: 0.65, growth: 0.92, totalGrowth: 82.8, reqLevel: 9, maxLevel: 99 },
+            zhenhun: { name: '镇魂锤', class: '力士', minAtk: 45, maxAtk: 55, element: null, elementGrowth: 0, growth: 1.57, totalGrowth: 141.3, reqLevel: 9, maxLevel: 99 },
+            lieshan: { name: '裂山斧', class: '力士', minAtk: 43, maxAtk: 53, element: '冰攻', elementGrowth: 0.68, growth: 1.52, totalGrowth: 136.8, reqLevel: 9, maxLevel: 99 },
+            hanying: { name: '寒影长枪', class: '武尊', minAtk: 35, maxAtk: 45, element: null, elementGrowth: 0, growth: 1.02, totalGrowth: 91.8, reqLevel: 9, maxLevel: 99 },
+            zhenyue: { name: '镇岳战旗', class: '武尊', minAtk: 33, maxAtk: 43, element: '火攻', elementGrowth: 0.6, growth: 0.88, totalGrowth: 79.2, reqLevel: 9, maxLevel: 99 },
+            biyu: { name: '碧玉短杖', class: '散仙', minAtk: 18, maxAtk: 26, element: '冰攻', elementGrowth: 0.4, growth: 0.55, totalGrowth: 49.5, reqLevel: 9, maxLevel: 99 },
+            tianpu: { name: '天瀑长杖', class: '散仙', minAtk: 16, maxAtk: 24, element: '火攻', elementGrowth: 0.35, growth: 0.50, totalGrowth: 45.0, reqLevel: 9, maxLevel: 99 }
         };
 
         // 浅绿武器模板
@@ -538,8 +538,13 @@
             
             // 同步到 player 的攻击属性
             player.attackDamage = Math.floor(player.computedStats.physicalAtk);
-            player.maxHp = Math.floor(player.computedStats.maxHp);
+            player.maxHp = Math.floor(player.computedStats.maxHp + getHpBonus());
             player.moveSpeed = player.computedStats.moveSpeed;
+            
+            // 攻速词条：减少攻击间隔
+            const atkSpeedBonus = getAtkSpeedBonus();
+            const baseInterval = 6;
+            player.attackInterval = Math.max(2, Math.floor(baseInterval / (1 + atkSpeedBonus)));
             
             // 计算攻击范围（词条+进阶）
             updatePlayerAttackRange();
@@ -616,7 +621,10 @@
 
         // 角色获取经验
         function addPlayerExp(baseExp) {
-            player.playerExp += baseExp;
+            // 人物经验加成词条
+            const expBonus = getExpBonus();
+            const finalExp = Math.floor(baseExp * (1 + expBonus));
+            player.playerExp += finalExp;
             while (player.playerExp >= player.expToNext) {
                 player.playerExp -= player.expToNext;
                 player.expToNext = Math.floor(player.expToNext * 1.2);
@@ -1485,10 +1493,11 @@
             }
         }
 
-        function createDamageText(x, y, damage, isPlayer) {
+        function createDamageText(x, y, damage, isPlayer, isCrit) {
             damageTexts.push({
                 x: x, y: y, text: damage, life: 35,
-                color: isPlayer ? '#ff6b6b' : '#ffd93d'
+                color: isCrit ? '#FF4500' : (isPlayer ? '#ff6b6b' : '#ffd93d'),
+                fontSize: isCrit ? 18 : 14
             });
         }
 
@@ -1761,9 +1770,10 @@
         function drawDamageTexts() {
             damageTexts.forEach(d => {
                 ctx.fillStyle = d.color;
-                ctx.font = 'bold 14px SimSun';
+                ctx.font = `bold ${d.fontSize || 14}px SimSun`;
                 ctx.globalAlpha = d.life / 35;
-                ctx.fillText('-' + d.text, d.x - 8, d.y);
+                const prefix = d.fontSize > 14 ? '暴击 -' : '-';
+                ctx.fillText(prefix + d.text, d.x - 12, d.y);
                 ctx.globalAlpha = 1;
             });
         }
@@ -1835,26 +1845,128 @@
             });
         }
 
-        // 获取玩家锋利破防总值
-        function getPlayerPierceDef() {
-            let pierceDef = 0;
+        // ========== 词条属性读取 ==========
+
+        // 获取指定词条的总值
+        function getInscriptionValue(type) {
+            let total = 0;
             if (player.equippedWeapon && player.equippedWeapon.inscriptions) {
                 player.equippedWeapon.inscriptions.forEach(ins => {
-                    if (ins.type === 'pierceDef') {
-                        pierceDef += ins.value;
-                    }
+                    if (ins.type === type) total += ins.value;
                 });
             }
-            return Math.floor(pierceDef);
+            return total;
         }
 
-        // 计算实际伤害（考虑敌人防御和破防）
+        // 获取玩家锋利破防总值
+        function getPlayerPierceDef() {
+            return Math.floor(getInscriptionValue('pierceDef'));
+        }
+
+        // 获取暴击几率（百分比）
+        function getPlayerCritChance() {
+            let base = player.computedStats.crit || 0;
+            return base + getInscriptionValue('critChance');
+        }
+
+        // 获取暴击伤害倍率
+        function getPlayerCritDamage() {
+            let base = player.computedStats.critDamage || 1.5;
+            let bonus = getInscriptionValue('critDmg') / 100;
+            return base + bonus;
+        }
+
+        // 获取体型增伤百分比
+        function getSizeDamageBonus(sizeType) {
+            const typeMap = { 'S': 'smallDmg', 'M': 'mediumDmg', 'L': 'largeDmg' };
+            return getInscriptionValue(typeMap[sizeType] || '') / 100;
+        }
+
+        // 获取元素伤害总值
+        function getElementalDamage(elementType) {
+            const typeMap = { '火攻': 'fireDmg', '冰攻': 'iceDmg', '毒攻': 'poisonDmg' };
+            return getInscriptionValue(typeMap[elementType] || '');
+        }
+
+        // 获取生命汲取百分比
+        function getHpSteal() {
+            return getInscriptionValue('hpSteal') / 100;
+        }
+
+        // 获取伤害减免百分比
+        function getDmgReduce() {
+            let base = player.computedStats.damageReduce || 0;
+            let ins = getInscriptionValue('dmgReduce') / 100;
+            return base + ins;
+        }
+
+        // 获取生命上限加成
+        function getHpBonus() {
+            return getInscriptionValue('hpBonus');
+        }
+
+        // 获取攻击速度加成百分比
+        function getAtkSpeedBonus() {
+            return getInscriptionValue('atkSpeed') / 100;
+        }
+
+        // 获取人物经验加成百分比
+        function getExpBonus() {
+            return getInscriptionValue('expBonus') / 100;
+        }
+
+        // 计算实际伤害（考虑防御、破防、暴击、体型增伤、元素伤害）
         function calcActualDamage(baseDamage, enemy) {
+            let damage = baseDamage;
+
+            // 1. 破防
             const pierceDef = getPlayerPierceDef();
-            // 实际防御 = 敌人防御 - 破防（最低为0）
             const actualDefense = Math.max(0, enemy.defense - pierceDef);
-            // 最终伤害 = 基础伤害 - 实际防御（最低为1）
-            return Math.max(1, Math.floor(baseDamage - actualDefense));
+            damage = Math.max(1, damage - actualDefense);
+
+            // 2. 体型增伤
+            if (enemy.sizeType) {
+                const sizeBonus = getSizeDamageBonus(enemy.sizeType);
+                damage *= (1 + sizeBonus);
+            }
+
+            // 3. 暴击判定
+            let isCrit = false;
+            const critChance = getPlayerCritChance();
+            if (Math.random() * 100 < critChance) {
+                isCrit = true;
+                damage *= getPlayerCritDamage();
+            }
+
+            // 4. 元素伤害（武器自带 + 词条附加）
+            let elementalDmg = 0;
+            if (player.equippedWeapon) {
+                const template = greenWeapons[player.equippedWeapon.weaponId];
+                if (template && template.element) {
+                    // 武器自带元素伤害（按等级成长）
+                    const levelDiff = player.equippedWeapon.level - template.reqLevel;
+                    elementalDmg = template.elementGrowth * levelDiff || 0;
+                }
+                // 词条附加元素伤害
+                if (template && template.element) {
+                    elementalDmg += getElementalDamage(template.element);
+                }
+            }
+            damage += elementalDmg;
+
+            // 最终伤害最低1
+            damage = Math.max(1, Math.floor(damage));
+
+            // 5. 生命汲取
+            const hpSteal = getHpSteal();
+            if (hpSteal > 0 && damage > 0) {
+                const healAmount = Math.floor(damage * hpSteal);
+                if (healAmount > 0) {
+                    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+                }
+            }
+
+            return { damage, isCrit };
         }
 
         function updateProjectiles() {
@@ -1867,11 +1979,11 @@
                         const enemy = enemies[i];
                         const dist = Math.hypot(p.x - enemy.x, p.y - enemy.y);
                         if (dist < enemy.radius + 6) {
-                            // 计算实际伤害（考虑防御和破防）
-                            const actualDamage = calcActualDamage(p.damage, enemy);
-                            enemy.hp -= actualDamage;
-                            createDamageText(enemy.x, enemy.y - 20, actualDamage, true);
-                            createParticles(p.x, p.y, '#ffd700', 6);
+                            // 计算实际伤害（考虑防御、破防、暴击、体型增伤、元素伤害）
+                            const result = calcActualDamage(p.damage, enemy);
+                            enemy.hp -= result.damage;
+                            createDamageText(enemy.x, enemy.y - 20, result.damage, true, result.isCrit);
+                            createParticles(p.x, p.y, result.isCrit ? '#FF4500' : '#ffd700', result.isCrit ? 12 : 6);
                             if (enemy.hp <= 0) {
                                 createParticles(enemy.x, enemy.y, enemy.color, 18);
                                 createFloatingText(enemy.x, enemy.y - 30, '斩!', '#ffd700');
@@ -1895,8 +2007,11 @@
                     if (playerAlive) {
                         const dist = Math.hypot(p.x - player.x, p.y - player.y);
                         if (dist < player.radius + 6) {
-                            player.hp -= p.damage;
-                            createDamageText(player.x, player.y - 28, p.damage, false);
+                            // 伤害减免
+                            const dmgReduce = getDmgReduce();
+                            const finalDamage = Math.max(1, Math.floor(p.damage * (1 - dmgReduce)));
+                            player.hp -= finalDamage;
+                            createDamageText(player.x, player.y - 28, finalDamage, false);
                             createParticles(p.x, p.y, '#8b0000', 6);
                             updateUI();
                             if (player.hp <= 0) playerDied();
