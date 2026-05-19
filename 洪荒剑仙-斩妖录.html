@@ -290,6 +290,12 @@
                 <div id="weaponInfoPanel" style="width:280px;color:#d4af37;font-size:14px;max-height:500px;overflow-y:auto;">
                     <div id="weaponInfoContent" style="color:#888;">未装备武器</div>
                 </div>
+                <!-- 上古石槽位 -->
+                <div style="width:60px;display:flex;flex-direction:column;align-items:center;">
+                    <div style="color:#FF8C00;font-size:11px;margin-bottom:5px;">上古石</div>
+                    <div id="ancientStoneSlot" style="width:50px;height:50px;background:rgba(0,0,0,0.5);border:2px solid #FF8C00;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;position:relative;box-shadow:0 0 10px rgba(255,140,0,0.3);" title="上古石槽位 - 提升词条品质概率">🗿</div>
+                    <div id="ancientStoneCount" style="color:#FF8C00;font-size:11px;margin-top:3px;">0</div>
+                </div>
             </div>
             <button id="closeEquip" style="position:absolute;top:10px;right:10px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:5px 12px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:16px;">✕</button>
         </div>
@@ -885,7 +891,16 @@
         function generateInscription(weapon) {
             const types = Object.keys(inscriptionTypes);
             const qualities = ['common', 'fine', 'excellent', 'perfect'];
-            const qualityWeights = [0.55, 0.30, 0.12, 0.03];
+            
+            // 上古石效果：提升高品质词条概率
+            let qualityWeights;
+            if (ancientStone.count > 0) {
+                // 有上古石：白35% 蓝35% 紫20% 金10%
+                qualityWeights = [0.35, 0.35, 0.20, 0.10];
+            } else {
+                // 无上古石：白55% 蓝30% 紫12% 金3%
+                qualityWeights = [0.55, 0.30, 0.12, 0.03];
+            }
             
             let selectedType;
             
@@ -943,17 +958,26 @@
             // 计算分数
             const score = actualValue * typeConfig.scorePerUnit;
             
+            // 返回词条信息，标记是否使用了上古石
             return {
                 type: selectedType,
                 quality: quality,
                 value: actualValue,
-                score: Math.floor(score)
+                score: Math.floor(score),
+                usedAncientStone: ancientStone.count > 0
             };
         }
 
         // 词条解锁函数
         function unlockInscription(weapon) {
             const newInscription = generateInscription(weapon);
+            
+            // 消耗上古石
+            if (newInscription.usedAncientStone && ancientStone.count > 0) {
+                ancientStone.count--;
+                updateAncientStoneDisplay();
+                createFloatingText(player.x, player.y - 60, '上古石加持！', '#FF8C00');
+            }
             
             // 检查是否已有同类型词条
             const existingIndex = weapon.inscriptions.findIndex(i => i.type === newInscription.type);
@@ -1310,6 +1334,12 @@
         const storage = {
             maxSize: 100,
             items: []
+        };
+
+        // 上古石数据
+        let ancientStone = {
+            count: 0,        // 当前数量
+            maxStack: 9999   // 最大堆叠
         };
 
         // 装备品质配置
@@ -2335,6 +2365,62 @@
         });
 
         // 更新装备栏显示
+        // 更新上古石显示
+        function updateAncientStoneDisplay() {
+            const slot = document.getElementById('ancientStoneSlot');
+            const countEl = document.getElementById('ancientStoneCount');
+            if (ancientStone.count > 0) {
+                slot.innerHTML = '🗿';
+                slot.style.boxShadow = '0 0 15px #FF8C00, inset 0 0 10px rgba(255,140,0,0.3)';
+                countEl.textContent = ancientStone.count;
+                countEl.style.color = '#FFD700';
+            } else {
+                slot.innerHTML = '';
+                slot.style.boxShadow = '0 0 10px rgba(255,140,0,0.3)';
+                countEl.textContent = '0';
+                countEl.style.color = '#FF8C00';
+            }
+        }
+
+        // 上古石槽位交互
+        document.getElementById('ancientStoneSlot').addEventListener('click', () => {
+            // 从背包取出上古石放入槽位
+            if (ancientStone.count < ancientStone.maxStack) {
+                // 查找背包中的上古石
+                const bagIndex = bag.items.findIndex(item => item && item.type === 'ancientStone');
+                if (bagIndex >= 0) {
+                    const item = bag.items[bagIndex];
+                    const addCount = Math.min(item.count, ancientStone.maxStack - ancientStone.count);
+                    ancientStone.count += addCount;
+                    item.count -= addCount;
+                    if (item.count <= 0) {
+                        bag.items.splice(bagIndex, 1);
+                    }
+                    createFloatingText(player.x, player.y - 40, `放入${addCount}个上古石`, '#FF8C00');
+                    updateAncientStoneDisplay();
+                    updateBagDisplay();
+                }
+            }
+        });
+        // 右键取出上古石到背包
+        document.getElementById('ancientStoneSlot').addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (ancientStone.count > 0) {
+                const takeCount = Math.min(ancientStone.count, 100);
+                ancientStone.count -= takeCount;
+                // 放入背包
+                const existingStone = bag.items.find(item => item && item.type === 'ancientStone');
+                if (existingStone) {
+                    existingStone.count += takeCount;
+                } else {
+                    bag.items.push({ type: 'ancientStone', name: '上古石', count: takeCount, icon: '🗿' });
+                }
+                createFloatingText(player.x, player.y - 40, `取出${takeCount}个上古石`, '#FF8C00');
+                updateAncientStoneDisplay();
+                updateBagDisplay();
+            }
+        });
+
         function updateEquipPanel() {
             const weapon = player.equippedWeapon;
             const content = document.getElementById('weaponInfoContent');
@@ -2632,8 +2718,15 @@
             slots.forEach((slot, i) => {
                 const item = bag.items[i];
                 if (item) {
+                    // 上古石
+                    if (item.type === 'ancientStone') {
+                        slot.innerHTML = `<span style="font-size:20px;">🗿</span><span style="font-size:9px;color:#FFD700;position:absolute;bottom:2px;">×${item.count}</span>`;
+                        slot.style.borderColor = '#FF8C00';
+                        slot.style.boxShadow = '0 0 10px #FF8C00, inset 0 0 5px rgba(255,140,0,0.3)';
+                        slot.title = `上古石 ×${item.count}\n提升词条品质概率`;
+                    }
                     // 判断是否是绿武/浅绿武
-                    if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                    else if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
                         let borderColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
                         let glowColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
                         if (item.type === 'greenWeapon' && item.stage > 0) {
@@ -2902,6 +2995,9 @@
         // 初始化：自动创建如意刀放入背包
         const initialWeapon = createGreenWeaponInstance('ruyidao');
         addToBag(initialWeapon);
+
+        // 初始化：生成上古石到背包（测试用）
+        bag.items.push({ type: 'ancientStone', name: '上古石', count: 100, icon: '🗿' });
 
         // 初始化角色属性
         calculatePlayerStats();
