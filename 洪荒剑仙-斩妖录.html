@@ -501,30 +501,30 @@
         };
 
         // 词条类型定义 - 格式: {name, category, maxValue, scorePerUnit, unit}
-        // 数值上限4倍版本（2*2）
+        // 新评分系统：每种词条满分300分（原100分 × 3）
         const inscriptionTypes = {
-            // 输出类
-            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 100/180, unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 100/60, unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 100/60, unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 100/60, unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 100/32, unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 100/160, unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 100/44, unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 100/50, unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 100/272, unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 100/248, unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 100/232, unit: '' },
+            // 输出类 - 原数值×4上限，scorePerUnit×3让满分=300
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 300/180, unit: '' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 300/60, unit: '%' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 300/60, unit: '%' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 300/60, unit: '%' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 300/32, unit: '%' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 300/160, unit: '%' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 300/44, unit: '%' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 300/50, unit: '%' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 300/272, unit: '' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 300/248, unit: '' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 300/232, unit: '' },
             // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 100/32, unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 100/30, unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 100/36, unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 100/40, unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 100/1400, unit: '' },
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 300/32, unit: '%' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 300/30, unit: '%' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 300/36, unit: '%' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 300/40, unit: '%' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 300/1400, unit: '' },
             // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 100/40, unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 100/52, unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 100/80, unit: '%' }
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 300/40, unit: '%' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 300/52, unit: '%' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 300/80, unit: '%' }
         };
 
         // 攻击范围全局上限
@@ -608,7 +608,23 @@
                     }
                 }
             }
-            
+
+            // 称号加成
+            let titleBonus = { atkBonus: 0, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 };
+            if (player.equippedWeapon && player.equippedWeapon.scoreRating) {
+                const bonus = player.equippedWeapon.scoreRating.bonus;
+                if (bonus) {
+                    titleBonus = bonus;
+                }
+            }
+
+            // 应用称号加成
+            player.computedStats.physicalAtk *= (1 + titleBonus.atkBonus);
+            player.computedStats.maxHp *= (1 + titleBonus.hpBonus);
+            player.computedStats.crit += titleBonus.critBonus;
+            player.computedStats.damageReduce += titleBonus.dmgReduceBonus;
+            player.computedStats.elementalAtk *= (1 + titleBonus.elementBonus);
+
             // 同步到 player 的攻击属性
             player.attackDamage = Math.floor(player.computedStats.physicalAtk);
             player.maxHp = Math.floor(player.computedStats.maxHp + getHpBonus());
@@ -1030,13 +1046,23 @@
             weapon.scoreRating = getScoreRating(totalScore);
         }
 
+        // 称号配置（新评分系统）
+        const titleBonuses = {
+            '凡铁': { atkBonus: 0, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 },
+            '精钢': { atkBonus: 0.02, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 },
+            '灵器': { atkBonus: 0.03, hpBonus: 0.03, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0 },
+            '仙兵': { atkBonus: 0.05, hpBonus: 0.05, critBonus: 0.01, dmgReduceBonus: 0, elementBonus: 0 },
+            '神器': { atkBonus: 0.07, hpBonus: 0.07, critBonus: 0.02, dmgReduceBonus: 0.03, elementBonus: 0 },
+            '圣物': { atkBonus: 0.10, hpBonus: 0.10, critBonus: 0.03, dmgReduceBonus: 0.05, elementBonus: 0.05 }
+        };
+
         function getScoreRating(score) {
-            if (score >= 1500) return { name: '神话', color: '#FF0000', title: '圣物' };
-            if (score >= 1200) return { name: '史诗', color: '#FFD700', title: '神器' };
-            if (score >= 900) return { name: '传说', color: '#FF8C00', title: '仙兵' };
-            if (score >= 600) return { name: '精良', color: '#9370DB', title: '灵器' };
-            if (score >= 300) return { name: '优秀', color: '#4169E1', title: '精钢' };
-            return { name: '普通', color: '#FFFFFF', title: '凡铁' };
+            if (score >= 1700) return { name: '神话', color: '#FF0000', title: '圣物', bonus: titleBonuses['圣物'] };
+            if (score >= 1100) return { name: '史诗', color: '#FFD700', title: '神器', bonus: titleBonuses['神器'] };
+            if (score >= 650) return { name: '传说', color: '#FF8C00', title: '仙兵', bonus: titleBonuses['仙兵'] };
+            if (score >= 350) return { name: '精良', color: '#9370DB', title: '灵器', bonus: titleBonuses['灵器'] };
+            if (score >= 150) return { name: '优秀', color: '#4169E1', title: '精钢', bonus: titleBonuses['精钢'] };
+            return { name: '普通', color: '#FFFFFF', title: '凡铁', bonus: titleBonuses['凡铁'] };
         }
 
         // 武器进阶
@@ -2500,9 +2526,19 @@
             // 武器评分
             if (isDeepGreen) {
                 let rating = weapon.scoreRating || getScoreRating(weapon.totalScore || 0);
+                let bonusText = '';
+                if (rating.bonus) {
+                    let bonuses = [];
+                    if (rating.bonus.atkBonus > 0) bonuses.push(`物攻+${(rating.bonus.atkBonus * 100).toFixed(0)}%`);
+                    if (rating.bonus.hpBonus > 0) bonuses.push(`生命+${(rating.bonus.hpBonus * 100).toFixed(0)}%`);
+                    if (rating.bonus.critBonus > 0) bonuses.push(`暴击+${(rating.bonus.critBonus * 100).toFixed(0)}%`);
+                    if (rating.bonus.dmgReduceBonus > 0) bonuses.push(`减伤+${(rating.bonus.dmgReduceBonus * 100).toFixed(0)}%`);
+                    if (rating.bonus.elementBonus > 0) bonuses.push(`元素+${(rating.bonus.elementBonus * 100).toFixed(0)}%`);
+                    if (bonuses.length > 0) bonusText = ` <span style="color:#4CAF50;">(${bonuses.join(', ')})</span>`;
+                }
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;font-size:13px;">
                     <div style="color:#d4af37;">武器评分: <span style="color:${rating.color};font-weight:bold;font-size:16px;">${weapon.totalScore || 0}</span> <span style="color:${rating.color};">[${rating.name}]</span></div>
-                    <div style="color:#888;font-size:11px;">称号: ${rating.title}</div>
+                    <div style="color:#888;font-size:11px;">称号: ${rating.title}${bonusText}</div>
                 </div>`;
             }
 
