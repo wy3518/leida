@@ -1016,7 +1016,7 @@
                 const typeConfig = inscriptionTypes[newInscription.type];
                 if (existing.value > typeConfig.maxValue) {
                     existing.value = typeConfig.maxValue;
-                    existing.score = 100; // 满分
+                    existing.score = Math.floor(typeConfig.maxValue * typeConfig.scorePerUnit); // 满分
                 }
                 
                 showInscriptionMerge(weapon.name, typeConfig.name, existing.value, existing.score);
