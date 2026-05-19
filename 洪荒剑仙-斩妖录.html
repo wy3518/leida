@@ -2045,85 +2045,85 @@
 
             let html = '';
             // 武器名称
-            html += `<div style="font-size:16px;color:${stageColor};margin-bottom:8px;font-weight:bold;">${weapon.name}</div>`;
+            html += `<div style="font-size:24px;color:${stageColor};margin-bottom:12px;font-weight:bold;">${weapon.name}</div>`;
 
             // 等级和经验
-            html += `<div style="margin-bottom:5px;">等级: <span style="color:#fff;">${weapon.level}</span>/${template ? template.maxLevel : '?'}</div>`;
+            html += `<div style="margin-bottom:8px;font-size:16px;">等级: <span style="color:#fff;">${weapon.level}</span>/${template ? template.maxLevel : '?'}</div>`;
             let expPercent = weapon.expToNext > 0 ? (weapon.exp / weapon.expToNext * 100) : 0;
-            html += `<div style="margin-bottom:5px;">经验: ${weapon.exp}/${weapon.expToNext}</div>`;
-            html += `<div style="width:100%;height:8px;background:#333;border-radius:4px;margin:5px 0 10px 0;overflow:hidden;">
+            html += `<div style="margin-bottom:8px;font-size:16px;">经验: ${weapon.exp}/${weapon.expToNext}</div>`;
+            html += `<div style="width:100%;height:10px;background:#333;border-radius:4px;margin:8px 0 15px 0;overflow:hidden;">
                 <div style="width:${expPercent}%;height:100%;background:linear-gradient(90deg,#90EE90,#4CAF50);transition:width 0.3s;"></div>
             </div>`;
 
             // 攻击力
-            html += `<div style="margin-bottom:3px;">基础攻击: <span style="color:#FF6347;">${atkInfo.minAtk}~${atkInfo.maxAtk}</span></div>`;
-            html += `<div style="margin-bottom:3px;">最终攻击: <span style="color:#FF4500;font-weight:bold;">${atkInfo.finalMinAtk}~${atkInfo.finalMaxAtk}</span></div>`;
+            html += `<div style="margin-bottom:6px;font-size:16px;">基础攻击: <span style="color:#FF6347;">${atkInfo.minAtk}~${atkInfo.maxAtk}</span></div>`;
+            html += `<div style="margin-bottom:6px;font-size:16px;">最终攻击: <span style="color:#FF4500;font-weight:bold;">${atkInfo.finalMinAtk}~${atkInfo.finalMaxAtk}</span></div>`;
 
             // 爆攻（仅深绿）
             if (isDeepGreen) {
-                html += `<div style="margin-bottom:3px;">爆攻: <span style="color:#FF8C00;">+${weapon.totalBurstAtk}</span>/60</div>`;
+                html += `<div style="margin-bottom:6px;font-size:16px;">爆攻: <span style="color:#FF8C00;">+${weapon.totalBurstAtk}</span>/60</div>`;
             }
 
             // 耐久
             let duraColor = weapon.durability > weapon.maxDurability * 0.3 ? '#22c55e' : '#dc2626';
-            html += `<div style="margin-bottom:3px;">耐久: <span style="color:${duraColor};">${weapon.durability}</span>/${weapon.maxDurability}</div>`;
+            html += `<div style="margin-bottom:6px;font-size:16px;">耐久: <span style="color:${duraColor};">${weapon.durability}</span>/${weapon.maxDurability}</div>`;
 
             // 进阶（仅深绿）
             if (isDeepGreen) {
                 let stageName = weaponStages[weapon.stage].name;
                 let nextReq = stageRequirements[weapon.stage + 1];
-                html += `<div style="margin-bottom:3px;">进阶: <span style="color:${stageColor};">${stageName}</span>`;
+                html += `<div style="margin-bottom:6px;font-size:16px;">进阶: <span style="color:${stageColor};">${stageName}</span>`;
                 if (nextReq && weapon.level < nextReq.reqLevel) {
-                    html += ` <span style="color:#888;font-size:11px;">(需${nextReq.reqLevel}级)</span>`;
+                    html += ` <span style="color:#888;font-size:14px;">(需${nextReq.reqLevel}级)</span>`;
                 } else if (nextReq) {
-                    html += ` <span style="color:#FFD700;font-size:11px;">(可进阶 ${Math.floor(nextReq.successRate*100)}%)</span>`;
+                    html += ` <span style="color:#FFD700;font-size:14px;">(可进阶 ${Math.floor(nextReq.successRate*100)}%)</span>`;
                 }
                 html += `</div>`;
             }
 
             // 绑定状态
-            html += `<div style="margin-bottom:3px;">绑定: <span style="color:${weapon.bound ? '#FFD700' : '#888'};">${weapon.bound ? '已认主' : '未绑定'}</span></div>`;
+            html += `<div style="margin-bottom:6px;font-size:16px;">绑定: <span style="color:${weapon.bound ? '#FFD700' : '#888'};">${weapon.bound ? '已认主' : '未绑定'}</span></div>`;
 
             // 元素属性
             if (template && template.element) {
                 let elemColor = template.element === '火攻' ? '#FF4500' : (template.element === '冰攻' ? '#00BFFF' : '#32CD32');
-                html += `<div style="margin-bottom:3px;">元素: <span style="color:${elemColor};">${template.element}</span></div>`;
+                html += `<div style="margin-bottom:6px;font-size:16px;">元素: <span style="color:${elemColor};">${template.element}</span></div>`;
             }
 
             // 武器评分
             if (isDeepGreen) {
                 let rating = weapon.scoreRating || getScoreRating(weapon.totalScore || 0);
-                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;">
-                    <div style="color:#d4af37;">武器评分: <span style="color:${rating.color};font-weight:bold;">${weapon.totalScore || 0}</span> <span style="color:${rating.color};">[${rating.name}]</span></div>
-                    <div style="color:#888;font-size:11px;">称号: ${rating.title}</div>
+                html += `<div style="margin-top:12px;border-top:1px solid #333;padding-top:8px;font-size:16px;">
+                    <div style="color:#d4af37;">武器评分: <span style="color:${rating.color};font-weight:bold;font-size:20px;">${weapon.totalScore || 0}</span> <span style="color:${rating.color};">[${rating.name}]</span></div>
+                    <div style="color:#888;font-size:14px;">称号: ${rating.title}</div>
                 </div>`;
             }
 
             // 词条（仅深绿）
             if (isDeepGreen && weapon.inscriptions && weapon.inscriptions.length > 0) {
-                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#d4af37;">词条 (${weapon.inscriptions.length}种):</div>`;
+                html += `<div style="margin-top:12px;border-top:1px solid #333;padding-top:8px;color:#d4af37;font-size:18px;">词条 (${weapon.inscriptions.length}种):</div>`;
                 weapon.inscriptions.forEach((ins, idx) => {
                     let typeDef = inscriptionTypes[ins.type];
                     let qualityDef = inscriptionQualities[ins.quality];
-                    html += `<div style="color:${qualityDef.color};font-size:11px;margin-left:8px;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} [${ins.score}分]</div>`;
+                    html += `<div style="color:${qualityDef.color};font-size:15px;margin:6px 0 6px 10px;line-height:1.4;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
                 });
             } else if (isDeepGreen) {
-                html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;">词条: 12级开始解锁，每3级获得一次</div>`;
+                html += `<div style="margin-top:12px;border-top:1px solid #333;padding-top:8px;color:#555;font-size:14px;">词条: 12级开始解锁，每3级获得一次</div>`;
             }
 
             // 操作按钮
-            html += `<div style="margin-top:10px;display:flex;gap:8px;">`;
+            html += `<div style="margin-top:15px;display:flex;gap:10px;">`;
             if (isDeepGreen && !weapon.bound) {
-                html += `<button onclick="bindWeapon(player.equippedWeapon);updateEquipPanel();" style="background:#8b4513;color:#FFD700;border:1px solid #d4af37;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">认主绑定</button>`;
+                html += `<button onclick="bindWeapon(player.equippedWeapon);updateEquipPanel();" style="background:#8b4513;color:#FFD700;border:1px solid #d4af37;padding:6px 15px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:15px;">认主绑定</button>`;
             }
             if (isDeepGreen) {
-                html += `<button onclick="if(confirm('确认重生？等级、词条、爆攻、进阶将全部重置！')){rebirthWeapon(player.equippedWeapon);updateEquipPanel();}" style="background:#8B0000;color:#00FFAA;border:1px solid #00FFAA;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">🔄重生</button>`;
+                html += `<button onclick="if(confirm('确认重生？等级、词条、爆攻、进阶将全部重置！')){rebirthWeapon(player.equippedWeapon);updateEquipPanel();}" style="background:#8B0000;color:#00FFAA;border:1px solid #00FFAA;padding:6px 15px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:15px;">🔄重生</button>`;
             }
             if (isDeepGreen && stageRequirements[weapon.stage + 1] && weapon.level >= stageRequirements[weapon.stage + 1].reqLevel) {
-                html += `<button onclick="attemptWeaponStageUp(player.equippedWeapon);updateEquipPanel();" style="background:#4a7c59;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">尝试进阶</button>`;
+                html += `<button onclick="attemptWeaponStageUp(player.equippedWeapon);updateEquipPanel();" style="background:#4a7c59;color:#fff;border:none;padding:6px 15px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:15px;">尝试进阶</button>`;
             }
             // 卸下武器
-            html += `<button onclick="unequipWeapon();" style="background:#555;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:3px;font-size:11px;">卸下</button>`;
+            html += `<button onclick="unequipWeapon();" style="background:#555;color:#fff;border:none;padding:6px 15px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:15px;">卸下</button>`;
             html += `</div>`;
 
             content.innerHTML = html;
