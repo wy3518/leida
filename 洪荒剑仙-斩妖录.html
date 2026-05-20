@@ -2565,7 +2565,8 @@
                 weapon.inscriptions.forEach((ins, idx) => {
                     let typeDef = inscriptionTypes[ins.type];
                     let qualityDef = inscriptionQualities[ins.quality];
-                    html += `<div style="color:${qualityDef.color};font-size:12px;margin:2px 0 2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
+                    let maxScore = Math.floor(typeDef.maxValue * typeDef.scorePerUnit);
+                    html += `<div style="color:${qualityDef.color};font-size:12px;margin:2px 0 2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[上限${maxScore}分] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
                 });
             } else if (isDeepGreen) {
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;font-size:12px;">词条: 12级开始解锁，每3级获得一次</div>`;
