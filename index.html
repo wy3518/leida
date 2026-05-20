@@ -919,8 +919,8 @@
             // 上古石效果：提升高品质词条概率
             let qualityWeights;
             if (ancientStone.count > 0) {
-                // 有上古石：白30% 蓝35% 紫25% 金10%
-                qualityWeights = [0.30, 0.35, 0.25, 0.10];
+                // 有上古石：白44% 蓝33% 紫18% 金5%
+                qualityWeights = [0.44, 0.33, 0.18, 0.05];
             } else {
                 // 无上古石：白55% 蓝30% 紫12% 金3%
                 qualityWeights = [0.55, 0.30, 0.12, 0.03];
@@ -1057,19 +1057,19 @@
         // 称号配置（新评分系统）
         const titleBonuses = {
             '凡铁': { atkBonus: 0, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0, weaponExpBonus: 0 },
-            '精钢': { atkBonus: 0.02, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.01, weaponExpBonus: 0 },
-            '灵器': { atkBonus: 0.03, hpBonus: 0.03, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.02, weaponExpBonus: 0.02 },
-            '仙兵': { atkBonus: 0.05, hpBonus: 0.05, critBonus: 0.01, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.03, weaponExpBonus: 0.03 },
-            '神器': { atkBonus: 0.07, hpBonus: 0.07, critBonus: 0.02, dmgReduceBonus: 0.03, elementBonus: 0, playerExpBonus: 0.04, weaponExpBonus: 0.05 },
-            '圣物': { atkBonus: 0.10, hpBonus: 0.10, critBonus: 0.03, dmgReduceBonus: 0.05, elementBonus: 0.05, playerExpBonus: 0.05, weaponExpBonus: 0.08 }
+            '精钢': { atkBonus: 0, hpBonus: 0.01, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.01, weaponExpBonus: 0.01 },
+            '灵器': { atkBonus: 0, hpBonus: 0.02, critBonus: 0.005, dmgReduceBonus: 0.01, elementBonus: 0, playerExpBonus: 0.02, weaponExpBonus: 0.02 },
+            '仙兵': { atkBonus: 0, hpBonus: 0.03, critBonus: 0.01, dmgReduceBonus: 0.02, elementBonus: 0, playerExpBonus: 0.03, weaponExpBonus: 0.03 },
+            '神器': { atkBonus: 0, hpBonus: 0.05, critBonus: 0.015, dmgReduceBonus: 0.03, elementBonus: 0, playerExpBonus: 0.04, weaponExpBonus: 0.05 },
+            '圣物': { atkBonus: 0.03, hpBonus: 0.08, critBonus: 0.02, dmgReduceBonus: 0.05, elementBonus: 0.03, playerExpBonus: 0.05, weaponExpBonus: 0.08 }
         };
 
         function getScoreRating(score) {
-            if (score >= 1530) return { name: '神话', color: '#FF0000', title: '圣物', bonus: titleBonuses['圣物'] };
-            if (score >= 1470) return { name: '史诗', color: '#FFD700', title: '神器', bonus: titleBonuses['神器'] };
-            if (score >= 1000) return { name: '传说', color: '#FF8C00', title: '仙兵', bonus: titleBonuses['仙兵'] };
-            if (score >= 500) return { name: '精良', color: '#9370DB', title: '灵器', bonus: titleBonuses['灵器'] };
-            if (score >= 200) return { name: '优秀', color: '#4169E1', title: '精钢', bonus: titleBonuses['精钢'] };
+            if (score >= 1700) return { name: '神话', color: '#FF0000', title: '圣物', bonus: titleBonuses['圣物'] };
+            if (score >= 1650) return { name: '史诗', color: '#FFD700', title: '神器', bonus: titleBonuses['神器'] };
+            if (score >= 1600) return { name: '传说', color: '#FF8C00', title: '仙兵', bonus: titleBonuses['仙兵'] };
+            if (score >= 1000) return { name: '精良', color: '#9370DB', title: '灵器', bonus: titleBonuses['灵器'] };
+            if (score >= 500) return { name: '优秀', color: '#4169E1', title: '精钢', bonus: titleBonuses['精钢'] };
             return { name: '普通', color: '#FFFFFF', title: '凡铁', bonus: titleBonuses['凡铁'] };
         }
 
@@ -2555,7 +2555,7 @@
                 }
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;font-size:13px;">
                     <div style="color:#d4af37;">武器评分: <span style="color:${rating.color};font-weight:bold;font-size:16px;">${weapon.totalScore || 0}</span> <span style="color:${rating.color};">[${rating.name}]</span></div>
-                    <div style="color:#888;font-size:11px;">称号: ${rating.title}${bonusText}</div>
+                    <div style="color:${rating.color};font-size:11px;">称号: ${rating.title}${bonusText}</div>
                 </div>`;
             }
 
