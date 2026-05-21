@@ -260,7 +260,7 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button>
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
         </div>
         
         <!-- 装备栏界面 -->
@@ -321,6 +321,13 @@
                 <span style="color:#666;font-size:9px;">右键存 / 左键取</span>
             </div>
             <button id="closeBag" style="position:absolute;top:8px;right:8px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:3px 8px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:12px;">✕</button>
+        </div>
+
+        <!-- 皮肤选择面板 -->
+        <div id="skinPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.95);border:3px solid #9b59b6;border-radius:15px;padding:20px;z-index:10001;box-shadow:0 0 30px rgba(155,89,182,0.5);width:400px;">
+            <div style="text-align:center;color:#9b59b6;font-size:20px;margin-bottom:15px;font-weight:bold;">🎨 角色皮肤</div>
+            <div id="skinList" style="max-height:400px;overflow-y:auto;"></div>
+            <button id="closeSkin" style="position:absolute;top:8px;right:8px;background:#9b59b6;color:#fff;border:none;padding:5px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;">✕</button>
         </div>
     </div>
 
@@ -396,6 +403,17 @@
                 cdReduce: 0.001
             }
         };
+
+        // 皮肤系统
+        const playerSkins = {
+            jianxian: { id: 'jianxian', name: '剑仙', desc: '金色圆形+3把飞剑', price: 0, color: '#ffd700', unlocked: true },
+            jianke: { id: 'jianke', name: '剑客', desc: '人形+背后长剑', price: 1000, color: '#4a90d9', unlocked: true },
+            fashi: { id: 'fashi', name: '法师', desc: '人形+法杖+魔法粒子', price: 2000, color: '#9b59b6', unlocked: true },
+            cike: { id: 'cike', name: '刺客', desc: '人形+双匕首+残影', price: 3000, color: '#2ecc71', unlocked: true },
+            shenlong: { id: 'shenlong', name: '神龙', desc: '龙形态+龙息', price: 5000, color: '#e74c3c', unlocked: true },
+            jiajia: { id: 'jiajia', name: '机甲', desc: '机械风格+科技光效', price: 10000, color: '#3498db', unlocked: true }
+        };
+        let currentSkinId = localStorage.getItem('playerSkin') || 'jianxian';
 
         const player = {
             x: centerX,
@@ -1726,36 +1744,196 @@
 
         function drawPlayer() {
             if (!playerAlive) return;
-            ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI * 2);
-            ctx.stroke();
+            const skin = playerSkins[currentSkinId];
+            const skinColor = skin.color;
 
-            ctx.fillStyle = '#ffd700';
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#ffd700';
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = '#fff8dc';
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, 7, 0, Math.PI * 2);
-            ctx.fill();
-
-            player.swordAngle += 0.08;
-            for (let i = 0; i < 3; i++) {
-                const angle = player.swordAngle + (i * Math.PI * 2 / 3);
-                const sx = player.x + Math.cos(angle) * 20;
-                const sy = player.y + Math.sin(angle) * 20;
-                ctx.strokeStyle = '#ffd700';
+            // 根据皮肤类型绘制不同形象
+            if (currentSkinId === 'jianxian') {
+                // 剑仙：金色圆形+3把飞剑
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.3)';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.moveTo(sx - 6, sy);
-                ctx.lineTo(sx + 6, sy);
+                ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI * 2);
                 ctx.stroke();
+                ctx.fillStyle = skinColor;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = skinColor;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fff8dc';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, 7, 0, Math.PI * 2);
+                ctx.fill();
+                player.swordAngle += 0.08;
+                for (let i = 0; i < 3; i++) {
+                    const angle = player.swordAngle + (i * Math.PI * 2 / 3);
+                    const sx = player.x + Math.cos(angle) * 20;
+                    const sy = player.y + Math.sin(angle) * 20;
+                    ctx.strokeStyle = skinColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(sx - 6, sy);
+                    ctx.lineTo(sx + 6, sy);
+                    ctx.stroke();
+                }
+            } else if (currentSkinId === 'jianke') {
+                // 剑客：人形+背后长剑
+                ctx.fillStyle = skinColor;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = skinColor;
+                // 身体
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+                // 头部
+                ctx.fillStyle = '#ffe4c4';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y - player.radius - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                // 长剑
+                ctx.strokeStyle = '#c0c0c0';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(player.x + 10, player.y - 20);
+                ctx.lineTo(player.x + 10, player.y + 25);
+                ctx.stroke();
+                ctx.strokeStyle = skinColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(player.x + 10, player.y - 20);
+                ctx.lineTo(player.x + 10, player.y - 30);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            } else if (currentSkinId === 'fashi') {
+                // 法师：人形+法杖+魔法粒子
+                ctx.fillStyle = skinColor;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = skinColor;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffe4c4';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y - player.radius - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                // 法杖
+                ctx.strokeStyle = '#8b4513';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(player.x + 12, player.y - 25);
+                ctx.lineTo(player.x + 12, player.y + 20);
+                ctx.stroke();
+                // 法杖顶端宝石
+                ctx.fillStyle = skinColor;
+                ctx.beginPath();
+                ctx.arc(player.x + 12, player.y - 28, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                // 魔法粒子
+                player.swordAngle = (player.swordAngle || 0) + 0.1;
+                for (let i = 0; i < 4; i++) {
+                    const angle = player.swordAngle + i * Math.PI / 2;
+                    const px = player.x + Math.cos(angle) * 25;
+                    const py = player.y + Math.sin(angle) * 25;
+                    ctx.fillStyle = `rgba(155, 89, 182, ${0.5 + Math.sin(player.swordAngle + i) * 0.3})`;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else if (currentSkinId === 'cike') {
+                // 刺客：人形+双匕首+残影
+                ctx.fillStyle = skinColor;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = skinColor;
+                // 残影
+                ctx.fillStyle = 'rgba(46, 204, 113, 0.3)';
+                for (let i = 1; i <= 3; i++) {
+                    ctx.beginPath();
+                    ctx.arc(player.x - i * 5, player.y, player.radius - 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                // 主体
+                ctx.fillStyle = skinColor;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffe4c4';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y - player.radius - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                // 双匕首
+                ctx.strokeStyle = '#c0c0c0';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(player.x - 8, player.y - 5);
+                ctx.lineTo(player.x - 15, player.y - 15);
+                ctx.moveTo(player.x + 8, player.y - 5);
+                ctx.lineTo(player.x + 15, player.y - 15);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            } else if (currentSkinId === 'shenlong') {
+                // 神龙：龙形态+龙息
+                ctx.fillStyle = skinColor;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = skinColor;
+                // 龙身
+                ctx.beginPath();
+                ctx.ellipse(player.x, player.y, player.radius + 5, player.radius, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // 龙头
+                ctx.beginPath();
+                ctx.arc(player.x + player.radius, player.y - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+                // 龙角
+                ctx.strokeStyle = '#ffcc00';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(player.x + player.radius + 5, player.y - 12);
+                ctx.lineTo(player.x + player.radius + 10, player.y - 20);
+                ctx.moveTo(player.x + player.radius + 5, player.y - 2);
+                ctx.lineTo(player.x + player.radius + 10, player.y + 5);
+                ctx.stroke();
+                // 龙息
+                player.swordAngle = (player.swordAngle || 0) + 0.15;
+                ctx.fillStyle = 'rgba(255, 100, 0, 0.6)';
+                for (let i = 0; i < 3; i++) {
+                    const px = player.x + player.radius + 15 + i * 8;
+                    const py = player.y - 5 + Math.sin(player.swordAngle + i) * 3;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 4 - i, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+            } else if (currentSkinId === 'jiajia') {
+                // 机甲：机械风格+科技光效
+                ctx.fillStyle = '#2c3e50';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = skinColor;
+                // 主体方形
+                ctx.fillRect(player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
+                // 科技光边
+                ctx.strokeStyle = skinColor;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(player.x - player.radius - 2, player.y - player.radius - 2, player.radius * 2 + 4, player.radius * 2 + 4);
+                // 核心发光
+                ctx.fillStyle = skinColor;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                // 旋转光效
+                player.swordAngle = (player.swordAngle || 0) + 0.05;
+                for (let i = 0; i < 4; i++) {
+                    const angle = player.swordAngle + i * Math.PI / 2;
+                    const px = player.x + Math.cos(angle) * (player.radius + 5);
+                    const py = player.y + Math.sin(angle) * (player.radius + 5);
+                    ctx.fillStyle = skinColor;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
             }
 
             const barWidth = 36, barHeight = 5;
@@ -2427,6 +2605,26 @@
             document.getElementById('score').textContent = score;
         }
 
+        // 皮肤选择UI
+        function updateSkinPanel() {
+            const skinList = document.getElementById('skinList');
+            if (!skinList) return;
+            skinList.innerHTML = '';
+            Object.values(playerSkins).forEach(skin => {
+                const div = document.createElement('div');
+                div.style.cssText = `display:flex;align-items:center;justify-content:space-between;padding:8px;margin:5px 0;background:${skin.id === currentSkinId ? 'rgba(255,215,0,0.2)' : 'rgba(50,50,50,0.8)'};border:1px solid ${skin.id === currentSkinId ? '#ffd700' : '#555'};border-radius:4px;cursor:pointer;`;
+                div.innerHTML = `<div><span style="color:${skin.color};font-weight:bold;">${skin.name}</span><span style="color:#888;font-size:11px;margin-left:8px;">${skin.desc}</span></div><span style="color:${skin.id === currentSkinId ? '#ffd700' : '#888'};">${skin.id === currentSkinId ? '✓ 使用中' : (skin.unlocked ? '点击选择' : '🔒')}</span>`;
+                if (skin.unlocked && skin.id !== currentSkinId) {
+                    div.onclick = () => {
+                        currentSkinId = skin.id;
+                        localStorage.setItem('playerSkin', skin.id);
+                        updateSkinPanel();
+                    };
+                }
+                skinList.appendChild(div);
+            });
+        }
+
         canvas.addEventListener('click', (e) => {
             if (!playerAlive) return;
             const rect = canvas.getBoundingClientRect();
@@ -2459,6 +2657,19 @@
             if (e.target === equipPanel) {
                 equipPanel.style.display = 'none';
             }
+        });
+
+        // 皮肤面板交互
+        const skinBtn = document.getElementById('skinBtn');
+        const skinPanel = document.getElementById('skinPanel');
+        const closeSkin = document.getElementById('closeSkin');
+        skinBtn.addEventListener('click', () => {
+            skinPanel.style.display = 'block';
+            updateSkinPanel();
+        });
+        closeSkin.addEventListener('click', () => skinPanel.style.display = 'none');
+        skinPanel.addEventListener('click', (e) => {
+            if (e.target === skinPanel) skinPanel.style.display = 'none';
         });
 
         // 更新装备栏显示
