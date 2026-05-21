@@ -434,7 +434,7 @@
                 elementalAtk: 0,
                 elementalDef: 0,
                 attackSpeed: 1.0,
-                moveSpeed: 3,
+                moveSpeed: 0.6,
                 dodge: 0,
                 crit: 0,
                 critDamage: 1.5,
@@ -500,30 +500,30 @@
             perfect: { name: '极品', color: '#FFD700' }
         };
 
-        // 词条类型定义 - 每种词条满分400分（×4倍率）
+        // 词条类型定义 - 每种词条满分400分（×4倍率），每种词条有独特颜色
         const inscriptionTypes = {
-            // 输出类
-            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 400/180, unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 400/32, unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 400/160, unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 400/44, unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 400/50, unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 400/272, unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 400/248, unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 400/232, unit: '' },
-            // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 400/32, unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 400/30, unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 400/36, unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 400/40, unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 400/1400, unit: '' },
-            // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 400/40, unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 400/52, unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 400/80, unit: '%' }
+            // 输出类 - 红色/橙色系
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 400/180, unit: '', color: '#FF6B6B' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%', color: '#FF8E53' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%', color: '#FFA726' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%', color: '#FFCC80' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 400/32, unit: '%', color: '#FF5252' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 400/160, unit: '%', color: '#E53935' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 400/44, unit: '%', color: '#FF7043' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 400/50, unit: '%', color: '#FFAB91' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 400/272, unit: '', color: '#FF5722' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 400/248, unit: '', color: '#4FC3F7' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 400/232, unit: '', color: '#8BC34A' },
+            // 续航类 - 绿色/青色系
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 400/32, unit: '%', color: '#66BB6A' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 400/30, unit: '%', color: '#26A69A' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 400/36, unit: '%', color: '#4DB6AC' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 400/40, unit: '%', color: '#78909C' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 400/1400, unit: '', color: '#81C784' },
+            // 养成类 - 蓝色/紫色系
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 400/40, unit: '%', color: '#42A5F5' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 400/52, unit: '%', color: '#7E57C2' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 400/80, unit: '%', color: '#5C6BC0' }
         };
 
         // 攻击范围全局上限
@@ -590,7 +590,7 @@
                 elementalAtk: attr.spirit * effects.spirit.elementalAtk,
                 elementalDef: attr.spirit * effects.spirit.elementalDef,
                 attackSpeed: 1.0 + attr.agility * effects.agility.attackSpeed,
-                moveSpeed: 3 + attr.agility * effects.agility.moveSpeed * 10,
+                moveSpeed: 0.6 + attr.agility * effects.agility.moveSpeed * 10,
                 dodge: attr.agility * effects.agility.dodge,
                 crit: attr.agility * effects.agility.crit,
                 critDamage: 1.5,
@@ -1927,6 +1927,8 @@
 
         function updatePlayer() {
             if (!playerAlive) return;
+
+            // 手动移动优先
             if (player.isMoving) {
                 const dx = player.targetX - player.x;
                 const dy = player.targetY - player.y;
@@ -1937,12 +1939,54 @@
                 } else {
                     player.isMoving = false;
                 }
-                const centerDist = Math.hypot(player.x - centerX, player.y - centerY);
-                if (centerDist > radarRadius - player.radius) {
-                    const angle = Math.atan2(player.y - centerY, player.x - centerX);
-                    player.x = centerX + Math.cos(angle) * (radarRadius - player.radius);
-                    player.y = centerY + Math.sin(angle) * (radarRadius - player.radius);
+            } else {
+                // 自动追踪最近的敌人
+                if (enemies.length > 0) {
+                    let nearestEnemy = null;
+                    let nearestDist = Infinity;
+                    
+                    enemies.forEach(enemy => {
+                        const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
+                        if (dist < nearestDist) {
+                            nearestDist = dist;
+                            nearestEnemy = enemy;
+                        }
+                    });
+
+                    // 如果敌人不在攻击范围内，向其移动
+                    if (nearestEnemy && nearestDist > player.attackRange) {
+                        const dx = nearestEnemy.x - player.x;
+                        const dy = nearestEnemy.y - player.y;
+                        const dist = Math.hypot(dx, dy);
+                        
+                        // 计算移动距离（不能超出雷达边界）
+                        let moveX = (dx / dist) * player.moveSpeed;
+                        let moveY = (dy / dist) * player.moveSpeed;
+                        
+                        const newX = player.x + moveX;
+                        const newY = player.y + moveY;
+                        const centerDist = Math.hypot(newX - centerX, newY - centerY);
+                        
+                        // 限制在雷达范围内移动
+                        if (centerDist <= radarRadius - player.radius) {
+                            player.x = newX;
+                            player.y = newY;
+                        } else {
+                            // 如果要超出边界，向边界方向移动
+                            const angle = Math.atan2(newY - centerY, newX - centerX);
+                            player.x = centerX + Math.cos(angle) * (radarRadius - player.radius - 1);
+                            player.y = centerY + Math.sin(angle) * (radarRadius - player.radius - 1);
+                        }
+                    }
                 }
+            }
+
+            // 边界检查（防止卡在边缘）
+            const centerDist = Math.hypot(player.x - centerX, player.y - centerY);
+            if (centerDist > radarRadius - player.radius) {
+                const angle = Math.atan2(player.y - centerY, player.x - centerX);
+                player.x = centerX + Math.cos(angle) * (radarRadius - player.radius);
+                player.y = centerY + Math.sin(angle) * (radarRadius - player.radius);
             }
         }
 
@@ -2565,7 +2609,8 @@
                 weapon.inscriptions.forEach((ins, idx) => {
                     let typeDef = inscriptionTypes[ins.type];
                     let qualityDef = inscriptionQualities[ins.quality];
-                    html += `<div style="color:${qualityDef.color};font-size:12px;margin:2px 0 2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
+                    let typeColor = typeDef.color || '#FFFFFF';
+                    html += `<div style="color:${typeColor};font-size:12px;margin:2px 0 2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
                 });
             } else if (isDeepGreen) {
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;font-size:12px;">词条: 12级开始解锁，每3级获得一次</div>`;

@@ -500,30 +500,30 @@
             perfect: { name: '极品', color: '#FFD700' }
         };
 
-        // 词条类型定义 - 每种词条满分400分（×4倍率）
+        // 词条类型定义 - 每种词条满分400分（×4倍率），每种词条有独特颜色
         const inscriptionTypes = {
-            // 输出类
-            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 400/180, unit: '' },
-            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
-            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
-            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%' },
-            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 400/32, unit: '%' },
-            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 400/160, unit: '%' },
-            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 400/44, unit: '%' },
-            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 400/50, unit: '%' },
-            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 400/272, unit: '' },
-            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 400/248, unit: '' },
-            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 400/232, unit: '' },
-            // 续航类
-            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 400/32, unit: '%' },
-            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 400/30, unit: '%' },
-            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 400/36, unit: '%' },
-            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 400/40, unit: '%' },
-            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 400/1400, unit: '' },
-            // 养成类
-            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 400/40, unit: '%' },
-            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 400/52, unit: '%' },
-            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 400/80, unit: '%' }
+            // 输出类 - 红色/橙色系
+            pierceDef: { name: '锋利破防', category: '输出', maxValue: 180, scorePerUnit: 400/180, unit: '', color: '#FF6B6B' },
+            largeDmg: { name: '大体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%', color: '#FF8E53' },
+            mediumDmg: { name: '中体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%', color: '#FFA726' },
+            smallDmg: { name: '小体型增伤', category: '输出', maxValue: 60, scorePerUnit: 400/60, unit: '%', color: '#FFCC80' },
+            critChance: { name: '暴击几率', category: '输出', maxValue: 32, scorePerUnit: 400/32, unit: '%', color: '#FF5252' },
+            critDmg: { name: '暴击伤害', category: '输出', maxValue: 160, scorePerUnit: 400/160, unit: '%', color: '#E53935' },
+            atkSpeed: { name: '攻击速度', category: '输出', maxValue: 44, scorePerUnit: 400/44, unit: '%', color: '#FF7043' },
+            atkRange: { name: '攻击范围', category: '输出', maxValue: 50, scorePerUnit: 400/50, unit: '%', color: '#FFAB91' },
+            fireDmg: { name: '附加火伤', category: '输出', maxValue: 272, scorePerUnit: 400/272, unit: '', color: '#FF5722' },
+            iceDmg: { name: '附加冰伤', category: '输出', maxValue: 248, scorePerUnit: 400/248, unit: '', color: '#4FC3F7' },
+            poisonDmg: { name: '附加毒伤', category: '输出', maxValue: 232, scorePerUnit: 400/232, unit: '', color: '#8BC34A' },
+            // 续航类 - 绿色/青色系
+            hpSteal: { name: '生命汲取', category: '续航', maxValue: 32, scorePerUnit: 400/32, unit: '%', color: '#66BB6A' },
+            mpSteal: { name: '精气汲取', category: '续航', maxValue: 30, scorePerUnit: 400/30, unit: '%', color: '#26A69A' },
+            staSteal: { name: '体力汲取', category: '续航', maxValue: 36, scorePerUnit: 400/36, unit: '%', color: '#4DB6AC' },
+            dmgReduce: { name: '伤害减免', category: '续航', maxValue: 40, scorePerUnit: 400/40, unit: '%', color: '#78909C' },
+            hpBonus: { name: '生命上限', category: '续航', maxValue: 1400, scorePerUnit: 400/1400, unit: '', color: '#81C784' },
+            // 养成类 - 蓝色/紫色系
+            expBonus: { name: '人物经验加成', category: '养成', maxValue: 40, scorePerUnit: 400/40, unit: '%', color: '#42A5F5' },
+            weaponExpBonus: { name: '武具经验加成', category: '养成', maxValue: 52, scorePerUnit: 400/52, unit: '%', color: '#7E57C2' },
+            duraReduce: { name: '耐久消耗降低', category: '养成', maxValue: 80, scorePerUnit: 400/80, unit: '%', color: '#5C6BC0' }
         };
 
         // 攻击范围全局上限
@@ -2609,7 +2609,8 @@
                 weapon.inscriptions.forEach((ins, idx) => {
                     let typeDef = inscriptionTypes[ins.type];
                     let qualityDef = inscriptionQualities[ins.quality];
-                    html += `<div style="color:${qualityDef.color};font-size:12px;margin:2px 0 2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
+                    let typeColor = typeDef.color || '#FFFFFF';
+                    html += `<div style="color:${typeColor};font-size:12px;margin:2px 0 2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">[${qualityDef.name}] ${typeDef.name} +${ins.value.toFixed(1)}${typeDef.unit} <span style="color:#888;">[${ins.score}分]</span></div>`;
                 });
             } else if (isDeepGreen) {
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#555;font-size:12px;">词条: 12级开始解锁，每3级获得一次</div>`;
