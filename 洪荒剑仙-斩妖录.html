@@ -1090,9 +1090,108 @@
             
             weapon.totalScore = totalScore;
             weapon.scoreRating = getScoreRating(totalScore);
+
+            // 神话级武器：随机授予一个技能（首次达到神话时锁定）
+            if (totalScore >= 1700 && !weapon.mythicSkillId) {
+                const skill = mythicSkills[Math.floor(Math.random() * mythicSkills.length)];
+                weapon.mythicSkillId = skill.id;
+                showMythicSkillUnlock(weapon.name, skill);
+                // 如果是当前装备的武器，立即激活
+                if (player.equippedWeapon === weapon) {
+                    activateMythicSkill();
+                }
+            }
+        }
+
+        // 显示神话技能解锁特效
+        function showMythicSkillUnlock(weaponName, skill) {
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position:fixed;top:35%;left:50%;transform:translate(-50%,-50%);
+                font-size:32px;font-weight:bold;color:${skill.color};
+                text-shadow:0 0 20px ${skill.color},0 0 40px ${skill.color};
+                z-index:10001;text-align:center;pointer-events:none;
+                animation:levelUpPulse 3s ease-out forwards;padding:20px;
+                background:rgba(0,0,0,0.7);border:3px solid ${skill.color};border-radius:15px;
+            `;
+            div.innerHTML = `🌟 ${weaponName} 觉醒神话技能 🌟<br><span style="font-size:36px;">${skill.icon} ${skill.name}</span><br><span style="font-size:14px;color:#fff;">${skill.desc}</span>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // 激活当前装备武器的神话技能
+        function activateMythicSkill() {
+            if (!player.equippedWeapon || !player.equippedWeapon.mythicSkillId) {
+                activeMythicSkill = null;
+                return;
+            }
+            activeMythicSkill = mythicSkills.find(s => s.id === player.equippedWeapon.mythicSkillId);
+            mythicSkillState = {
+                cooldownTimer: 0,
+                durationTimer: 0,
+                internalTimer: 0,
+                stacks: 0,
+                swords: [],
+                shieldActive: false
+            };
         }
 
         // 称号配置（新评分系统）
+        // ========== 神话级武器技能系统 ==========
+        const mythicSkills = [
+            {
+                id: 'tianGang',
+                name: '天罡剑阵',
+                icon: '🌪️',
+                color: '#FFD700',
+                desc: '每8秒召唤6把飞剑环绕，每秒射出1把追击敌人，造成80%物攻伤害',
+                cooldown: 480, // 帧（8秒×60fps）
+                duration: 360, // 持续6秒
+                damageMult: 0.8
+            },
+            {
+                id: 'thunder',
+                name: '天雷引',
+                icon: '⚡',
+                color: '#9932CC',
+                desc: '每2秒召唤天雷劈击随机敌人，造成150%物攻并使敌人感电（受到伤害+20%，持续5秒）',
+                cooldown: 120, // 帧（2秒）
+                damageMult: 1.5,
+                debuffDuration: 300,
+                damageTakenBonus: 0.2
+            },
+            {
+                id: 'jinGang',
+                name: '金刚不坏',
+                icon: '🛡️',
+                color: '#4169E1',
+                desc: '生命低于30%时获得5秒无敌护盾，冷却60秒',
+                cooldown: 3600, // 60秒
+                duration: 300
+            },
+            {
+                id: 'sanWei',
+                name: '三昧真火',
+                icon: '🔥',
+                color: '#FF4500',
+                desc: '普攻附带燃烧效果，每秒造成30%物攻，可叠加5层，持续5秒',
+                stackMax: 5,
+                damageMult: 0.3,
+                duration: 300
+            }
+        ];
+
+        // 运行中的神话技能状态
+        let activeMythicSkill = null;
+        let mythicSkillState = {
+            cooldownTimer: 0,
+            durationTimer: 0,
+            internalTimer: 0, // 技能内部计时（飞剑每1秒发射、天雷每2秒等）
+            stacks: 0, // 三昧真火层数
+            swords: [], // 天罡飞剑对象数组
+            shieldActive: false // 金刚护盾状态
+        };
+
         const titleBonuses = {
             '凡铁': { atkBonus: 0, hpBonus: 0, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0, weaponExpBonus: 0 },
             '精钢': { atkBonus: 0, hpBonus: 0.01, critBonus: 0, dmgReduceBonus: 0, elementBonus: 0, playerExpBonus: 0.01, weaponExpBonus: 0.01 },
@@ -1668,10 +1767,10 @@
             }
         }
 
-        function createDamageText(x, y, damage, isPlayer, isCrit) {
+        function createDamageText(x, y, damage, isPlayer, isCrit, customColor) {
             damageTexts.push({
                 x: x, y: y, text: damage, life: 35,
-                color: isCrit ? '#FF4500' : (isPlayer ? '#ff6b6b' : '#ffd93d'),
+                color: customColor || (isCrit ? '#FF4500' : (isPlayer ? '#ff6b6b' : '#ffd93d')),
                 fontSize: isCrit ? 18 : 14
             });
         }
@@ -2337,6 +2436,18 @@
                     }
                 }
                 if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+                // 神话技能：三昧真火 - 燃烧DOT伤害（每秒1次）
+                if (enemy.burnTimer > 0 && enemy.burnStacks > 0) {
+                    enemy.burnTimer--;
+                    if (enemy.burnTimer % 60 === 59) {
+                        const dmg = Math.floor(player.attackDamage * activeMythicSkill.damageMult * enemy.burnStacks);
+                        enemy.hp -= dmg;
+                        createDamageText(enemy.x, enemy.y - 15, dmg, true, false, '#FF4500'); // 燃烧橙色
+                    }
+                    if (enemy.burnTimer <= 0) {
+                        enemy.burnStacks = 0;
+                    }
+                }
             });
         }
 
@@ -2446,6 +2557,16 @@
             // 评分
             if (item.type === 'greenWeapon' && item.totalScore > 0) {
                 html += `<div class="tt-score" style="color:${rating.color};">${item.totalScore}分 - ${rating.name} [${rating.title}]</div>`;
+            }
+
+            // 神话级技能
+            if (item.mythicSkillId) {
+                const skill = mythicSkills.find(s => s.id === item.mythicSkillId);
+                if (skill) {
+                    html += `<div class="tt-divider"></div>`;
+                    html += `<div style="color:${skill.color};font-weight:bold;font-size:13px;margin-top:3px;">🌟 神话技能：${skill.icon} ${skill.name}</div>`;
+                    html += `<div style="color:#ccc;font-size:11px;margin-top:2px;line-height:1.4;">${skill.desc}</div>`;
+                }
             }
 
             return html;
@@ -2582,6 +2703,11 @@
             }
             damage += elementalDmg;
 
+            // 6. 神话技能 - 天雷引感电增伤
+            if (enemy.electrified && enemy.electrifyBonus) {
+                damage *= (1 + enemy.electrifyBonus);
+            }
+
             // 最终伤害最低1
             damage = Math.max(1, Math.floor(damage));
 
@@ -2612,6 +2738,10 @@
                             enemy.hp -= result.damage;
                             createDamageText(enemy.x, enemy.y - 20, result.damage, true, result.isCrit);
                             createParticles(p.x, p.y, result.isCrit ? '#FF4500' : '#ffd700', result.isCrit ? 12 : 6);
+                            // 神话技能：三昧真火 - 命中时叠加燃烧（只对普通剑气，不对天罡飞剑触发重复）
+                            if (p.type === 'sword') {
+                                applySanWeiBurn(enemy);
+                            }
                             if (enemy.hp <= 0) {
                                 createParticles(enemy.x, enemy.y, enemy.color, 18);
                                 createFloatingText(enemy.x, enemy.y - 30, '斩!', '#ffd700');
@@ -2635,6 +2765,12 @@
                     if (playerAlive) {
                         const dist = Math.hypot(p.x - player.x, p.y - player.y);
                         if (dist < player.radius + 6) {
+                            // 神话技能：金刚不坏 - 护盾无敌
+                            if (mythicSkillState.shieldActive) {
+                                createFloatingText(player.x, player.y - 20, '免疫!', '#4169E1');
+                                createParticles(p.x, p.y, '#4169E1', 8);
+                                return false;
+                            }
                             // 伤害减免
                             const dmgReduce = getDmgReduce();
                             const finalDamage = Math.max(1, Math.floor(p.damage * (1 - dmgReduce)));
@@ -2711,6 +2847,235 @@
                 f.life--;
                 return f.life > 0;
             });
+        }
+
+        // ========== 神话技能核心更新函数 ==========
+        function updateMythicSkill() {
+            if (!activeMythicSkill || !playerAlive) return;
+            const s = mythicSkillState;
+
+            // 冷却倒计时
+            if (s.cooldownTimer > 0) s.cooldownTimer--;
+
+            // 根据技能ID分别处理
+            switch (activeMythicSkill.id) {
+                // ================= 天罡剑阵 =================
+                case 'tianGang':
+                    if (s.cooldownTimer <= 0) {
+                        if (s.durationTimer <= 0) {
+                            // 启动剑阵：生成6把飞剑
+                            s.durationTimer = activeMythicSkill.duration;
+                            s.internalTimer = 0;
+                            s.swords = [];
+                            for (let i = 0; i < 6; i++) {
+                                s.swords.push({
+                                    angle: (i / 6) * Math.PI * 2,
+                                    fired: false,
+                                    x: 0, y: 0
+                                });
+                            }
+                        }
+                    }
+                    if (s.durationTimer > 0) {
+                        s.durationTimer--;
+                        s.internalTimer++;
+                        // 每秒发射1把飞剑
+                        if (s.internalTimer % 60 === 0 && enemies.length > 0) {
+                            const sword = s.swords.find(sw => !sw.fired);
+                            if (sword) {
+                                sword.fired = true;
+                                const target = enemies[Math.floor(Math.random() * enemies.length)];
+                                const ang = Math.atan2(target.y - player.y, target.x - player.x);
+                                projectiles.push({
+                                    x: player.x + Math.cos(sword.angle) * 45,
+                                    y: player.y + Math.sin(sword.angle) * 45,
+                                    vx: Math.cos(ang) * 9, vy: Math.sin(ang) * 9,
+                                    isPlayer: true,
+                                    damage: Math.floor(player.attackDamage * activeMythicSkill.damageMult),
+                                    life: 90, angle: ang, type: 'tianGangSword', color: '#FFD700'
+                                });
+                                createParticles(player.x + Math.cos(sword.angle) * 45, player.y + Math.sin(sword.angle) * 45, '#FFD700', 5);
+                            }
+                        }
+                        if (s.durationTimer <= 0) {
+                            s.cooldownTimer = activeMythicSkill.cooldown;
+                            s.swords = [];
+                        }
+                    }
+                    break;
+
+                // ================= 天雷引 =================
+                case 'thunder':
+                    if (s.cooldownTimer <= 0 && enemies.length > 0) {
+                        s.cooldownTimer = activeMythicSkill.cooldown;
+                        const target = enemies[Math.floor(Math.random() * enemies.length)];
+                        // 造成伤害
+                        const dmg = Math.floor(player.attackDamage * activeMythicSkill.damageMult);
+                        target.hp -= dmg;
+                        // 感电debuff：受伤害+20%，持续5秒
+                        target.electrified = true;
+                        target.electrifyTimer = activeMythicSkill.debuffDuration;
+                        target.electrifyBonus = activeMythicSkill.damageTakenBonus;
+                        createDamageText(target.x, target.y - 35, dmg, true, true); // true=暴击色
+                        // 雷电特效
+                        createParticles(target.x, target.y, '#9932CC', 20);
+                        // 检查击杀
+                        if (target.hp <= 0) {
+                            enemies = enemies.filter(e => e !== target);
+                            kills++;
+                            score += target.score || 0;
+                        }
+                    }
+                    // 更新敌人感电计时器
+                    enemies.forEach(e => {
+                        if (e.electrifyTimer > 0) {
+                            e.electrifyTimer--;
+                            if (e.electrifyTimer <= 0) {
+                                e.electrified = false;
+                                e.electrifyBonus = 0;
+                            }
+                        }
+                    });
+                    break;
+
+                // ================= 金刚不坏 =================
+                case 'jinGang':
+                    if (s.cooldownTimer <= 0 && s.durationTimer <= 0) {
+                        const hpPercent = player.hp / player.maxHp;
+                        if (hpPercent <= 0.3) {
+                            s.durationTimer = activeMythicSkill.duration;
+                            s.shieldActive = true;
+                            createFloatingText(player.x, player.y - 50, '金刚不坏!', '#4169E1');
+                            createParticles(player.x, player.y, '#4169E1', 25);
+                        }
+                    }
+                    if (s.durationTimer > 0) {
+                        s.durationTimer--;
+                        if (s.durationTimer <= 0) {
+                            s.shieldActive = false;
+                            s.cooldownTimer = activeMythicSkill.cooldown;
+                        }
+                    }
+                    // 护盾激活时，伤害减免为100%（无敌）
+                    break;
+
+                // ================= 三昧真火 =================
+                case 'sanWei':
+                    // 每次玩家普攻（剑气发射时）给目标叠加燃烧
+                    break;
+            }
+        }
+
+        // 三昧真火：攻击命中敌人时触发
+        function applySanWeiBurn(target) {
+            if (!activeMythicSkill || activeMythicSkill.id !== 'sanWei') return;
+            if (!target.burnStacks) target.burnStacks = 0;
+            if (!target.burnTimer) target.burnTimer = 0;
+            target.burnStacks = Math.min(target.burnStacks + 1, activeMythicSkill.stackMax);
+            target.burnTimer = activeMythicSkill.duration;
+        }
+
+        // 渲染神话技能视觉效果
+        function drawMythicSkill() {
+            if (!activeMythicSkill || !playerAlive) return;
+            const s = mythicSkillState;
+
+            switch (activeMythicSkill.id) {
+                // 天罡剑阵渲染
+                case 'tianGang':
+                    if (s.durationTimer > 0 && s.swords.length > 0) {
+                        const time = frameCount * 0.02;
+                        s.swords.forEach((sword, i) => {
+                            if (!sword.fired) {
+                                const ang = sword.angle + time;
+                                const sx = player.x + Math.cos(ang) * 45;
+                                const sy = player.y + Math.sin(ang) * 45;
+                                ctx.strokeStyle = '#FFD700';
+                                ctx.lineWidth = 3;
+                                ctx.shadowBlur = 10;
+                                ctx.shadowColor = '#FFD700';
+                                ctx.beginPath();
+                                ctx.moveTo(sx - 12, sy);
+                                ctx.lineTo(sx + 12, sy);
+                                ctx.stroke();
+                                ctx.shadowBlur = 0;
+                            }
+                        });
+                    }
+                    break;
+
+                // 金刚不坏渲染
+                case 'jinGang':
+                    if (s.shieldActive) {
+                        ctx.strokeStyle = '#4169E1';
+                        ctx.lineWidth = 3;
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = '#4169E1';
+                        ctx.beginPath();
+                        ctx.arc(player.x, player.y, player.radius + 12, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.fillStyle = 'rgba(65, 105, 225, 0.15)';
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                    break;
+
+                // 三昧真火渲染
+                case 'sanWei':
+                    enemies.forEach(e => {
+                        if (e.burnStacks > 0 && e.burnTimer > 0) {
+                            for (let i = 0; i < e.burnStacks; i++) {
+                                const ox = (Math.random() - 0.5) * e.radius;
+                                const oy = -e.radius - Math.random() * 8;
+                                ctx.fillStyle = `rgba(255, ${60 + Math.random() * 40}, 0, 0.8)`;
+                                ctx.beginPath();
+                                ctx.arc(e.x + ox, e.y + oy, 2 + Math.random(), 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+                    });
+                    break;
+
+                // 天雷引渲染
+                case 'thunder':
+                    enemies.forEach(e => {
+                        if (e.electrified) {
+                            ctx.strokeStyle = '#9932CC';
+                            ctx.lineWidth = 2;
+                            ctx.shadowBlur = 8;
+                            ctx.shadowColor = '#9932CC';
+                            const t = frameCount * 0.1;
+                            for (let i = 0; i < 4; i++) {
+                                const ang = t + (i / 4) * Math.PI * 2;
+                                const r = e.radius + 5;
+                                ctx.beginPath();
+                                ctx.moveTo(e.x + Math.cos(ang) * r, e.y + Math.sin(ang) * r);
+                                ctx.lineTo(e.x + Math.cos(ang + 0.3) * (r + 8), e.y + Math.sin(ang + 0.3) * (r + 8));
+                                ctx.stroke();
+                            }
+                            ctx.shadowBlur = 0;
+                        }
+                    });
+                    break;
+            }
+
+            // 技能CD进度条（屏幕左下角显示）
+            if (s.cooldownTimer > 0) {
+                const cdPercent = s.cooldownTimer / activeMythicSkill.cooldown;
+                const cdX = 15; const cdY = canvas.height - 35;
+                const barW = 80; const barH = 8;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(cdX, cdY, barW, barH);
+                ctx.fillStyle = activeMythicSkill.color;
+                ctx.fillRect(cdX, cdY, barW * (1 - cdPercent), barH);
+                ctx.strokeStyle = activeMythicSkill.color;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cdX, cdY, barW, barH);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${activeMythicSkill.icon} ${activeMythicSkill.name}`, cdX, cdY - 5);
+            }
         }
 
         function updateUI() {
@@ -2956,6 +3321,17 @@
                 </div>`;
             }
 
+            // 神话技能展示
+            if (isDeepGreen && weapon.mythicSkillId) {
+                const skill = mythicSkills.find(s => s.id === weapon.mythicSkillId);
+                if (skill) {
+                    html += `<div style="margin-top:8px;border-top:2px solid ${skill.color};padding-top:8px;background:rgba(${parseInt(skill.color.slice(1,3),16)},${parseInt(skill.color.slice(3,5),16)},${parseInt(skill.color.slice(5,7),16)},0.1);padding:8px;border-radius:4px;">
+                        <div style="color:${skill.color};font-weight:bold;font-size:14px;">🌟 神话技能：${skill.icon} ${skill.name}</div>
+                        <div style="color:#ccc;font-size:11px;margin-top:4px;line-height:1.5;">${skill.desc}</div>
+                    </div>`;
+                }
+            }
+
             // 词条（仅深绿）
             if (isDeepGreen && weapon.inscriptions && weapon.inscriptions.length > 0) {
                 html += `<div style="margin-top:8px;border-top:1px solid #333;padding-top:5px;color:#d4af37;font-size:14px;">词条 (${weapon.inscriptions.length}种):</div>`;
@@ -2991,6 +3367,7 @@
             if (!player.equippedWeapon) return;
             if (addToBag(player.equippedWeapon)) {
                 player.equippedWeapon = null;
+                activateMythicSkill(); // 卸下武器：清除技能
                 updateEquipPanel();
                 updateEquipSlots();
                 createFloatingText(player.x, player.y - 40, '卸下武器', '#888');
@@ -3247,6 +3624,7 @@
                 }
                 player.equippedWeapon = item;
                 bag.items.splice(index, 1);
+                activateMythicSkill(); // 装备新武器：激活神话技能
                 createFloatingText(player.x, player.y - 40, `装备${item.name}`, '#90EE90');
                 updatePlayerAttackRange(); // 更新攻击范围
                 updateBagDisplay();
@@ -3424,6 +3802,7 @@
             updateParticles();
             updateDamageTexts();
             updateFloatingTexts();
+            updateMythicSkill(); // 神话技能更新
             // 连击计时器更新
             if (comboTimer > 0) {
                 comboTimer--;
@@ -3448,6 +3827,7 @@
             drawEnemies();
             drawPlayer();
             drawProjectiles();
+            drawMythicSkill(); // 神话技能特效
             drawParticles();
             drawDamageTexts();
             drawFloatingTexts();
