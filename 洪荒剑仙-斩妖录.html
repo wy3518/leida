@@ -475,7 +475,7 @@
 
         // 深绿武器模板
         const greenWeapons = {
-            ruyidao: { name: '如意刀', class: '剑客', minAtk: 38, maxAtk: 48, element: null, elementGrowth: 0, growth: 1.08, totalGrowth: 97.2, reqLevel: 9, maxLevel: 99 },
+            ruyidao: { name: '如意刀', class: '剑客', minAtk: 38, maxAtk: 48, element: null, elementGrowth: 0, growth: 1.08, totalGrowth: 97.2, reqLevel: 9, maxLevel: 99, icon: 'images/ruyi_dao.png' },
             qiankun: { name: '乾坤剑', class: '剑客', minAtk: 32, maxAtk: 42, element: '火攻', elementGrowth: 0.7, growth: 0.72, totalGrowth: 64.8, reqLevel: 9, maxLevel: 99 },
             emeici: { name: '峨眉刺', class: '游侠', minAtk: 30, maxAtk: 40, element: null, elementGrowth: 0, growth: 0.95, totalGrowth: 85.5, reqLevel: 9, maxLevel: 99 },
             yuanyang: { name: '鸳鸯双环', class: '游侠', minAtk: 29, maxAtk: 39, element: '毒攻', elementGrowth: 0.65, growth: 0.92, totalGrowth: 82.8, reqLevel: 9, maxLevel: 99 },
@@ -2758,7 +2758,14 @@
             }
             weaponSlot.style.borderColor = stageColor;
             weaponSlot.style.boxShadow = '0 0 10px ' + stageColor;
-            weaponSlot.innerHTML = '🗡️';
+            
+            // 显示武器图标（图片或emoji）
+            let template = weapon.type === 'greenWeapon' ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
+            if (template && template.icon) {
+                weaponSlot.innerHTML = `<img src="${template.icon}" style="width:40px;height:40px;object-fit:contain;" alt="${template.name}">`;
+            } else {
+                weaponSlot.innerHTML = '🗡️';
+            }
 
             // 计算攻击力
             let atkInfo = calcWeaponAtk(weapon);
