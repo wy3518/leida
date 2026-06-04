@@ -411,7 +411,8 @@
             fashi: { id: 'fashi', name: '法师', desc: '人形+法杖+魔法粒子', price: 2000, color: '#9b59b6', unlocked: true },
             cike: { id: 'cike', name: '刺客', desc: '人形+双匕首+残影', price: 3000, color: '#2ecc71', unlocked: true },
             shenlong: { id: 'shenlong', name: '神龙', desc: '龙形态+龙息', price: 5000, color: '#e74c3c', unlocked: true },
-            jiajia: { id: 'jiajia', name: '机甲', desc: '机械风格+科技光效', price: 10000, color: '#3498db', unlocked: true }
+            jiajia: { id: 'jiajia', name: '机甲', desc: '机械风格+科技光效', price: 10000, color: '#3498db', unlocked: true },
+            taiji: { id: 'taiji', name: '太极道人', desc: '阴阳鱼旋转+八卦光环', price: 5000, color: '#ffffff', unlocked: true }
         };
         let currentSkinId = localStorage.getItem('playerSkin') || 'jianxian';
 
@@ -1806,6 +1807,122 @@
                 ctx.lineTo(player.x + 10, player.y - 30);
                 ctx.stroke();
                 ctx.shadowBlur = 0;
+            } else if (currentSkinId === 'taiji') {
+                // 太极道人：阴阳鱼旋转 + 八卦盘 + 黑白气流
+                player.swordAngle = (player.swordAngle || 0) + 0.025;
+                const t = player.swordAngle;
+
+                // ===== 外层八卦盘（缓慢反向旋转） =====
+                const baguaRadius = player.radius + 14;
+                const trigrams = ['☰','☱','☲','☳','☴','☵','☶','☷']; // 八卦符
+                ctx.save();
+                ctx.translate(player.x, player.y);
+                ctx.rotate(-t * 0.5);
+                // 八卦外环
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.6)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(0, 0, baguaRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                // 内环
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(0, 0, baguaRadius - 4, 0, Math.PI * 2);
+                ctx.stroke();
+                // 八卦符号
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.85)';
+                ctx.font = 'bold 9px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowBlur = 6;
+                ctx.shadowColor = '#ffd700';
+                for (let i = 0; i < 8; i++) {
+                    const ang = (i / 8) * Math.PI * 2 - Math.PI / 2;
+                    const tx = Math.cos(ang) * (baguaRadius - 2);
+                    const ty = Math.sin(ang) * (baguaRadius - 2);
+                    ctx.fillText(trigrams[i], tx, ty);
+                }
+                ctx.shadowBlur = 0;
+                ctx.restore();
+
+                // ===== 黑白气流环绕（粒子轨道） =====
+                for (let i = 0; i < 6; i++) {
+                    const ang = t * 2 + (i / 6) * Math.PI * 2;
+                    const r = player.radius + 6 + Math.sin(t * 3 + i) * 2;
+                    const px = player.x + Math.cos(ang) * r;
+                    const py = player.y + Math.sin(ang) * r;
+                    // 阴阳交替
+                    const isYang = i % 2 === 0;
+                    ctx.fillStyle = isYang ? 'rgba(255,255,255,0.85)' : 'rgba(40,40,40,0.85)';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = isYang ? '#fff' : '#000';
+                    ctx.beginPath();
+                    ctx.arc(px, py, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+
+                // ===== 核心阴阳鱼（旋转） =====
+                ctx.save();
+                ctx.translate(player.x, player.y);
+                ctx.rotate(t);
+                const r = player.radius;
+
+                // 整体外发光底
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#ffd700';
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(0, 0, r + 1, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // 阳鱼（白色右半，含两个小半圆构造S曲线）
+                ctx.fillStyle = '#f8f8f8';
+                ctx.beginPath();
+                ctx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2, false);
+                ctx.fill();
+                // 阴鱼（黑色左半）
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, false);
+                ctx.fill();
+                // 上方小黑半圆（阳中之阴）
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(0, -r / 2, r / 2, 0, Math.PI * 2);
+                ctx.fill();
+                // 下方小白半圆（阴中之阳）
+                ctx.fillStyle = '#f8f8f8';
+                ctx.beginPath();
+                ctx.arc(0, r / 2, r / 2, 0, Math.PI * 2);
+                ctx.fill();
+                // 上小圆鱼眼（白）
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(0, -r / 2, r / 6, 0, Math.PI * 2);
+                ctx.fill();
+                // 下小圆鱼眼（黑）
+                ctx.fillStyle = '#1a1a1a';
+                ctx.beginPath();
+                ctx.arc(0, r / 2, r / 6, 0, Math.PI * 2);
+                ctx.fill();
+                // 边缘金线
+                ctx.strokeStyle = 'rgba(212,175,55,0.8)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(0, 0, r, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+
+                // ===== 呼吸光晕 =====
+                const breath = 0.3 + Math.sin(t * 2) * 0.15;
+                ctx.strokeStyle = `rgba(255, 215, 0, ${breath})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, baguaRadius + 5, 0, Math.PI * 2);
+                ctx.stroke();
             } else if (currentSkinId === 'fashi') {
                 // 法师：人形+法杖+魔法粒子
                 ctx.fillStyle = skinColor;
