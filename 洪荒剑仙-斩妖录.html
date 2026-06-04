@@ -2759,18 +2759,17 @@
             weaponSlot.style.borderColor = stageColor;
             weaponSlot.style.boxShadow = '0 0 10px ' + stageColor;
             
+            // 计算攻击力
+            let atkInfo = calcWeaponAtk(weapon);
+            let isDeepGreen = weapon.type === 'greenWeapon';
+            let template = isDeepGreen ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
+            
             // 显示武器图标（图片或emoji）
-            let template = weapon.type === 'greenWeapon' ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
             if (template && template.icon) {
                 weaponSlot.innerHTML = `<img src="${template.icon}" style="width:40px;height:40px;object-fit:contain;" alt="${template.name}">`;
             } else {
                 weaponSlot.innerHTML = '🗡️';
             }
-
-            // 计算攻击力
-            let atkInfo = calcWeaponAtk(weapon);
-            let isDeepGreen = weapon.type === 'greenWeapon';
-            let template = isDeepGreen ? greenWeapons[weapon.weaponId] : lightGreenWeapons[weapon.weaponId];
 
             let html = '';
             // 武器名称
