@@ -1136,7 +1136,11 @@
                 shieldActive: false,
                 frozenTimer: {},
                 slashAngle: 0,
-                slashFired: false
+                slashFired: false,
+                bloodBoost: false,
+                blackHole: null,
+                timeStopActive: false,
+                yuanShenUsed: false
             };
         }
 
@@ -1221,6 +1225,72 @@
                 color: '#DA70D6',
                 desc: '击杀敌人后50%概率立即重置攻击CD，连杀越快越强',
                 procChance: 0.5
+            },
+            // 三批技能
+            {
+                id: 'yiNian',
+                name: '一念千击',
+                icon: '⚡',
+                color: '#FFD700',
+                desc: '普攻15%概率触发，瞬间对范围内所有敌人造成50%物攻',
+                procChance: 0.15,
+                damageMult: 0.5
+            },
+            {
+                id: 'xueJi',
+                name: '血祭噬魂',
+                icon: '🩸',
+                color: '#DC143C',
+                desc: '击杀敌人时30%概率触发，下一击伤害×3',
+                procChance: 0.3,
+                damageMult: 3.0
+            },
+            {
+                id: 'kongJian',
+                name: '空间撕裂',
+                icon: '🌀',
+                color: '#8B008B',
+                desc: '每10秒生成黑洞吸引100范围内敌人，聚怪后爆炸造成30%物攻',
+                cooldown: 600, // 10秒
+                range: 100,
+                damageMult: 0.3,
+                duration: 120 // 黑洞持续2秒
+            },
+            {
+                id: 'yuanShen',
+                name: '元神出窍',
+                icon: '👻',
+                color: '#FFD700',
+                desc: '受到致命伤害时原地复活，回满血并清空场上敌人50%血量（CD 180秒）',
+                cooldown: 10800 // 180秒
+            },
+            {
+                id: 'shiJian',
+                name: '时间停滞',
+                icon: '⏰',
+                color: '#C0C0C0',
+                desc: '每20秒触发，全场敌人静止2秒，期间玩家攻击造成×2伤害',
+                cooldown: 1200, // 20秒
+                duration: 120 // 2秒
+            },
+            {
+                id: 'biSha',
+                name: '必杀一击',
+                icon: '🎯',
+                color: '#FF1493',
+                desc: '暴击伤害+50%，暴击概率+15%',
+                critDamageBonus: 0.5,
+                critChanceBonus: 0.15
+            },
+            {
+                id: 'wanJian',
+                name: '万剑归宗',
+                icon: '💫',
+                color: '#00BFFF',
+                desc: '每5秒自动召唤3把飞剑射向3个不同敌人，每把造成100%物攻',
+                cooldown: 300, // 5秒
+                damageMult: 1.0,
+                swordCount: 3
             }
         ];
 
@@ -1235,7 +1305,11 @@
             shieldActive: false, // 金刚护盾状态
             frozenTimer: {}, // 冰封冻结计时 {enemyId: frames}
             slashAngle: 0, // 斩天一剑角度
-            slashFired: false // 斩天一剑是否已发射
+            slashFired: false, // 斩天一剑是否已发射
+            bloodBoost: false, // 血祭噬魂：下一击×3
+            blackHole: null, // 空间撕裂：黑洞位置 {x, y, timer}
+            timeStopActive: false, // 时间停滞是否激活
+            yuanShenUsed: false // 元神出窍是否已使用（本命）
         };
 
         const titleBonuses = {
@@ -1416,6 +1490,15 @@
                     player.attackTimer = 0;
                     createFloatingText(player.x, player.y - 50, '🔄轮回!', '#DA70D6');
                     createParticles(player.x, player.y, '#DA70D6', 10);
+                }
+            }
+
+            // 神话技能：血祭噬魂 - 击杀30%概率触发下一击×3
+            if (activeMythicSkill && activeMythicSkill.id === 'xueJi') {
+                if (Math.random() < activeMythicSkill.procChance) {
+                    mythicSkillState.bloodBoost = true;
+                    createFloatingText(player.x, player.y - 50, '🩸血祭!', '#DC143C');
+                    createParticles(player.x, player.y, '#DC143C', 10);
                 }
             }
 
@@ -2352,6 +2435,34 @@
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(p.x - p.vx * 6, p.y - p.vy * 6);
                     ctx.stroke();
+                } else if (p.type === 'tianGangSword') {
+                    // 天罡剑阵飞剑：金色
+                    ctx.strokeStyle = p.color;
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = p.color;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x - p.vx * 4, p.y - p.vy * 4);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                } else if (p.type === 'wanJianSword') {
+                    // 万剑归宗飞剑：蓝色
+                    ctx.strokeStyle = p.color;
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = p.color;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x - p.vx * 4, p.y - p.vy * 4);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    ctx.strokeStyle = `rgba(0, 191, 255, 0.3)`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p.x - p.vx * 7, p.y - p.vy * 7);
+                    ctx.stroke();
                 } else {
                     ctx.fillStyle = '#8b0000';
                     ctx.shadowBlur = 8;
@@ -2485,6 +2596,17 @@
                         if (playerAlive && enemies.includes(target)) createSwordQi(player, target, player.attackDamage);
                     }, index * 80);
                 });
+                // 神话技能 - 一念千击：普攻15%概率触发AOE
+                if (activeMythicSkill && activeMythicSkill.id === 'yiNian' && Math.random() < activeMythicSkill.procChance) {
+                    const aoeDmg = Math.floor(player.attackDamage * activeMythicSkill.damageMult);
+                    enemies.forEach(e => {
+                        e.hp -= aoeDmg;
+                        createDamageText(e.x, e.y - 15, aoeDmg, true, false, '#FFD700');
+                    });
+                    enemies = enemies.filter(e => e.hp > 0);
+                    createFloatingText(player.x, player.y - 50, '⚡一念千击!', '#FFD700');
+                    createParticles(player.x, player.y, '#FFD700', 25);
+                }
             }
         }
 
@@ -2492,7 +2614,9 @@
             enemies.forEach(enemy => {
                 // 冰封万里：冻结中的敌人不能移动和攻击
                 const isFrozen = mythicSkillState.frozenTimer[enemy.id] > 0;
-                if (isFrozen) {
+                // 时间停滞：全场敌人静止
+                const isTimeStopped = mythicSkillState.timeStopActive;
+                if (isFrozen || isTimeStopped) {
                     if (enemy.attackCooldown > 0) enemy.attackCooldown--;
                     return;
                 }
@@ -2754,10 +2878,19 @@
 
             // 3. 暴击判定
             let isCrit = false;
-            const critChance = getPlayerCritChance();
+            let critChance = getPlayerCritChance();
+            // 神话技能 - 必杀一击：暴击概率+15%
+            if (activeMythicSkill && activeMythicSkill.id === 'biSha') {
+                critChance += activeMythicSkill.critChanceBonus * 100;
+            }
             if (Math.random() * 100 < critChance) {
                 isCrit = true;
-                damage *= getPlayerCritDamage();
+                let critDmg = getPlayerCritDamage();
+                // 神话技能 - 必杀一击：暴击伤害+50%
+                if (activeMythicSkill && activeMythicSkill.id === 'biSha') {
+                    critDmg += activeMythicSkill.critDamageBonus;
+                }
+                damage *= critDmg;
             }
 
             // 4. 元素伤害（武器自带 + 词条附加）
@@ -2785,6 +2918,17 @@
             if (activeMythicSkill && activeMythicSkill.id === 'shengSheng') {
                 const stackBonus = mythicSkillState.stacks * activeMythicSkill.atkBonusPerStack;
                 damage *= (1 + stackBonus);
+            }
+
+            // 8. 神话技能 - 血祭噬魂：下一击×3
+            if (activeMythicSkill && activeMythicSkill.id === 'xueJi' && mythicSkillState.bloodBoost) {
+                damage *= activeMythicSkill.damageMult;
+                mythicSkillState.bloodBoost = false;
+            }
+
+            // 9. 神话技能 - 时间停滞：×2伤害
+            if (activeMythicSkill && activeMythicSkill.id === 'shiJian' && mythicSkillState.timeStopActive) {
+                damage *= 2;
             }
 
             // 最终伤害最低1
@@ -2818,7 +2962,7 @@
                             createDamageText(enemy.x, enemy.y - 20, result.damage, true, result.isCrit);
                             createParticles(p.x, p.y, result.isCrit ? '#FF4500' : '#ffd700', result.isCrit ? 12 : 6);
                             // 神话技能：三昧真火 - 命中时叠加燃烧（只对普通剑气，不对天罡飞剑触发重复）
-                            if (p.type === 'sword') {
+                            if (p.type === 'sword' || p.type === 'wanJianSword') {
                                 applySanWeiBurn(enemy);
                             }
                             if (enemy.hp <= 0) {
@@ -2867,6 +3011,20 @@
         }
 
         function playerDied() {
+            // 神话技能：元神出窍 - 受到致命伤害时复活
+            if (activeMythicSkill && activeMythicSkill.id === 'yuanShen' && !mythicSkillState.yuanShenUsed && mythicSkillState.cooldownTimer <= 0) {
+                mythicSkillState.yuanShenUsed = true;
+                mythicSkillState.cooldownTimer = activeMythicSkill.cooldown;
+                player.hp = player.maxHp;
+                // 清空场上敌人50%血量
+                enemies.forEach(e => {
+                    e.hp = Math.floor(e.hp * 0.5);
+                });
+                createFloatingText(player.x, player.y - 60, '👻元神出窍!', '#FFD700');
+                createParticles(player.x, player.y, '#FFD700', 40);
+                return; // 不执行死亡逻辑
+            }
+
             playerAlive = false;
             // 生生不息：死亡清空层数
             if (mythicSkillState) mythicSkillState.stacks = 0;
@@ -3124,6 +3282,104 @@
                 case 'lunHui':
                     // 被动生效（无主动逻辑，CD重置在击杀时触发）
                     break;
+
+                // ================= 一念千击 =================
+                case 'yiNian':
+                    // 被动：普攻15%触发，在playerAutoAttack中处理
+                    break;
+
+                // ================= 血祭噬魂 =================
+                case 'xueJi':
+                    // 被动：击杀30%触发下一击×3，在onEnemyKilled中处理
+                    break;
+
+                // ================= 空间撕裂 =================
+                case 'kongJian':
+                    if (s.cooldownTimer <= 0) {
+                        s.cooldownTimer = activeMythicSkill.cooldown;
+                        // 在玩家位置生成黑洞
+                        s.blackHole = { x: player.x, y: player.y, timer: activeMythicSkill.duration };
+                        createFloatingText(player.x, player.y - 50, '🌀空间撕裂!', '#8B008B');
+                        createParticles(player.x, player.y, '#8B008B', 20);
+                    }
+                    // 更新黑洞
+                    if (s.blackHole) {
+                        s.blackHole.timer--;
+                        // 吸引范围内敌人
+                        enemies.forEach(e => {
+                            const dx = s.blackHole.x - e.x;
+                            const dy = s.blackHole.y - e.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist <= activeMythicSkill.range && dist > 5) {
+                                e.x += (dx / dist) * 2.5;
+                                e.y += (dy / dist) * 2.5;
+                            }
+                        });
+                        // 黑洞结束：爆炸
+                        if (s.blackHole.timer <= 0) {
+                            const dmg = Math.floor(player.attackDamage * activeMythicSkill.damageMult);
+                            enemies.forEach(e => {
+                                const dist = Math.hypot(e.x - s.blackHole.x, e.y - s.blackHole.y);
+                                if (dist <= activeMythicSkill.range) {
+                                    e.hp -= dmg;
+                                    createDamageText(e.x, e.y - 15, dmg, true, false, '#8B008B');
+                                }
+                            });
+                            enemies = enemies.filter(e => e.hp > 0);
+                            createParticles(s.blackHole.x, s.blackHole.y, '#8B008B', 30);
+                            s.blackHole = null;
+                        }
+                    }
+                    break;
+
+                // ================= 元神出窍 =================
+                case 'yuanShen':
+                    // 被动：在玩家受致命伤害时触发，见playerDied
+                    break;
+
+                // ================= 时间停滞 =================
+                case 'shiJian':
+                    if (s.cooldownTimer <= 0 && !s.timeStopActive) {
+                        s.timeStopActive = true;
+                        s.durationTimer = activeMythicSkill.duration;
+                        createFloatingText(player.x, player.y - 50, '⏰时间停滞!', '#C0C0C0');
+                        createParticles(player.x, player.y, '#C0C0C0', 25);
+                    }
+                    if (s.timeStopActive) {
+                        s.durationTimer--;
+                        if (s.durationTimer <= 0) {
+                            s.timeStopActive = false;
+                            s.cooldownTimer = activeMythicSkill.cooldown;
+                        }
+                    }
+                    break;
+
+                // ================= 必杀一击 =================
+                case 'biSha':
+                    // 被动：暴击加成在calcActualDamage中处理
+                    break;
+
+                // ================= 万剑归宗 =================
+                case 'wanJian':
+                    if (s.cooldownTimer <= 0 && enemies.length > 0) {
+                        s.cooldownTimer = activeMythicSkill.cooldown;
+                        const count = Math.min(activeMythicSkill.swordCount, enemies.length);
+                        const targets = [];
+                        const shuffled = [...enemies].sort(() => Math.random() - 0.5);
+                        for (let i = 0; i < count; i++) targets.push(shuffled[i]);
+                        targets.forEach(target => {
+                            const ang = Math.atan2(target.y - player.y, target.x - player.x);
+                            projectiles.push({
+                                x: player.x, y: player.y,
+                                vx: Math.cos(ang) * 10, vy: Math.sin(ang) * 10,
+                                isPlayer: true,
+                                damage: Math.floor(player.attackDamage * activeMythicSkill.damageMult),
+                                life: 60, angle: ang, type: 'wanJianSword', color: '#00BFFF'
+                            });
+                        });
+                        createParticles(player.x, player.y, '#00BFFF', 15);
+                    }
+                    break;
             }
         }
 
@@ -3284,29 +3540,137 @@
                 // 轮回渲染：被动无视觉
                 case 'lunHui':
                     break;
+
+                // 一念千击渲染：被动无持续视觉
+                case 'yiNian':
+                    break;
+
+                // 血祭噬魂渲染：激活时剑身染血
+                case 'xueJi':
+                    if (s.bloodBoost) {
+                        ctx.strokeStyle = '#DC143C';
+                        ctx.lineWidth = 3;
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = '#DC143C';
+                        ctx.beginPath();
+                        ctx.arc(player.x, player.y, player.radius + 5, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+                    break;
+
+                // 空间撕裂渲染：黑洞
+                case 'kongJian':
+                    if (s.blackHole) {
+                        const bh = s.blackHole;
+                        const pulse = 0.5 + Math.sin(frameCount * 0.2) * 0.3;
+                        // 黑洞核心
+                        ctx.fillStyle = `rgba(20, 0, 20, ${pulse})`;
+                        ctx.beginPath();
+                        ctx.arc(bh.x, bh.y, 20, 0, Math.PI * 2);
+                        ctx.fill();
+                        // 紫色漩涡
+                        ctx.strokeStyle = `rgba(139, 0, 139, ${pulse})`;
+                        ctx.lineWidth = 2;
+                        ctx.shadowBlur = 12;
+                        ctx.shadowColor = '#8B008B';
+                        for (let i = 0; i < 3; i++) {
+                            const ang = frameCount * 0.05 + (i / 3) * Math.PI * 2;
+                            ctx.beginPath();
+                            ctx.arc(bh.x, bh.y, 15 + i * 12, ang, ang + Math.PI * 0.8);
+                            ctx.stroke();
+                        }
+                        ctx.shadowBlur = 0;
+                    }
+                    break;
+
+                // 元神出窍渲染：被动无持续视觉
+                case 'yuanShen':
+                    break;
+
+                // 时间停滞渲染：画面变灰+玩家发光
+                case 'shiJian':
+                    if (s.timeStopActive) {
+                        // 全屏灰色半透明遮罩
+                        ctx.fillStyle = 'rgba(100, 100, 120, 0.15)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        // 玩家金色光环
+                        ctx.strokeStyle = '#C0C0C0';
+                        ctx.lineWidth = 2;
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = '#fff';
+                        ctx.beginPath();
+                        ctx.arc(player.x, player.y, player.radius + 8, 0, Math.PI * 2);
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+                    break;
+
+                // 必杀一击渲染：暴击光环
+                case 'biSha':
+                    const critPulse = 0.3 + Math.sin(frameCount * 0.1) * 0.2;
+                    ctx.strokeStyle = `rgba(255, 20, 147, ${critPulse})`;
+                    ctx.lineWidth = 2;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#FF1493';
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, player.radius + 6, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    break;
+
+                // 万剑归宗渲染：被动无持续视觉（飞剑在projectiles中渲染）
+                case 'wanJian':
+                    break;
             }
 
             // 技能状态显示（屏幕左下角）
-            // 生生不息：显示层数（无CD）
-            if (activeMythicSkill.id === 'shengSheng') {
-                const cdX = 15; const cdY = canvas.height - 35;
+            const cdX = 15; const cdY = canvas.height - 35;
+            // 被动技能（无CD）：显示常驻标签
+            const passiveSkills = ['shengSheng', 'yiNian', 'xueJi', 'biSha', 'lunHui'];
+            if (passiveSkills.includes(activeMythicSkill.id)) {
                 ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                ctx.fillRect(cdX - 2, cdY - 18, 100, 28);
-                ctx.strokeStyle = '#32CD32';
+                ctx.fillRect(cdX - 2, cdY - 18, 110, 28);
+                ctx.strokeStyle = activeMythicSkill.color;
                 ctx.lineWidth = 1;
-                ctx.strokeRect(cdX - 2, cdY - 18, 100, 28);
-                ctx.fillStyle = '#32CD32';
+                ctx.strokeRect(cdX - 2, cdY - 18, 110, 28);
+                ctx.fillStyle = activeMythicSkill.color;
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'left';
                 ctx.fillText(`${activeMythicSkill.icon} ${activeMythicSkill.name}`, cdX, cdY - 5);
-                ctx.fillStyle = s.stacks > 0 ? '#fff' : '#666';
-                ctx.font = '11px sans-serif';
-                ctx.fillText(`层数: ${s.stacks}/${activeMythicSkill.stackMax}`, cdX, cdY + 8);
+                // 生生不息额外显示层数
+                if (activeMythicSkill.id === 'shengSheng') {
+                    ctx.fillStyle = s.stacks > 0 ? '#fff' : '#666';
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText(`层数: ${s.stacks}/${activeMythicSkill.stackMax}`, cdX, cdY + 8);
+                } else if (activeMythicSkill.id === 'xueJi' && s.bloodBoost) {
+                    ctx.fillStyle = '#DC143C';
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('🩸蓄力中!', cdX, cdY + 8);
+                } else {
+                    ctx.fillStyle = '#888';
+                    ctx.font = '11px sans-serif';
+                    ctx.fillText('被动', cdX, cdY + 8);
+                }
             }
-            // 其他技能：显示CD进度条
+            // 元神出窍：显示是否可用
+            else if (activeMythicSkill.id === 'yuanShen') {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(cdX - 2, cdY - 18, 110, 28);
+                ctx.strokeStyle = activeMythicSkill.color;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cdX - 2, cdY - 18, 110, 28);
+                ctx.fillStyle = activeMythicSkill.color;
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${activeMythicSkill.icon} ${activeMythicSkill.name}`, cdX, cdY - 5);
+                ctx.fillStyle = s.yuanShenUsed ? '#666' : '#FFD700';
+                ctx.font = '11px sans-serif';
+                ctx.fillText(s.yuanShenUsed ? '已使用' : '就绪', cdX, cdY + 8);
+            }
+            // 主动技能：显示CD进度条
             else if (s.cooldownTimer > 0) {
                 const cdPercent = s.cooldownTimer / activeMythicSkill.cooldown;
-                const cdX = 15; const cdY = canvas.height - 35;
                 ctx.fillStyle = 'rgba(0,0,0,0.7)';
                 ctx.fillRect(cdX, cdY, 80, 8);
                 ctx.fillStyle = activeMythicSkill.color;
@@ -3318,6 +3682,21 @@
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'left';
                 ctx.fillText(`${activeMythicSkill.icon} ${activeMythicSkill.name}`, cdX, cdY - 5);
+            }
+            // 主动技能CD就绪
+            else {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(cdX - 2, cdY - 18, 110, 28);
+                ctx.strokeStyle = activeMythicSkill.color;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cdX - 2, cdY - 18, 110, 28);
+                ctx.fillStyle = activeMythicSkill.color;
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${activeMythicSkill.icon} ${activeMythicSkill.name}`, cdX, cdY - 5);
+                ctx.fillStyle = '#0f0';
+                ctx.font = '11px sans-serif';
+                ctx.fillText('就绪', cdX, cdY + 8);
             }
         }
 
