@@ -429,6 +429,7 @@
             moveSpeed: 3,
             targetX: centerX,
             targetY: centerY,
+            facingAngle: 0,
             isMoving: false,
             color: '#ffd700',
             swordAngle: 0,
@@ -1091,7 +1092,7 @@
             weapon.totalScore = totalScore;
             weapon.scoreRating = getScoreRating(totalScore);
 
-            // 神话级武器：随机授予一个技能（首次达到神话时锁定）
+            // 神话级武器（圣物，1700分）：随机授予一个技能（首次达到神话时锁定）
             if (totalScore >= 1700 && !weapon.mythicSkillId) {
                 const skill = mythicSkills[Math.floor(Math.random() * mythicSkills.length)];
                 weapon.mythicSkillId = skill.id;
@@ -1132,7 +1133,10 @@
                 internalTimer: 0,
                 stacks: 0,
                 swords: [],
-                shieldActive: false
+                shieldActive: false,
+                frozenTimer: {},
+                slashAngle: 0,
+                slashFired: false
             };
         }
 
@@ -1178,6 +1182,45 @@
                 stackMax: 5,
                 damageMult: 0.3,
                 duration: 300
+            },
+            // 二批技能
+            {
+                id: 'iceFreeze',
+                name: '冰封万里',
+                icon: '❄️',
+                color: '#00CED1',
+                desc: '每15秒释放寒霜爆发，冻结半径150内敌人3秒',
+                cooldown: 900, // 15秒
+                range: 150,
+                duration: 180 // 冻结3秒
+            },
+            {
+                id: 'zhanTian',
+                name: '斩天一剑',
+                icon: '💥',
+                color: '#FF6347',
+                desc: '每12秒蓄力释放巨剑，对前方扇形敌人造成500%物攻',
+                cooldown: 720, // 12秒
+                damageMult: 5.0,
+                angle: Math.PI * 5 / 6 // 150度扇形
+            },
+            {
+                id: 'shengSheng',
+                name: '生生不息',
+                icon: '💚',
+                color: '#32CD32',
+                desc: '击杀敌人回复5%最大生命并叠加1层攻击+2%，最高10层，死亡清空',
+                stackMax: 10,
+                hpPercent: 0.05,
+                atkBonusPerStack: 0.02
+            },
+            {
+                id: 'lunHui',
+                name: '轮回',
+                icon: '🔄',
+                color: '#DA70D6',
+                desc: '击杀敌人后50%概率立即重置攻击CD，连杀越快越强',
+                procChance: 0.5
             }
         ];
 
@@ -1186,10 +1229,13 @@
         let mythicSkillState = {
             cooldownTimer: 0,
             durationTimer: 0,
-            internalTimer: 0, // 技能内部计时（飞剑每1秒发射、天雷每2秒等）
-            stacks: 0, // 三昧真火层数
+            internalTimer: 0, // 技能内部计时
+            stacks: 0, // 三昧真火层数 / 生生不息层数
             swords: [], // 天罡飞剑对象数组
-            shieldActive: false // 金刚护盾状态
+            shieldActive: false, // 金刚护盾状态
+            frozenTimer: {}, // 冰封冻结计时 {enemyId: frames}
+            slashAngle: 0, // 斩天一剑角度
+            slashFired: false // 斩天一剑是否已发射
         };
 
         const titleBonuses = {
@@ -1353,6 +1399,25 @@
             // 连击
             comboCount++;
             comboTimer = 120; // 2秒内没有击杀则连击重置
+
+            // 神话技能：生生不息 - 击杀回复+叠层
+            if (activeMythicSkill && activeMythicSkill.id === 'shengSheng') {
+                const maxStack = activeMythicSkill.stackMax;
+                if (mythicSkillState.stacks < maxStack) mythicSkillState.stacks++;
+                const healAmt = Math.floor(player.maxHp * activeMythicSkill.hpPercent);
+                player.hp = Math.min(player.maxHp, player.hp + healAmt);
+                createFloatingText(player.x, player.y - 60, `💚 ${mythicSkillState.stacks}层 +${healAmt}`, '#32CD32');
+                updateUI();
+            }
+
+            // 神话技能：轮回 - 击杀50%重置攻击CD
+            if (activeMythicSkill && activeMythicSkill.id === 'lunHui') {
+                if (Math.random() < activeMythicSkill.procChance) {
+                    player.attackTimer = 0;
+                    createFloatingText(player.x, player.y - 50, '🔄轮回!', '#DA70D6');
+                    createParticles(player.x, player.y, '#DA70D6', 10);
+                }
+            }
 
             // 给当前装备武器加经验
             if (player.equippedWeapon) {
@@ -2349,6 +2414,7 @@
                 if (dist > 3) {
                     player.x += (dx / dist) * player.moveSpeed;
                     player.y += (dy / dist) * player.moveSpeed;
+                    player.facingAngle = Math.atan2(dy, dx);
                 } else {
                     player.isMoving = false;
                 }
@@ -2371,6 +2437,7 @@
                         const dx = nearestEnemy.x - player.x;
                         const dy = nearestEnemy.y - player.y;
                         const dist = Math.hypot(dx, dy);
+                        player.facingAngle = Math.atan2(dy, dx);
                         
                         // 计算移动距离（不能超出雷达边界）
                         let moveX = (dx / dist) * player.moveSpeed;
@@ -2423,6 +2490,12 @@
 
         function updateEnemies() {
             enemies.forEach(enemy => {
+                // 冰封万里：冻结中的敌人不能移动和攻击
+                const isFrozen = mythicSkillState.frozenTimer[enemy.id] > 0;
+                if (isFrozen) {
+                    if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+                    return;
+                }
                 if (playerAlive) {
                     const distToPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y);
                     if (distToPlayer > enemy.attackRange - 10) {
@@ -2708,6 +2781,12 @@
                 damage *= (1 + enemy.electrifyBonus);
             }
 
+            // 7. 神话技能 - 生生不息攻击加成
+            if (activeMythicSkill && activeMythicSkill.id === 'shengSheng') {
+                const stackBonus = mythicSkillState.stacks * activeMythicSkill.atkBonusPerStack;
+                damage *= (1 + stackBonus);
+            }
+
             // 最终伤害最低1
             damage = Math.max(1, Math.floor(damage));
 
@@ -2789,6 +2868,8 @@
 
         function playerDied() {
             playerAlive = false;
+            // 生生不息：死亡清空层数
+            if (mythicSkillState) mythicSkillState.stacks = 0;
             reviveTimer = 5;
             createParticles(player.x, player.y, '#ffd700', 35);
             createFloatingText(player.x, player.y - 40, '道消身殒', '#dc143c');
@@ -2963,6 +3044,86 @@
                 case 'sanWei':
                     // 每次玩家普攻（剑气发射时）给目标叠加燃烧
                     break;
+
+                // ================= 冰封万里 =================
+                case 'iceFreeze':
+                    if (s.cooldownTimer <= 0) {
+                        s.cooldownTimer = activeMythicSkill.cooldown;
+                        // 冻结范围内所有敌人
+                        let frozenCount = 0;
+                        enemies.forEach(e => {
+                            const dist = Math.hypot(e.x - player.x, e.y - player.y);
+                            if (dist <= activeMythicSkill.range) {
+                                s.frozenTimer[e.id] = activeMythicSkill.duration;
+                                frozenCount++;
+                            }
+                        });
+                        if (frozenCount > 0) {
+                            createFloatingText(player.x, player.y - 50, `❄️冰封 ${frozenCount} 只!`, '#00CED1');
+                            // 冰霜涟漪特效
+                            createParticles(player.x, player.y, '#00CED1', 30);
+                        }
+                    }
+                    // 更新冻结计时器
+                    Object.keys(s.frozenTimer).forEach(id => {
+                        const enemy = enemies.find(e => e.id == id);
+                        if (!enemy) { delete s.frozenTimer[id]; return; }
+                        s.frozenTimer[id]--;
+                        if (s.frozenTimer[id] <= 0) {
+                            delete s.frozenTimer[id];
+                        }
+                    });
+                    break;
+
+                // ================= 斩天一剑 =================
+                case 'zhanTian':
+                    if (s.cooldownTimer <= 0 && !s.slashFired) {
+                        // 蓄力完成，释放斩击
+                        s.slashFired = true;
+                        const targetAngle = player.facingAngle;
+                        const halfAngle = activeMythicSkill.angle / 2;
+                        let hitCount = 0;
+                        enemies.forEach(e => {
+                            const dx = e.x - player.x;
+                            const dy = e.y - player.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist > 0) {
+                                const angleToEnemy = Math.atan2(dy, dx);
+                                let angleDiff = Math.abs(angleToEnemy - targetAngle);
+                                if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+                                if (angleDiff <= halfAngle) {
+                                    const dmg = Math.floor(player.attackDamage * activeMythicSkill.damageMult);
+                                    e.hp -= dmg;
+                                    createDamageText(e.x, e.y - 30, dmg, true, true);
+                                    hitCount++;
+                                    if (e.hp <= 0) {
+                                        createParticles(e.x, e.y, '#FF6347', 15);
+                                        kills++;
+                                        score += e.score || 0;
+                                    }
+                                }
+                            }
+                        });
+                        if (hitCount > 0) {
+                            createFloatingText(player.x, player.y - 60, '💥斩天!', '#FF6347');
+                            createParticles(player.x, player.y, '#FF6347', 20);
+                        }
+                        enemies = enemies.filter(e => e.hp > 0);
+                        s.cooldownTimer = activeMythicSkill.cooldown;
+                        s.slashFired = false;
+                    }
+                    break;
+
+                // ================= 生生不息 =================
+                case 'shengSheng':
+                    // 被动生效（无主动逻辑，层数在击杀时更新）
+                    // 攻击加成：生生不息层数×每层2%
+                    break;
+
+                // ================= 轮回 =================
+                case 'lunHui':
+                    // 被动生效（无主动逻辑，CD重置在击杀时触发）
+                    break;
             }
         }
 
@@ -3057,20 +3218,102 @@
                         }
                     });
                     break;
+
+                // 冰封万里渲染
+                case 'iceFreeze':
+                    enemies.forEach(e => {
+                        if (s.frozenTimer[e.id] > 0) {
+                            const pulse = 0.3 + Math.sin(frameCount * 0.15) * 0.2;
+                            ctx.strokeStyle = `rgba(0, 206, 209, ${pulse})`;
+                            ctx.lineWidth = 3;
+                            ctx.shadowBlur = 12;
+                            ctx.shadowColor = '#00CED1';
+                            ctx.beginPath();
+                            ctx.arc(e.x, e.y, e.radius + 4, 0, Math.PI * 2);
+                            ctx.stroke();
+                            ctx.fillStyle = `rgba(173, 216, 230, ${pulse * 0.3})`;
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
+                    });
+                    break;
+
+                // 斩天一剑渲染
+                case 'zhanTian':
+                    // 蓄力进度：显示能量条
+                    if (s.cooldownTimer > 0 && s.cooldownTimer > activeMythicSkill.cooldown * 0.3) {
+                        const progress = 1 - (s.cooldownTimer / activeMythicSkill.cooldown);
+                        const chargeX = player.x - 25; const chargeY = player.y - player.radius - 22;
+                        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                        ctx.fillRect(chargeX, chargeY, 50, 6);
+                        ctx.fillStyle = '#FF6347';
+                        ctx.fillRect(chargeX, chargeY, 50 * progress, 6);
+                        ctx.strokeStyle = '#FF6347';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(chargeX, chargeY, 50, 6);
+                    }
+                    break;
+
+                // 生生不息渲染：显示层数光环
+                case 'shengSheng':
+                    if (s.stacks > 0) {
+                        const pulse = 0.3 + Math.sin(frameCount * 0.08) * 0.2;
+                        for (let i = 0; i < Math.min(s.stacks, 5); i++) {
+                            const ang = (i / 5) * Math.PI * 2 + frameCount * 0.02;
+                            const r = player.radius + 8 + i * 4;
+                            ctx.fillStyle = `rgba(50, 205, 50, ${pulse - i * 0.04})`;
+                            ctx.shadowBlur = 8;
+                            ctx.shadowColor = '#32CD32';
+                            ctx.beginPath();
+                            ctx.arc(player.x + Math.cos(ang) * r * 0.5, player.y + Math.sin(ang) * r * 0.5, 3, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        // 层数文字
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = '#32CD32';
+                        ctx.font = 'bold 10px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${s.stacks}`, player.x, player.y + 4);
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.strokeText(`${s.stacks}`, player.x, player.y + 4);
+                        ctx.fillText(`${s.stacks}`, player.x, player.y + 4);
+                    }
+                    break;
+
+                // 轮回渲染：被动无视觉
+                case 'lunHui':
+                    break;
             }
 
-            // 技能CD进度条（屏幕左下角显示）
-            if (s.cooldownTimer > 0) {
+            // 技能状态显示（屏幕左下角）
+            // 生生不息：显示层数（无CD）
+            if (activeMythicSkill.id === 'shengSheng') {
+                const cdX = 15; const cdY = canvas.height - 35;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(cdX - 2, cdY - 18, 100, 28);
+                ctx.strokeStyle = '#32CD32';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(cdX - 2, cdY - 18, 100, 28);
+                ctx.fillStyle = '#32CD32';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${activeMythicSkill.icon} ${activeMythicSkill.name}`, cdX, cdY - 5);
+                ctx.fillStyle = s.stacks > 0 ? '#fff' : '#666';
+                ctx.font = '11px sans-serif';
+                ctx.fillText(`层数: ${s.stacks}/${activeMythicSkill.stackMax}`, cdX, cdY + 8);
+            }
+            // 其他技能：显示CD进度条
+            else if (s.cooldownTimer > 0) {
                 const cdPercent = s.cooldownTimer / activeMythicSkill.cooldown;
                 const cdX = 15; const cdY = canvas.height - 35;
-                const barW = 80; const barH = 8;
                 ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                ctx.fillRect(cdX, cdY, barW, barH);
+                ctx.fillRect(cdX, cdY, 80, 8);
                 ctx.fillStyle = activeMythicSkill.color;
-                ctx.fillRect(cdX, cdY, barW * (1 - cdPercent), barH);
+                ctx.fillRect(cdX, cdY, 80 * (1 - cdPercent), 8);
                 ctx.strokeStyle = activeMythicSkill.color;
                 ctx.lineWidth = 1;
-                ctx.strokeRect(cdX, cdY, barW, barH);
+                ctx.strokeRect(cdX, cdY, 80, 8);
                 ctx.fillStyle = '#fff';
                 ctx.font = 'bold 12px sans-serif';
                 ctx.textAlign = 'left';
