@@ -59,6 +59,23 @@
                 transform: translate(-50%, -50%) scale(0.9);
             }
         }
+
+        /* 圣物脉冲发光动画（神话技能武器格子） */
+        @keyframes mythicPulse {
+            0%, 100% {
+                filter: brightness(1) saturate(1);
+            }
+            50% {
+                filter: brightness(1.4) saturate(1.6);
+            }
+        }
+
+        /* 背包格子hover效果 */
+        .bag-slot:hover, .storage-slot:hover {
+            transform: scale(1.08);
+            filter: brightness(1.3);
+            z-index: 10;
+        }
         
         /* 自定义tooltip */
         #gameTooltip {
@@ -302,25 +319,30 @@
         
         <!-- 背包界面 -->
         <!-- 背包+储物箱面板 -->
-        <div id="bagPanel" style="display:none;position:fixed;top:50%;right:5px;transform:translateY(-50%);background:rgba(0,0,0,0.95);border:3px solid #8b4513;border-radius:15px;padding:10px;z-index:10000;box-shadow:0 0 30px rgba(139,69,19,0.5);width:280px;max-height:95vh;overflow-y:auto;">
-            <div style="text-align:center;color:#ffd700;font-size:16px;margin-bottom:8px;">🎒 背包</div>
-            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:8px;">
+        <div id="bagPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(20,15,10,0.98),rgba(35,25,15,0.98));border:3px solid #8b4513;border-radius:15px;padding:12px;z-index:10000;box-shadow:0 0 40px rgba(212,175,55,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:540px;max-height:92vh;display:none;flex-direction:column;">
+            <div style="text-align:center;color:#ffd700;font-size:16px;margin-bottom:8px;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.5);">🎒 储物宝箱</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;padding:0 2px;">
+                <span style="color:#d4af37;font-size:12px;font-weight:bold;">🎒 背包</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span id="bagCount" style="color:#ffd700;font-size:11px;">0/100</span>
+                    <button id="sortBag" style="background:linear-gradient(135deg,#4a7c59,#3a6549);color:#fff;border:1px solid #6b9b7a;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-size:11px;">整理</button>
+                </div>
+            </div>
+            <div id="bagGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:8px;padding:5px;background:rgba(0,0,0,0.4);border-radius:6px;border:1px solid #5a3a1a;flex-shrink:0;">
                 <!-- 背包格子由JS生成 -->
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span id="bagCount" style="color:#888;font-size:11px;">0/20</span>
-                <button id="sortBag" style="background:#4a7c59;color:#fff;border:none;padding:3px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:10px;">整理</button>
+            <div style="border-top:1px solid #8b4513;margin:5px 0;"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;padding:0 2px;">
+                <span style="color:#4169E1;font-size:12px;font-weight:bold;">📦 储物箱</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span id="storageCount" style="color:#87CEEB;font-size:11px;">0/100</span>
+                    <span style="color:#666;font-size:9px;">右键存 / 左键取</span>
+                </div>
             </div>
-            <div style="border-top:2px solid #8b4513;margin:6px 0;"></div>
-            <div style="text-align:center;color:#4169E1;font-size:16px;margin-bottom:8px;">📦 储物箱</div>
-            <div id="storageGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin-bottom:8px;">
+            <div id="storageGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:5px;background:rgba(0,0,0,0.4);border-radius:6px;border:1px solid #1a3a5a;flex-shrink:0;">
                 <!-- 储物箱格子由JS生成 -->
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span id="storageCount" style="color:#888;font-size:11px;">0/100</span>
-                <span style="color:#666;font-size:9px;">右键存 / 左键取</span>
-            </div>
-            <button id="closeBag" style="position:absolute;top:8px;right:8px;background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:3px 8px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:12px;">✕</button>
+            <button id="closeBag" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#8b4513,#6a3410);color:#ffd700;border:1px solid #d4af37;padding:3px 9px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:13px;font-weight:bold;">✕</button>
         </div>
 
         <!-- 皮肤选择面板 -->
@@ -1395,9 +1417,10 @@
             // 保存武器模板ID
             const weaponId = weapon.weaponId;
             
-            // 全部重置
+            // 全部重置（与新武器实例完全一致）
             weapon.level = template.reqLevel;
             weapon.exp = 0;
+            weapon.expToNext = getWeaponExpNeeded(template.reqLevel);
             weapon.totalBurstAtk = 0;
             weapon.durability = 24;
             weapon.maxDurability = 24;
@@ -1405,12 +1428,23 @@
             weapon.stage = 0;
             weapon.inscriptions = [];
             weapon.totalScore = 0;
-            weapon.scoreRating = { name: '普通', color: '#FFFFFF', title: '凡铁' };
+            weapon.scoreRating = getScoreRating(0);
             weapon.attackCount = 0;
+            // 清除神话技能（圣物专属技能）
+            weapon.mythicSkillId = null;
+            // 清除其他临时属性
+            weapon.tempBuffs = null;
+            weapon.lastUpgradeTime = null;
+            
+            // 如果是装备中的武器，重新激活神话技能（变成无技能状态）
+            if (player.equippedWeapon === weapon) {
+                activateMythicSkill();
+            }
             
             showWeaponRebirth(template.name);
             updateWeaponScore(weapon);
             updatePlayerAttackRange();
+            calculatePlayerStats();
             
             return true;
         }
@@ -1645,7 +1679,7 @@
 
         // 背包系统
         const bag = {
-            maxSize: 20,
+            maxSize: 100,
             items: []
         };
 
@@ -4042,7 +4076,7 @@
             for (let i = 0; i < bag.maxSize; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'bag-slot';
-                slot.style.cssText = 'width:42px;height:42px;background:rgba(0,0,0,0.5);border:1px solid #555;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;overflow:hidden;';
+                slot.style.cssText = 'width:44px;height:44px;background:linear-gradient(135deg,rgba(40,30,20,0.8),rgba(20,15,10,0.8));border:1px solid #5a4530;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:20px;position:relative;overflow:hidden;transition:all 0.15s;';
                 slot.dataset.index = i;
                 // 左键：使用/装备
                 slot.addEventListener('click', () => useBagItem(i));
@@ -4077,7 +4111,7 @@
             for (let i = 0; i < storage.maxSize; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'storage-slot';
-                slot.style.cssText = 'width:22px;height:22px;background:rgba(0,0,0,0.5);border:1px solid #444;border-radius:3px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;position:relative;';
+                slot.style.cssText = 'width:44px;height:44px;background:linear-gradient(135deg,rgba(20,30,45,0.8),rgba(10,20,35,0.8));border:1px solid #2a4060;border-radius:5px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;position:relative;transition:all 0.15s;';
                 slot.dataset.index = i;
                 // 左键：取出到背包
                 slot.addEventListener('click', () => storageToBag(i));
@@ -4107,24 +4141,54 @@
             slots.forEach((slot, i) => {
                 const item = storage.items[i];
                 if (item) {
-                    if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
+                    if (item.type === 'ancientStone') {
+                        slot.innerHTML = `<span style="font-size:24px;">🗿</span><span style="font-size:9px;color:#FFD700;position:absolute;bottom:1px;right:2px;font-weight:bold;text-shadow:0 0 3px #000;">×${item.count}</span>`;
+                        slot.style.borderColor = '#FF8C00';
+                        slot.style.boxShadow = '0 0 10px #FF8C00, inset 0 0 5px rgba(255,140,0,0.3)';
+                        slot.title = `上古石 ×${item.count}`;
+                    } else if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
                         let borderColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
-                        if (item.type === 'greenWeapon' && item.stage > 0) {
+                        let rating = item.scoreRating || getScoreRating(item.totalScore || 0);
+                        if (item.type === 'greenWeapon' && item.totalScore > 0) {
+                            borderColor = rating.color;
+                        } else if (item.type === 'greenWeapon' && item.stage > 0) {
                             borderColor = weaponStages[item.stage].color;
                         }
-                        slot.innerHTML = `<span style="font-size:12px;">🗡️</span>`;
+                        const isMythic = item.mythicSkillId;
+                        const isShenBing = (item.totalScore || 0) >= 1500;
+                        const glowSize = isMythic ? 16 : (isShenBing ? 12 : 8);
+                        let scoreHtml = '';
+                        if (item.type === 'greenWeapon' && item.totalScore > 0) {
+                            scoreHtml = `<span style="font-size:8px;color:${rating.color};position:absolute;top:1px;right:2px;font-weight:bold;text-shadow:0 0 2px #000;">${item.totalScore}</span>`;
+                        }
+                        let mythicIcon = '';
+                        if (item.mythicSkillId) {
+                            const skill = mythicSkills.find(s => s.id === item.mythicSkillId);
+                            if (skill) mythicIcon = `<span style="font-size:10px;position:absolute;top:1px;left:1px;filter:drop-shadow(0 0 3px ${skill.color});">${skill.icon}</span>`;
+                        }
+                        slot.innerHTML = `<span style="font-size:22px;">🗡️</span>${scoreHtml}${mythicIcon}<span style="font-size:8px;color:${borderColor};position:absolute;bottom:1px;left:2px;font-weight:bold;text-shadow:0 0 2px #000;">Lv${item.level}</span>`;
                         slot.style.borderColor = borderColor;
+                        slot.style.boxShadow = `0 0 ${glowSize}px ${borderColor}, inset 0 0 6px ${borderColor}80`;
+                        if (isMythic) {
+                            slot.style.animation = 'mythicPulse 2s ease-in-out infinite';
+                        } else {
+                            slot.style.animation = '';
+                        }
                         slot.title = `${item.name} Lv.${item.level}`;
                     } else {
                         const equipType = equipTypes[item.type];
                         const quality = itemQualities[item.quality];
-                        slot.innerHTML = `<span style="font-size:10px;">${equipType.icon}</span>`;
+                        slot.innerHTML = `<span style="font-size:22px;">${equipType.icon}</span>`;
                         slot.style.borderColor = quality.color;
+                        slot.style.boxShadow = `0 0 10px ${quality.color}, inset 0 0 4px ${quality.color}40`;
+                        slot.style.animation = '';
                         slot.title = `${quality.name}${equipType.name}`;
                     }
                 } else {
                     slot.innerHTML = '';
-                    slot.style.borderColor = '#444';
+                    slot.style.borderColor = '#2a4060';
+                    slot.style.boxShadow = 'none';
+                    slot.style.animation = '';
                     slot.title = '空';
                 }
             });
@@ -4169,28 +4233,48 @@
                 if (item) {
                     // 上古石
                     if (item.type === 'ancientStone') {
-                        slot.innerHTML = `<span style="font-size:20px;">🗿</span><span style="font-size:9px;color:#FFD700;position:absolute;bottom:2px;">×${item.count}</span>`;
+                        slot.innerHTML = `<span style="font-size:24px;">🗿</span><span style="font-size:9px;color:#FFD700;position:absolute;bottom:1px;right:2px;font-weight:bold;text-shadow:0 0 3px #000;">×${item.count}</span>`;
                         slot.style.borderColor = '#FF8C00';
-                        slot.style.boxShadow = '0 0 10px #FF8C00, inset 0 0 5px rgba(255,140,0,0.3)';
+                        slot.style.boxShadow = '0 0 12px #FF8C00, inset 0 0 6px rgba(255,140,0,0.4)';
                         slot.title = `上古石 ×${item.count}\n提升词条品质概率`;
                     }
                     // 判断是否是绿武/浅绿武
                     else if (item.type === 'greenWeapon' || item.type === 'lightGreenWeapon') {
                         let borderColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
                         let glowColor = item.type === 'greenWeapon' ? '#2E8B57' : '#90EE90';
-                        if (item.type === 'greenWeapon' && item.stage > 0) {
+                        // 优先用评分等级颜色作为发光
+                        let rating = item.scoreRating || getScoreRating(item.totalScore || 0);
+                        if (item.type === 'greenWeapon' && item.totalScore > 0) {
+                            borderColor = rating.color;
+                            glowColor = rating.color;
+                        } else if (item.type === 'greenWeapon' && item.stage > 0) {
                             borderColor = weaponStages[item.stage].color;
                             glowColor = weaponStages[item.stage].color;
                         }
-                        // 获取评分颜色
-                        let rating = item.scoreRating || getScoreRating(item.totalScore || 0);
+                        // 评分等级越高，光晕越强（圣物/神兵特别炫）
+                        const isMythic = item.mythicSkillId; // 圣物有神话技能
+                        const isShenBing = (item.totalScore || 0) >= 1500;
+                        const glowSize = isMythic ? 18 : (isShenBing ? 14 : 10);
+                        const glowAlpha = isMythic ? 0.8 : 0.6;
                         let scoreHtml = '';
                         if (item.type === 'greenWeapon' && item.totalScore > 0) {
-                            scoreHtml = `<span style="font-size:8px;color:${rating.color};position:absolute;top:2px;right:2px;font-weight:bold;">${item.totalScore}</span>`;
+                            scoreHtml = `<span style="font-size:8px;color:${rating.color};position:absolute;top:1px;right:2px;font-weight:bold;text-shadow:0 0 2px #000;">${item.totalScore}</span>`;
                         }
-                        slot.innerHTML = `<span style="font-size:18px;">🗡️</span>${scoreHtml}<span style="font-size:8px;color:${borderColor};position:absolute;bottom:2px;">Lv.${item.level}</span>`;
+                        // 神话技能图标（圣物专属）
+                        let mythicIcon = '';
+                        if (item.mythicSkillId) {
+                            const skill = mythicSkills.find(s => s.id === item.mythicSkillId);
+                            if (skill) mythicIcon = `<span style="font-size:10px;position:absolute;top:1px;left:1px;filter:drop-shadow(0 0 3px ${skill.color});">${skill.icon}</span>`;
+                        }
+                        slot.innerHTML = `<span style="font-size:22px;">🗡️</span>${scoreHtml}${mythicIcon}<span style="font-size:8px;color:${borderColor};position:absolute;bottom:1px;left:2px;font-weight:bold;text-shadow:0 0 2px #000;">Lv${item.level}</span>`;
                         slot.style.borderColor = borderColor;
-                        slot.style.boxShadow = `0 0 8px ${glowColor}, inset 0 0 5px ${glowColor}40`;
+                        slot.style.boxShadow = `0 0 ${glowSize}px ${glowColor}, inset 0 0 6px ${glowColor}${Math.floor(glowAlpha*255).toString(16)}`;
+                        // 圣物加额外脉冲动画
+                        if (isMythic) {
+                            slot.style.animation = 'mythicPulse 2s ease-in-out infinite';
+                        } else {
+                            slot.style.animation = '';
+                        }
                         let titleText = `${item.name} Lv.${item.level}${item.bound ? ' [已绑定]' : ''}`;
                         if (item.type === 'greenWeapon' && item.totalScore > 0) {
                             titleText += `\n评分: ${item.totalScore} [${rating.name}] - ${rating.title}`;
@@ -4200,15 +4284,17 @@
                         // 普通装备
                         const equipType = equipTypes[item.type];
                         const quality = itemQualities[item.quality];
-                        slot.innerHTML = equipType.icon;
+                        slot.innerHTML = `<span style="font-size:22px;">${equipType.icon}</span>`;
                         slot.style.borderColor = quality.color;
-                        slot.style.boxShadow = '0 0 5px ' + quality.color;
+                        slot.style.boxShadow = `0 0 10px ${quality.color}, inset 0 0 4px ${quality.color}40`;
+                        slot.style.animation = '';
                         slot.title = `${quality.name}${equipType.name}`;
                     }
                 } else {
                     slot.innerHTML = '';
-                    slot.style.borderColor = '#555';
+                    slot.style.borderColor = '#5a4530';
                     slot.style.boxShadow = 'none';
+                    slot.style.animation = '';
                     slot.title = '空';
                 }
             });
@@ -4358,7 +4444,7 @@
         }
 
         bagBtn.addEventListener('click', () => {
-            bagPanel.style.display = 'block';
+            bagPanel.style.display = 'flex';
             initBagGrid();
         });
 
