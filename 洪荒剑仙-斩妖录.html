@@ -4040,28 +4040,54 @@
         // ========== 后台运行支持 ==========
         let isPageVisible = true;
         let backgroundInterval = null;
-        const BACKUP_FPS = 10; // 后台运行帧率
-        const BACKUP_INTERVAL = 1000 / BACKUP_FPS;
+        const BACKUP_FPS = 60; // 游戏目标帧率（60帧/秒）
+        const BACKUP_INTERVAL = 1000 / 30; // setInterval 触发间隔（≈33ms，但浏览器后台会节流到1秒）
+        const FRAME_MS = 1000 / 60; // 单帧时长
+        let lastBackupTime = 0;
+        let lastVisibleTime = 0; // 切到后台时的时间戳
 
         // 页面可见性变化处理
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
-                // 页面隐藏：切换到 setInterval 模式
-                isPageVisible = false;
-                if (!backgroundInterval) {
-                    backgroundInterval = setInterval(gameLoopBackup, BACKUP_INTERVAL);
-                }
+                enterBackgroundMode();
             } else {
-                // 页面显示：切回 requestAnimationFrame 模式
-                isPageVisible = true;
-                if (backgroundInterval) {
-                    clearInterval(backgroundInterval);
-                    backgroundInterval = null;
-                }
-                // 重新启动 RAF 循环
-                requestAnimationFrame(gameLoop);
+                exitBackgroundMode();
             }
         });
+
+        // 窗口失焦/获得焦点（应对最小化、切换其他窗口等场景）
+        window.addEventListener('blur', () => {
+            if (!document.hidden) enterBackgroundMode();
+        });
+        window.addEventListener('focus', () => {
+            if (!document.hidden) exitBackgroundMode();
+        });
+
+        function enterBackgroundMode() {
+            if (!isPageVisible) return; // 已经在后台
+            isPageVisible = false;
+            lastBackupTime = performance.now();
+            if (!backgroundInterval) {
+                backgroundInterval = setInterval(gameLoopBackup, BACKUP_INTERVAL);
+            }
+        }
+
+        function exitBackgroundMode() {
+            if (isPageVisible) return; // 已经在前台
+            // 先补齐后台期间漏掉的帧
+            if (lastBackupTime > 0) {
+                const elapsed = performance.now() - lastBackupTime;
+                const missedFrames = Math.min(Math.floor(elapsed / FRAME_MS), 3600); // 最多补1分钟
+                for (let i = 0; i < missedFrames; i++) gameLogic();
+                lastBackupTime = 0;
+            }
+            isPageVisible = true;
+            if (backgroundInterval) {
+                clearInterval(backgroundInterval);
+                backgroundInterval = null;
+            }
+            requestAnimationFrame(gameLoop);
+        }
 
         // 背包系统交互
         const bagBtn = document.getElementById('bagBtn');
@@ -4619,10 +4645,16 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // 后台运行循环（使用 setInterval）
+        // 后台运行循环（使用 setInterval，浏览器会节流到 1秒/次）
+        // 用真实时间差补帧，让游戏在后台保持 60FPS 进度
         function gameLoopBackup() {
-            gameLogic();
-            // 后台模式下不渲染，只更新游戏逻辑
+            const now = performance.now();
+            const elapsed = now - lastBackupTime;
+            lastBackupTime = now;
+            // 计算应补的帧数（最多一次补 600 帧，防止极端情况下卡死）
+            const frames = Math.min(Math.floor(elapsed / FRAME_MS), 600);
+            for (let i = 0; i < frames; i++) gameLogic();
+            // 后台模式下不渲染
         }
 
         // 初始化：自动创建如意刀放入背包
