@@ -320,7 +320,7 @@
         <!-- 背包界面 -->
         <!-- 背包+储物箱面板 -->
         <div id="bagPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(20,15,10,0.98),rgba(35,25,15,0.98));border:3px solid #8b4513;border-radius:15px;padding:12px;z-index:10000;box-shadow:0 0 40px rgba(212,175,55,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:540px;max-height:92vh;display:none;flex-direction:column;">
-            <div style="text-align:center;color:#ffd700;font-size:16px;margin-bottom:8px;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.5);">🎒 储物宝箱</div>
+            <div id="bagPanelHeader" style="text-align:center;color:#ffd700;font-size:16px;margin-bottom:8px;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.5);cursor:grab;user-select:none;padding:4px 0;border-bottom:1px dashed rgba(212,175,55,0.3);">🎒 储物宝箱 <span style="font-size:10px;color:#888;font-weight:normal;">（按住拖动）</span></div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;padding:0 2px;">
                 <span style="color:#d4af37;font-size:12px;font-weight:bold;">🎒 背包</span>
                 <div style="display:flex;align-items:center;gap:8px;">
@@ -4445,12 +4445,89 @@
 
         bagBtn.addEventListener('click', () => {
             bagPanel.style.display = 'flex';
+            restoreBagPosition();
             initBagGrid();
         });
 
         closeBag.addEventListener('click', () => {
             bagPanel.style.display = 'none';
         });
+
+        // 背包拖拽移动功能
+        (function makeBagDraggable() {
+            const header = document.getElementById('bagPanelHeader');
+            if (!header) return;
+            let isDragging = false;
+            let startX = 0, startY = 0;
+            let panelLeft = 0, panelTop = 0;
+
+            header.addEventListener('mousedown', (e) => {
+                // 防止双击关闭按钮触发
+                if (e.target.id === 'closeBag') return;
+                isDragging = true;
+                header.style.cursor = 'grabbing';
+                // 首次拖动时锁定面板位置（避免 transform 影响后续计算）
+                const rect = bagPanel.getBoundingClientRect();
+                bagPanel.style.left = rect.left + 'px';
+                bagPanel.style.top = rect.top + 'px';
+                bagPanel.style.transform = 'none';
+                startX = e.clientX;
+                startY = e.clientY;
+                panelLeft = rect.left;
+                panelTop = rect.top;
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                let newLeft = panelLeft + (e.clientX - startX);
+                let newTop = panelTop + (e.clientY - startY);
+                // 边界限制
+                const w = bagPanel.offsetWidth;
+                const h = bagPanel.offsetHeight;
+                newLeft = Math.max(0, Math.min(window.innerWidth - w, newLeft));
+                newTop = Math.max(0, Math.min(window.innerHeight - h, newTop));
+                bagPanel.style.left = newLeft + 'px';
+                bagPanel.style.top = newTop + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    header.style.cursor = 'grab';
+                    // 保存位置到 localStorage
+                    try {
+                        localStorage.setItem('bagPanelPos', JSON.stringify({
+                            left: bagPanel.style.left,
+                            top: bagPanel.style.top
+                        }));
+                    } catch(e) {}
+                }
+            });
+
+            // 双击标题：回到屏幕中央
+            header.addEventListener('dblclick', () => {
+                bagPanel.style.left = '50%';
+                bagPanel.style.top = '50%';
+                bagPanel.style.transform = 'translate(-50%, -50%)';
+                try { localStorage.removeItem('bagPanelPos'); } catch(e) {}
+            });
+        })();
+
+        // 打开背包时恢复上次位置
+        function restoreBagPosition() {
+            try {
+                const saved = localStorage.getItem('bagPanelPos');
+                if (saved) {
+                    const pos = JSON.parse(saved);
+                    if (pos.left && pos.top) {
+                        bagPanel.style.left = pos.left;
+                        bagPanel.style.top = pos.top;
+                        bagPanel.style.transform = 'none';
+                    }
+                }
+            } catch(e) {}
+        }
 
         bagPanel.addEventListener('click', (e) => {
             if (e.target === bagPanel) {
