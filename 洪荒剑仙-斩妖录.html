@@ -1502,8 +1502,64 @@
             weapon.durability = weapon.maxDurability;
         }
 
+        // BOSS 专属掉落
+        function dropBossLoot(boss) {
+            // 1. 必给 5 个上古石
+            addToBag({ type: 'ancientStone', count: 5 });
+            createFloatingText(boss.x, boss.y - 30, '🗿+5上古石', '#FF8C00');
+
+            // 2. 必给 1 件橙装（品质4）
+            setTimeout(() => {
+                const drop = generateRandomEquip();
+                drop.quality = 4; // 强制橙色
+                addToBag(drop);
+                createFloatingText(boss.x, boss.y - 50, `🌟橙装: ${equipTypes[drop.type].name}`, '#FFA500');
+            }, 200);
+
+            // 3. 50% 概率掉一把高分绿武（圣物级）
+            if (Math.random() < 0.5) {
+                setTimeout(() => {
+                    const greenIds = Object.keys(greenWeapons);
+                    const wid = greenIds[Math.floor(Math.random() * greenIds.length)];
+                    const w = createGreenWeaponInstance(wid);
+                    if (w) {
+                        // 给它生成6条高品质词条
+                        if (typeof rerollInscriptions === 'function') {
+                            rerollInscriptions(w, true); // 圣物模式
+                        } else {
+                            w.totalScore = 1800 + Math.floor(Math.random() * 400);
+                            w.scoreRating = getScoreRating(w.totalScore);
+                            // 随机授予神话技能
+                            const skill = mythicSkills[Math.floor(Math.random() * mythicSkills.length)];
+                            w.mythicSkillId = skill.id;
+                        }
+                        addToBag(w);
+                        createFloatingText(boss.x, boss.y - 70, `💫圣物: ${w.name}!`, '#FF1493');
+                    }
+                }, 400);
+            }
+
+            // 4. 全屏击杀公告
+            setTimeout(() => {
+                const announce = document.createElement('div');
+                announce.style.cssText = `
+                    position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+                    font-size: 36px; font-weight: bold; color: ${boss.color};
+                    text-shadow: 0 0 20px ${boss.color}, 0 0 40px ${boss.color};
+                    z-index: 10000; text-align: center;
+                    animation: levelUpPulse 3s ease-out forwards;
+                `;
+                announce.innerHTML = `🏆 ${boss.name} 已被斩杀! 🏆<br><span style="font-size:18px;">获得丰厚奖励!</span>`;
+                document.body.appendChild(announce);
+                setTimeout(() => announce.remove(), 3000);
+            }, 100);
+        }
+
         // 获取武器经验（击杀怪物时调用）
         function onEnemyKilled(enemy) {
+            // 魔神自爆：死亡时释放散弹
+            if (typeof enemyExplodeOnDeath === 'function') enemyExplodeOnDeath(enemy);
+
             // 连击
             comboCount++;
             comboTimer = 120; // 2秒内没有击杀则连击重置
@@ -1722,14 +1778,102 @@
         let floatingTexts = [];
 
         const enemyTypes = {
-            spirit: { name: '妖灵', radius: 8, hp: 20, defense: 3, damage: 5, attackRange: 50, attackSpeed: 60, moveSpeed: 1.6, color: '#90EE90', score: 5, shape: 'circle', tier: 1, sizeType: 'S' },
-            goblin: { name: '小妖', radius: 10, hp: 40, defense: 6, damage: 10, attackRange: 55, attackSpeed: 55, moveSpeed: 1.3, color: '#4a7c59', score: 15, shape: 'circle', tier: 2, sizeType: 'M' },
-            demon: { name: '妖魔', radius: 12, hp: 70, defense: 10, damage: 18, attackRange: 65, attackSpeed: 45, moveSpeed: 1.1, color: '#8b0000', score: 35, shape: 'triangle', tier: 3, sizeType: 'M' },
-            general: { name: '妖将', radius: 14, hp: 120, defense: 16, damage: 25, attackRange: 60, attackSpeed: 65, moveSpeed: 0.9, color: '#FF8C00', score: 60, shape: 'square', tier: 4, sizeType: 'L' },
-            boss: { name: '妖王', radius: 18, hp: 200, defense: 25, damage: 35, attackRange: 70, attackSpeed: 70, moveSpeed: 0.75, color: '#4b0082', score: 100, shape: 'diamond', tier: 5, sizeType: 'L' },
-            emperor: { name: '妖皇', radius: 20, hp: 350, defense: 40, damage: 50, attackRange: 75, attackSpeed: 80, moveSpeed: 0.6, color: '#FFD700', score: 200, shape: 'star', tier: 6, sizeType: 'L' },
-            god: { name: '魔神', radius: 25, hp: 600, defense: 60, damage: 80, attackRange: 80, attackSpeed: 90, moveSpeed: 0.45, color: '#DC143C', score: 500, shape: 'hexstar', tier: 7, sizeType: 'L' }
+            spirit: { name: '妖灵', emoji: '👻', radius: 8, hp: 20, defense: 3, damage: 5, attackRange: 50, attackSpeed: 60, moveSpeed: 1.6, color: '#90EE90', score: 5, shape: 'circle', tier: 1, sizeType: 'S' },
+            goblin: { name: '狐妖', emoji: '🦊', radius: 10, hp: 40, defense: 6, damage: 10, attackRange: 55, attackSpeed: 55, moveSpeed: 1.3, color: '#FF8C42', score: 15, shape: 'circle', tier: 2, sizeType: 'M' },
+            demon: { name: '蛇妖', emoji: '🐍', radius: 12, hp: 70, defense: 10, damage: 18, attackRange: 65, attackSpeed: 45, moveSpeed: 1.1, color: '#8b0000', score: 35, shape: 'triangle', tier: 3, sizeType: 'M' },
+            general: { name: '狼妖', emoji: '🐺', radius: 14, hp: 120, defense: 16, damage: 25, attackRange: 60, attackSpeed: 65, moveSpeed: 0.9, color: '#FF8C00', score: 60, shape: 'square', tier: 4, sizeType: 'L' },
+            boss: { name: '鬼王', emoji: '👹', radius: 18, hp: 200, defense: 25, damage: 35, attackRange: 70, attackSpeed: 70, moveSpeed: 0.75, color: '#4b0082', score: 100, shape: 'diamond', tier: 5, sizeType: 'L' },
+            emperor: { name: '妖皇', emoji: '😈', radius: 20, hp: 350, defense: 40, damage: 50, attackRange: 75, attackSpeed: 80, moveSpeed: 0.6, color: '#FFD700', score: 200, shape: 'star', tier: 6, sizeType: 'L' },
+            god: { name: '魔神', emoji: '💀', radius: 25, hp: 600, defense: 60, damage: 80, attackRange: 80, attackSpeed: 90, moveSpeed: 0.45, color: '#DC143C', score: 500, shape: 'hexstar', tier: 7, sizeType: 'L' }
         };
+
+        // BOSS 配置（每 10 波出现一只）
+        const bossList = [
+            { wave: 10,  type: 'boss',    name: '【BOSS】血煞鬼王',   color: '#DC143C', hpMul: 8,  dmgMul: 1.8 },
+            { wave: 20,  type: 'emperor', name: '【BOSS】九尾妖皇',   color: '#FFD700', hpMul: 10, dmgMul: 2.0 },
+            { wave: 30,  type: 'god',     name: '【BOSS】上古魔神',   color: '#8B0000', hpMul: 12, dmgMul: 2.2 },
+            { wave: 40,  type: 'god',     name: '【BOSS】混沌冥君',   color: '#4B0082', hpMul: 15, dmgMul: 2.5 },
+            { wave: 50,  type: 'god',     name: '【BOSS】洪荒之神',   color: '#FF1493', hpMul: 20, dmgMul: 3.0 },
+        ];
+
+        function getBossForWave(wave) {
+            // 每 10 波出 BOSS
+            if (wave % 10 !== 0) return null;
+            // 找配置（没有就用最后一个，循环出现并增强）
+            let boss = bossList.find(b => b.wave === wave);
+            if (!boss) {
+                const last = bossList[bossList.length - 1];
+                const extraTier = Math.floor((wave - last.wave) / 10);
+                boss = { ...last, hpMul: last.hpMul + extraTier * 5, dmgMul: last.dmgMul + extraTier * 0.5, name: '【BOSS】' + last.name.replace('【BOSS】', '') + '·' + (extraTier + 1) };
+            }
+            return boss;
+        }
+
+        function spawnBoss(bossCfg) {
+            const e = spawnEnemy(bossCfg.type, false, true);
+            if (!e) return;
+            // 强化属性
+            e.hp = Math.floor(enemyTypes[bossCfg.type].hp * bossCfg.hpMul);
+            e.maxHp = e.hp;
+            e.damage = Math.floor(enemyTypes[bossCfg.type].damage * bossCfg.dmgMul);
+            e.score = Math.floor(enemyTypes[bossCfg.type].score * 20);
+            e.name = bossCfg.name;
+            e.color = bossCfg.color;
+            e.x = centerX;
+            e.y = centerY - 80;
+            // 全屏 BOSS 警示
+            showBossWarning(bossCfg.name, bossCfg.color);
+            // 全屏震动效果
+            createFloatingText(centerX, centerY, '⚠️ BOSS降临 ⚠️', bossCfg.color);
+        }
+
+        // BOSS 阶段切换（在 updateEnemies 中检查）
+        function updateBossPhase(enemy) {
+            if (!enemy.isBoss) return;
+            const hpPct = enemy.hp / enemy.maxHp;
+            const oldPhase = enemy.bossPhase;
+            if (hpPct <= 0.33) enemy.bossPhase = 3;
+            else if (hpPct <= 0.66) enemy.bossPhase = 2;
+            else enemy.bossPhase = 1;
+            // 阶段切换：狂暴提示
+            if (oldPhase !== enemy.bossPhase) {
+                createFloatingText(enemy.x, enemy.y - 40, `阶段${enemy.bossPhase}!`, enemy.color);
+                enemy.skillCooldown = 0; // 立即放技能
+                // 阶段越高攻速越快
+                if (enemy.bossPhase === 2) enemy.attackSpeed = Math.floor(enemy.attackSpeed * 0.7);
+                if (enemy.bossPhase === 3) enemy.attackSpeed = Math.floor(enemy.attackSpeed * 0.5);
+            }
+        }
+        // 元素后缀配置
+        const elementAffixes = {
+            fire:    { name: '烈焰', emoji: '🔥', color: '#FF4500', dmgMul: 1.3, hpMul: 1.0, effect: 'burn',   weight: 25 },
+            ice:     { name: '寒冰', emoji: '❄️', color: '#00BFFF', dmgMul: 1.0, hpMul: 1.4, effect: 'slow',   weight: 25 },
+            thunder: { name: '雷霆', emoji: '⚡', color: '#FFD700', dmgMul: 1.5, hpMul: 1.0, effect: 'shock',  weight: 20 },
+            dark:    { name: '暗影', emoji: '🌑', color: '#9400D3', dmgMul: 1.2, hpMul: 1.2, effect: 'curse',  weight: 15 }
+        };
+
+        // 精英怪配置
+        const eliteConfig = {
+            chance: 0.08,        // 8% 概率出现精英
+            hpMul: 3.0,          // 血量×3
+            dmgMul: 1.5,         // 伤害×1.5
+            scoreMul: 5.0,       // 经验×5
+            scale: 1.2,          // 体积×1.2
+            borderColor: '#FFD700', // 金色描边
+            borderWidth: 3
+        };
+
+        function rollElementAffix() {
+            // 30% 概率附加元素
+            if (Math.random() > 0.30) return null;
+            const total = Object.values(elementAffixes).reduce((s, a) => s + a.weight, 0);
+            let r = Math.random() * total;
+            for (const [key, affix] of Object.entries(elementAffixes)) {
+                r -= affix.weight;
+                if (r <= 0) return key;
+            }
+            return null;
+        }
 
         const sizeModifiers = {
             'S': { scale: 0.8, dodge: 0.2, damageReduce: 0.1, rangeMod: 0.9 },
@@ -1769,7 +1913,7 @@
             }
         }
 
-        function spawnEnemy(type) {
+        function spawnEnemy(type, forceElite, forceBoss) {
             const config = enemyTypes[type];
             const angle = Math.random() * Math.PI * 2;
             const distance = radarRadius - 35;
@@ -1789,6 +1933,23 @@
                 finalDamage = Math.floor(config.damage * 1.1);
                 finalSpeed = config.moveSpeed * 0.8;
             }
+
+            // 元素后缀（boss 等高 tier 概率更高）
+            const elemKey = rollElementAffix();
+            const elementAffix = elemKey ? elementAffixes[elemKey] : null;
+            if (elementAffix) {
+                finalHp = Math.floor(finalHp * elementAffix.hpMul);
+                finalDamage = Math.floor(finalDamage * elementAffix.dmgMul);
+            }
+
+            // 精英怪判定
+            const isElite = forceElite || (Math.random() < eliteConfig.chance);
+            let finalScore = config.score;
+            if (isElite) {
+                finalHp = Math.floor(finalHp * eliteConfig.hpMul);
+                finalDamage = Math.floor(finalDamage * eliteConfig.dmgMul);
+                finalScore = Math.floor(config.score * eliteConfig.scoreMul);
+            }
             
             const enemy = {
                 x: centerX + Math.cos(angle) * distance,
@@ -1800,16 +1961,29 @@
                 maxHp: finalHp,
                 damage: finalDamage,
                 moveSpeed: finalSpeed,
+                score: finalScore,
                 attackCooldown: 0,
-                id: Math.random()
+                id: Math.random(),
+                element: elemKey,         // 元素属性 key
+                elementAffix: elementAffix, // 元素配置
+                isElite: isElite,         // 是否精英
+                isBoss: !!forceBoss,      // 是否BOSS
+                skillCooldown: 0,         // 技能CD（用于技能化）
+                skillState: {},           // 技能状态
+                bossPhase: 1              // BOSS阶段
             };
             
             enemies.push(enemy);
             
+            // 精英怪/BOSS 出场提示
+            if (isElite && !forceBoss) {
+                createFloatingText(enemy.x, enemy.y - 30, `✨精英${config.name}!`, '#FFD700');
+            }
             // 妖皇和魔神出现时的警示
             if (type === 'emperor' || type === 'god') {
                 showBossWarning(config.name, config.color);
             }
+            return enemy;
         }
         
         function showBossWarning(bossName, bossColor) {
@@ -1908,6 +2082,23 @@
         }
 
         function spawnWave() {
+            // BOSS 波：只刷 BOSS（外加少量小怪做衬托）
+            const bossCfg = getBossForWave(wave);
+            if (bossCfg) {
+                setTimeout(() => {
+                    if (!gameRunning) return;
+                    spawnBoss(bossCfg);
+                    // 同时刷少量小怪（前3波难度）
+                    for (let i = 0; i < 4; i++) {
+                        setTimeout(() => {
+                            if (!gameRunning) return;
+                            spawnEnemy(Math.random() < 0.5 ? 'spirit' : 'goblin');
+                        }, i * 400);
+                    }
+                }, 800);
+                return;
+            }
+
             const count = getWaveEnemyCount();
             for (let i = 0; i < count; i++) {
                 setTimeout(() => {
@@ -1932,7 +2123,9 @@
             projectiles.push({
                 x: from.x, y: from.y,
                 vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5,
-                isPlayer: false, damage: damage, life: 60, type: 'demon'
+                isPlayer: false, damage: damage, life: 60, type: 'demon',
+                element: from.element || null,
+                elementAffix: from.elementAffix || null
             });
         }
 
@@ -2349,9 +2542,12 @@
             enemies.forEach(enemy => {
                 const distToPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y);
                 const sizeMod = sizeModifiers[enemy.sizeType];
-                const scale = sizeMod.scale;
+                let scale = sizeMod.scale;
+                if (enemy.isElite) scale *= eliteConfig.scale;
+                if (enemy.isBoss) scale *= 1.8; // BOSS 体型加倍
                 const scaledRadius = enemy.radius * scale;
                 
+                // 攻击范围圈
                 if (distToPlayer < enemy.attackRange + 50 && playerAlive) {
                     ctx.strokeStyle = 'rgba(139, 0, 0, 0.15)';
                     ctx.fillStyle = 'rgba(139, 0, 0, 0.03)';
@@ -2361,56 +2557,85 @@
                     ctx.stroke();
                 }
 
-                ctx.fillStyle = enemy.color;
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = enemy.color;
-                if (enemy.shape === 'circle') {
+                // BOSS 底座光圈
+                if (enemy.isBoss) {
+                    const pulse = 0.4 + Math.sin(frameCount * 0.08) * 0.2;
+                    ctx.fillStyle = `rgba(${parseInt(enemy.color.slice(1,3),16)},${parseInt(enemy.color.slice(3,5),16)},${parseInt(enemy.color.slice(5,7),16)},${pulse * 0.4})`;
                     ctx.beginPath();
-                    ctx.arc(enemy.x, enemy.y, scaledRadius, 0, Math.PI * 2);
+                    ctx.arc(enemy.x, enemy.y, scaledRadius * 1.5, 0, Math.PI * 2);
                     ctx.fill();
-                } else if (enemy.shape === 'triangle') {
-                    ctx.beginPath();
-                    ctx.moveTo(enemy.x, enemy.y - scaledRadius);
-                    ctx.lineTo(enemy.x - scaledRadius, enemy.y + scaledRadius);
-                    ctx.lineTo(enemy.x + scaledRadius, enemy.y + scaledRadius);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if (enemy.shape === 'square') {
-                    ctx.fillRect(enemy.x - scaledRadius, enemy.y - scaledRadius, scaledRadius * 2, scaledRadius * 2);
-                } else if (enemy.shape === 'diamond') {
-                    ctx.beginPath();
-                    ctx.moveTo(enemy.x, enemy.y - scaledRadius);
-                    ctx.lineTo(enemy.x + scaledRadius, enemy.y);
-                    ctx.lineTo(enemy.x, enemy.y + scaledRadius);
-                    ctx.lineTo(enemy.x - scaledRadius, enemy.y);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if (enemy.shape === 'star') {
-                    drawStar(ctx, enemy.x, enemy.y, 5, scaledRadius, scaledRadius * 0.5);
-                } else if (enemy.shape === 'hexstar') {
-                    drawStar(ctx, enemy.x, enemy.y, 6, scaledRadius, scaledRadius * 0.6);
                 }
+
+                // 元素发光底色（精英/元素怪光晕）
+                const aura = enemy.elementAffix ? enemy.elementAffix.color : null;
+                if (aura) {
+                    ctx.fillStyle = aura + '33';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = aura;
+                    ctx.beginPath();
+                    ctx.arc(enemy.x, enemy.y, scaledRadius * 1.2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+
+                // 精英金色发光底座
+                if (enemy.isElite) {
+                    const elitePulse = 0.5 + Math.sin(frameCount * 0.12) * 0.3;
+                    ctx.strokeStyle = `rgba(255, 215, 0, ${elitePulse})`;
+                    ctx.lineWidth = eliteConfig.borderWidth;
+                    ctx.shadowBlur = 18;
+                    ctx.shadowColor = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(enemy.x, enemy.y, scaledRadius * 1.15, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+
+                // 主图标：使用 emoji 渲染
+                const emoji = enemy.emoji || '👾';
+                const fontSize = Math.floor(scaledRadius * 2.4);
+                ctx.font = `${fontSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = enemy.color;
+                ctx.fillText(emoji, enemy.x, enemy.y);
                 ctx.shadowBlur = 0;
 
-                ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.arc(enemy.x, enemy.y, scaledRadius * 0.5, 0, Math.PI * 2);
-                ctx.stroke();
+                // 元素小图标（左上角）
+                if (enemy.elementAffix) {
+                    ctx.font = `${Math.floor(scaledRadius * 0.9)}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(enemy.elementAffix.emoji, enemy.x - scaledRadius * 0.7, enemy.y - scaledRadius * 0.7);
+                }
 
                 // 体型标识 S/M/L
                 const sizeColors = { 'S': '#90EE90', 'M': '#FFD700', 'L': '#FF6347' };
                 ctx.fillStyle = sizeColors[enemy.sizeType];
                 ctx.font = 'bold 10px SimSun';
+                ctx.textAlign = 'left';
                 ctx.fillText(enemy.sizeType, enemy.x - 4, enemy.y - scaledRadius - 18);
 
-                // 血条
-                const barWidth = 28, barHeight = 4;
+                // 血条（BOSS 多血条）
+                const barWidth = enemy.isBoss ? 50 : 28;
+                const barHeight = enemy.isBoss ? 6 : 4;
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
                 ctx.fillRect(enemy.x - barWidth/2, enemy.y - scaledRadius - 12, barWidth, barHeight);
                 const hpPercent = enemy.hp / enemy.maxHp;
-                ctx.fillStyle = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
+                let hpColor = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
+                if (enemy.isBoss) {
+                    hpColor = enemy.bossPhase === 3 ? '#ff1493' : (enemy.bossPhase === 2 ? '#FFA500' : '#22c55e');
+                }
+                ctx.fillStyle = hpColor;
                 ctx.fillRect(enemy.x - barWidth/2, enemy.y - scaledRadius - 12, barWidth * hpPercent, barHeight);
+
+                // BOSS 阶段标识
+                if (enemy.isBoss) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 10px SimSun';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`P${enemy.bossPhase}`, enemy.x, enemy.y - scaledRadius - 22);
+                }
             });
         }
 
@@ -2550,6 +2775,8 @@
 
         function updatePlayer() {
             if (!playerAlive) return;
+            // 减速 Debuff：移动速度×0.5
+            const moveSpeed = playerDebuffs.slow.timer > 0 ? player.moveSpeed * 0.5 : player.moveSpeed;
 
             // 手动移动优先
             if (player.isMoving) {
@@ -2557,8 +2784,8 @@
                 const dy = player.targetY - player.y;
                 const dist = Math.hypot(dx, dy);
                 if (dist > 3) {
-                    player.x += (dx / dist) * player.moveSpeed;
-                    player.y += (dy / dist) * player.moveSpeed;
+                    player.x += (dx / dist) * moveSpeed;
+                    player.y += (dy / dist) * moveSpeed;
                     player.facingAngle = Math.atan2(dy, dx);
                 } else {
                     player.isMoving = false;
@@ -2585,8 +2812,8 @@
                         player.facingAngle = Math.atan2(dy, dx);
                         
                         // 计算移动距离（不能超出雷达边界）
-                        let moveX = (dx / dist) * player.moveSpeed;
-                        let moveY = (dy / dist) * player.moveSpeed;
+                        let moveX = (dx / dist) * moveSpeed;
+                        let moveY = (dy / dist) * moveSpeed;
                         
                         const newX = player.x + moveX;
                         const newY = player.y + moveY;
@@ -2665,8 +2892,13 @@
                         createDemonQi(enemy, player, enemy.damage);
                         enemy.attackCooldown = enemy.attackSpeed;
                     }
+                    // 怪物技能 AI
+                    updateEnemySkills(enemy, distToPlayer);
+                    // BOSS 阶段切换检查
+                    if (enemy.isBoss) updateBossPhase(enemy);
                 }
                 if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+                if (enemy.skillCooldown > 0) enemy.skillCooldown--;
                 // 神话技能：三昧真火 - 燃烧DOT伤害（每秒1次）
                 if (enemy.burnTimer > 0 && enemy.burnStacks > 0) {
                     enemy.burnTimer--;
@@ -2680,6 +2912,127 @@
                     }
                 }
             });
+        }
+
+        // ===== 怪物技能 AI =====
+        function updateEnemySkills(enemy, distToPlayer) {
+            if (enemy.skillCooldown > 0) return;
+            if (!playerAlive) return;
+
+            // 狼妖（general）：每 5 秒释放扇形 AOE
+            if (enemy.type === 'general' && distToPlayer < 120) {
+                enemy.skillCooldown = 300; // 5秒
+                enemyCastFanAttack(enemy);
+                return;
+            }
+            // 鬼王（boss）：每 6 秒突进+震荡波
+            if (enemy.type === 'boss' && distToPlayer < 200) {
+                enemy.skillCooldown = 360; // 6秒
+                enemyCastShockwave(enemy);
+                return;
+            }
+            // 妖皇（emperor）：每 8 秒召唤 2 只小妖
+            if (enemy.type === 'emperor') {
+                enemy.skillCooldown = 480; // 8秒
+                enemyCastSummon(enemy, 2);
+                return;
+            }
+            // 魔神（god）：血量低于 30% 时狂暴，每 7 秒射散弹
+            if (enemy.type === 'god') {
+                enemy.skillCooldown = 420; // 7秒
+                enemyCastShotgun(enemy);
+                return;
+            }
+            // BOSS（isBoss）专属：阶段技能
+            if (enemy.isBoss) {
+                enemy.skillCooldown = 240;
+                // 根据阶段选择不同技能
+                if (enemy.bossPhase === 1) enemyCastShockwave(enemy);
+                else if (enemy.bossPhase === 2) enemyCastSummon(enemy, 3);
+                else enemyCastShotgun(enemy);
+            }
+        }
+
+        // 怪物技能：扇形 AOE（狼妖）
+        function enemyCastFanAttack(enemy) {
+            createFloatingText(enemy.x, enemy.y - 25, '⚔️扇形斩!', enemy.color);
+            const baseAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+            for (let i = -2; i <= 2; i++) {
+                const a = baseAngle + i * 0.2;
+                projectiles.push({
+                    x: enemy.x, y: enemy.y,
+                    vx: Math.cos(a) * 4, vy: Math.sin(a) * 4,
+                    isPlayer: false, damage: Math.floor(enemy.damage * 0.7),
+                    life: 70, type: 'demon',
+                    element: enemy.element, elementAffix: enemy.elementAffix
+                });
+            }
+        }
+
+        // 怪物技能：震荡波（鬼王/BOSS阶段1）
+        function enemyCastShockwave(enemy) {
+            createFloatingText(enemy.x, enemy.y - 25, '💥震荡波!', enemy.color);
+            const count = 12;
+            for (let i = 0; i < count; i++) {
+                const a = (Math.PI * 2 / count) * i;
+                projectiles.push({
+                    x: enemy.x, y: enemy.y,
+                    vx: Math.cos(a) * 5, vy: Math.sin(a) * 5,
+                    isPlayer: false, damage: Math.floor(enemy.damage * 0.8),
+                    life: 60, type: 'demon',
+                    element: enemy.element, elementAffix: enemy.elementAffix
+                });
+            }
+            createParticles(enemy.x, enemy.y, enemy.color, 20);
+        }
+
+        // 怪物技能：召唤小妖（妖皇/BOSS阶段2）
+        function enemyCastSummon(enemy, count) {
+            createFloatingText(enemy.x, enemy.y - 25, '召唤!', enemy.color);
+            for (let i = 0; i < count; i++) {
+                const types = ['spirit', 'goblin'];
+                const t = types[Math.floor(Math.random() * types.length)];
+                const baby = spawnEnemy(t);
+                if (baby) {
+                    baby.x = enemy.x + (Math.random() - 0.5) * 40;
+                    baby.y = enemy.y + (Math.random() - 0.5) * 40;
+                }
+            }
+            createParticles(enemy.x, enemy.y, '#9400D3', 15);
+        }
+
+        // 怪物技能：散弹（魔神/BOSS阶段3）
+        function enemyCastShotgun(enemy) {
+            createFloatingText(enemy.x, enemy.y - 25, '🌟散弹!', enemy.color);
+            const baseAngle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+            for (let i = -3; i <= 3; i++) {
+                const a = baseAngle + i * 0.15;
+                projectiles.push({
+                    x: enemy.x, y: enemy.y,
+                    vx: Math.cos(a) * 6, vy: Math.sin(a) * 6,
+                    isPlayer: false, damage: Math.floor(enemy.damage * 0.6),
+                    life: 80, type: 'demon',
+                    element: enemy.element, elementAffix: enemy.elementAffix
+                });
+            }
+        }
+
+        // 怪物死亡自爆（魔神特性）
+        function enemyExplodeOnDeath(enemy) {
+            if (enemy.type !== 'god') return;
+            createFloatingText(enemy.x, enemy.y - 25, '💀自爆!', '#DC143C');
+            const count = 16;
+            for (let i = 0; i < count; i++) {
+                const a = (Math.PI * 2 / count) * i;
+                projectiles.push({
+                    x: enemy.x, y: enemy.y,
+                    vx: Math.cos(a) * 6, vy: Math.sin(a) * 6,
+                    isPlayer: false, damage: Math.floor(enemy.damage * 0.5),
+                    life: 70, type: 'demon',
+                    element: enemy.element, elementAffix: enemy.elementAffix
+                });
+            }
+            createParticles(enemy.x, enemy.y, '#DC143C', 30);
         }
 
         // ========== Tooltip系统 ==========
@@ -2972,7 +3325,8 @@
             const hpSteal = getHpSteal();
             if (hpSteal > 0 && damage > 0) {
                 const healAmount = Math.floor(damage * hpSteal);
-                if (healAmount > 0) {
+                // 诅咒 Debuff：吸血归零
+                if (healAmount > 0 && !(typeof playerDebuffs !== 'undefined' && playerDebuffs.curse.timer > 0)) {
                     player.hp = Math.min(player.maxHp, player.hp + healAmount);
                 }
             }
@@ -3007,8 +3361,22 @@
                                 enemies.splice(i, 1);
                                 // 绿武系统：击杀处理（经验、耐久消耗）
                                 onEnemyKilled(enemy);
-                                // 掉落装备
-                                if (Math.random() < 0.3) {
+                                // BOSS 击杀奖励
+                                if (enemy.isBoss) {
+                                    dropBossLoot(enemy);
+                                }
+                                // 精英怪：必掉装备 + 30% 上古石
+                                else if (enemy.isElite) {
+                                    const drop = generateRandomEquip();
+                                    drop.quality = Math.min(4, (drop.quality || 0) + 1); // 品质+1
+                                    addToBag(drop);
+                                    createFloatingText(enemy.x, enemy.y - 50, `✨精英掉落!`, '#FFD700');
+                                    if (Math.random() < 0.3) {
+                                        addToBag({ type: 'ancientStone', count: 1 });
+                                    }
+                                }
+                                // 普通掉落
+                                else if (Math.random() < 0.3) {
                                     const drop = generateRandomEquip();
                                     addToBag(drop);
                                     createFloatingText(enemy.x, enemy.y - 50, `掉落${itemQualities[drop.quality].name}${equipTypes[drop.type].name}`, itemQualities[drop.quality].color);
@@ -3030,10 +3398,17 @@
                             }
                             // 伤害减免
                             const dmgReduce = getDmgReduce();
-                            const finalDamage = Math.max(1, Math.floor(p.damage * (1 - dmgReduce)));
+                            let baseDmg = p.damage;
+                            // 感电 Debuff：受伤+20%
+                            if (playerDebuffs.shock.timer > 0) baseDmg *= 1.2;
+                            const finalDamage = Math.max(1, Math.floor(baseDmg * (1 - dmgReduce)));
                             player.hp -= finalDamage;
                             createDamageText(player.x, player.y - 28, finalDamage, false);
-                            createParticles(p.x, p.y, '#8b0000', 6);
+                            createParticles(p.x, p.y, p.elementAffix ? p.elementAffix.color : '#8b0000', 6);
+                            // 元素效果触发
+                            if (p.elementAffix) {
+                                applyElementEffectToPlayer(p.element, p.elementAffix);
+                            }
                             updateUI();
                             if (player.hp <= 0) playerDied();
                             return false;
@@ -3042,6 +3417,56 @@
                 }
                 return p.life > 0;
             });
+        }
+
+        // 玩家元素 Debuff 状态
+        let playerDebuffs = {
+            burn:  { stacks: 0, timer: 0 }, // 燃烧：DOT伤害
+            slow:  { timer: 0 },             // 减速
+            shock: { timer: 0 },             // 感电：受伤+20%
+            curse: { timer: 0 }              // 诅咒：回血归零
+        };
+
+        // 给玩家施加元素效果
+        function applyElementEffectToPlayer(elemKey, affix) {
+            if (!affix) return;
+            switch (affix.effect) {
+                case 'burn':
+                    playerDebuffs.burn.stacks = Math.min(5, playerDebuffs.burn.stacks + 1);
+                    playerDebuffs.burn.timer = 240; // 4秒
+                    createFloatingText(player.x, player.y - 40, '🔥燃烧!', '#FF4500');
+                    break;
+                case 'slow':
+                    playerDebuffs.slow.timer = 180; // 3秒
+                    createFloatingText(player.x, player.y - 40, '❄️减速!', '#00BFFF');
+                    break;
+                case 'shock':
+                    playerDebuffs.shock.timer = 180; // 3秒
+                    createFloatingText(player.x, player.y - 40, '⚡感电!', '#FFD700');
+                    break;
+                case 'curse':
+                    playerDebuffs.curse.timer = 300; // 5秒
+                    createFloatingText(player.x, player.y - 40, '🌑诅咒!', '#9400D3');
+                    break;
+            }
+        }
+
+        // 每帧更新玩家元素 Debuff
+        function updatePlayerDebuffs() {
+            // 燃烧 DOT
+            if (playerDebuffs.burn.timer > 0) {
+                playerDebuffs.burn.timer--;
+                if (playerDebuffs.burn.timer % 30 === 0) { // 每0.5秒一次伤害
+                    const dotDmg = Math.max(1, Math.floor(player.maxHp * 0.005 * playerDebuffs.burn.stacks));
+                    player.hp -= dotDmg;
+                    createDamageText(player.x, player.y - 25, dotDmg, false, false, '#FF4500');
+                    if (player.hp <= 0) playerDied();
+                }
+                if (playerDebuffs.burn.timer === 0) playerDebuffs.burn.stacks = 0;
+            }
+            if (playerDebuffs.slow.timer > 0) playerDebuffs.slow.timer--;
+            if (playerDebuffs.shock.timer > 0) playerDebuffs.shock.timer--;
+            if (playerDebuffs.curse.timer > 0) playerDebuffs.curse.timer--;
         }
 
         function playerDied() {
@@ -4614,6 +5039,7 @@
             updateDamageTexts();
             updateFloatingTexts();
             updateMythicSkill(); // 神话技能更新
+            updatePlayerDebuffs(); // 元素 Debuff 更新
             // 连击计时器更新
             if (comboTimer > 0) {
                 comboTimer--;
