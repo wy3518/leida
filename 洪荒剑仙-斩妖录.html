@@ -4482,20 +4482,15 @@
         let lastVisibleTime = 0; // 切到后台时的时间戳
 
         // 页面可见性变化处理
+        // ⚠️ 只监听 visibilitychange，不再监听 blur/focus
+        // 防止误触：点击背包按钮、右键菜单、窗口边缘都会触发 blur 导致游戏卡死
+        // 只有真正切 tab / 最小化才会触发 visibilitychange
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 enterBackgroundMode();
             } else {
                 exitBackgroundMode();
             }
-        });
-
-        // 窗口失焦/获得焦点（应对最小化、切换其他窗口等场景）
-        window.addEventListener('blur', () => {
-            if (!document.hidden) enterBackgroundMode();
-        });
-        window.addEventListener('focus', () => {
-            if (!document.hidden) exitBackgroundMode();
         });
 
         function enterBackgroundMode() {
@@ -4509,13 +4504,9 @@
 
         function exitBackgroundMode() {
             if (isPageVisible) return; // 已经在前台
-            // 先补齐后台期间漏掉的帧
-            if (lastBackupTime > 0) {
-                const elapsed = performance.now() - lastBackupTime;
-                const missedFrames = Math.min(Math.floor(elapsed / FRAME_MS), 3600); // 最多补1分钟
-                for (let i = 0; i < missedFrames; i++) gameLogic();
-                lastBackupTime = 0;
-            }
+            // 不再做同步补帧（会卡死浏览器）
+            // 后台时游戏进度已通过 gameLoopBackup 推进，直接恢复即可
+            lastBackupTime = 0;
             isPageVisible = true;
             if (backgroundInterval) {
                 clearInterval(backgroundInterval);
@@ -5082,13 +5073,13 @@
         }
 
         // 后台运行循环（使用 setInterval，浏览器会节流到 1秒/次）
-        // 用真实时间差补帧，让游戏在后台保持 60FPS 进度
+        // 后台时仅按真实时间节奏推进游戏，单次最多补 60 帧（1秒），防止主线程卡死
         function gameLoopBackup() {
             const now = performance.now();
             const elapsed = now - lastBackupTime;
             lastBackupTime = now;
-            // 计算应补的帧数（最多一次补 600 帧，防止极端情况下卡死）
-            const frames = Math.min(Math.floor(elapsed / FRAME_MS), 600);
+            // 单次最多补 60 帧（1秒游戏时间），避免主线程长时间阻塞
+            const frames = Math.min(Math.floor(elapsed / FRAME_MS), 60);
             for (let i = 0; i < frames; i++) gameLogic();
             // 后台模式下不渲染
         }
