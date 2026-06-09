@@ -2132,9 +2132,9 @@
         }
 
         function createParticles(x, y, color, count = 10) {
-            // 性能保护：粒子数超过 200 时降低生成
-            if (particles.length > 200) count = Math.floor(count * 0.3);
-            if (particles.length > 400) return; // 完全禁用
+            // 性能保护：粒子数超过200时只生成1/3，超过350时停止生成
+            if (particles.length > 350) return;
+            if (particles.length > 200) count = Math.floor(count / 3);
             for (let i = 0; i < count; i++) {
                 const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5;
                 particles.push({
@@ -2148,6 +2148,8 @@
         }
 
         function createDamageText(x, y, damage, isPlayer, isCrit, customColor) {
+            // 性能保护：超过上限拒绝创建
+            if (damageTexts.length > 80) return;
             damageTexts.push({
                 x: x, y: y, text: damage, life: 35,
                 color: customColor || (isCrit ? '#FF4500' : (isPlayer ? '#ff6b6b' : '#ffd93d')),
@@ -2156,6 +2158,8 @@
         }
 
         function createFloatingText(x, y, text, color) {
+            // 性能保护：超过上限拒绝创建
+            if (floatingTexts.length > 40) return;
             floatingTexts.push({ x: x, y: y, text: text, life: 40, color: color, vy: -0.8 });
         }
 
@@ -2865,11 +2869,23 @@
                 // 神话技能 - 一念千击：普攻15%概率触发AOE
                 if (activeMythicSkill && activeMythicSkill.id === 'yiNian' && Math.random() < activeMythicSkill.procChance) {
                     const aoeDmg = Math.floor(player.attackDamage * activeMythicSkill.damageMult);
+                    // 性能保护：只对前20个敌人显示伤害文字（但全部伤害判定）
+                    let textCount = 0;
                     enemies.forEach(e => {
                         e.hp -= aoeDmg;
-                        createDamageText(e.x, e.y - 15, aoeDmg, true, false, '#FFD700');
+                        if (textCount < 20) {
+                            createDamageText(e.x, e.y - 15, aoeDmg, true, false, '#FFD700');
+                            textCount++;
+                        }
                     });
+                    // 收集要击杀的敌人，统一调用 onEnemyKilled
+                    const killedEnemies = enemies.filter(e => e.hp <= 0);
                     enemies = enemies.filter(e => e.hp > 0);
+                    killedEnemies.forEach(e => {
+                        kills++;
+                        score += e.score || 0;
+                        onEnemyKilled(e);
+                    });
                     createFloatingText(player.x, player.y - 50, '⚡一念千击!', '#FFD700');
                     createParticles(player.x, player.y, '#FFD700', 25);
                 }
@@ -5032,6 +5048,11 @@
         // 游戏主循环逻辑（与渲染分离）
         function gameLogic() {
             frameCount++;
+            // 性能保护：每帧硬上限（避免雪崩）
+            if (projectiles.length > 300) projectiles.length = 300;
+            if (particles.length > 400) particles.length = 400;
+            if (damageTexts.length > 100) damageTexts.length = 100;
+            if (floatingTexts.length > 50) floatingTexts.length = 50;
             updatePlayer();
             playerAutoAttack();
             updateEnemies();
