@@ -2984,11 +2984,15 @@
                         enemy.burnStacks = 0;
                     }
                 }
-                // Boss 死亡检测
-                if (enemy.isBoss && enemy.hp <= 0) {
-                    onBossDefeated(enemy);
-                }
             });
+            // Boss 兜底死亡检测（DOT伤害等场景下未被splice的Boss）
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
+                if (e.isBoss && e.hp <= 0) {
+                    enemies.splice(i, 1);
+                    onBossDefeated(e);
+                }
+            }
         }
 
         // ========== Tooltip系统 ==========
@@ -3314,13 +3318,18 @@
                                 addScoreOnKill(enemy.score);
                                 kills++;
                                 enemies.splice(i, 1);
-                                // 绿武系统：击杀处理（经验、耐久消耗）
-                                onEnemyKilled(enemy);
-                                // 掉落装备（应用地图等级压制）
-                                if (shouldDrop(0.3)) {
-                                    const drop = generateRandomEquip();
-                                    addToBag(drop);
-                                    createFloatingText(enemy.x, enemy.y - 50, `掉落${itemQualities[drop.quality].name}${equipTypes[drop.type].name}`, itemQualities[drop.quality].color);
+                                // Boss 击杀：触发关底奖励+解锁
+                                if (enemy.isBoss) {
+                                    onBossDefeated(enemy);
+                                } else {
+                                    // 绿武系统：击杀处理（经验、耐久消耗）
+                                    onEnemyKilled(enemy);
+                                    // 掉落装备（应用地图等级压制）
+                                    if (shouldDrop(0.3)) {
+                                        const drop = generateRandomEquip();
+                                        addToBag(drop);
+                                        createFloatingText(enemy.x, enemy.y - 50, `掉落${itemQualities[drop.quality].name}${equipTypes[drop.type].name}`, itemQualities[drop.quality].color);
+                                    }
                                 }
                                 updateUI();
                             }
@@ -3511,7 +3520,8 @@
                             enemies = enemies.filter(e => e !== target);
                             kills++;
                             addScoreOnKill(target.score || 0);
-                            onEnemyKilled(target);
+                            if (target.isBoss) onBossDefeated(target);
+                            else onEnemyKilled(target);
                         }
                     }
                     // 更新敌人感电计时器
@@ -3607,7 +3617,8 @@
                                         createParticles(e.x, e.y, '#FF6347', 15);
                                         kills++;
                                         addScoreOnKill(e.score || 0);
-                                        onEnemyKilled(e);
+                                        if (e.isBoss) onBossDefeated(e);
+                                        else onEnemyKilled(e);
                                     }
                                 }
                             }
