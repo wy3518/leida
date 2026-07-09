@@ -375,10 +375,6 @@
                 <button id="applyAttrBtn" style="flex:1;background:linear-gradient(135deg,#228B22,#0d5a0d);color:#fff;border:1px solid #32CD32;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">✅ 确认分配</button>
                 <button id="resetAttrBtn" style="flex:1;background:linear-gradient(135deg,#8b4513,#5a2d0a);color:#ffd700;border:1px solid #d4af37;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">🔄 一键洗点</button>
             </div>
-            <div style="display:flex;gap:8px;">
-                <button class="tpl-btn" data-tpl="power" style="flex:1;background:linear-gradient(135deg,#B22222,#7a1010);color:#fff;border:1px solid #ff6347;padding:6px;cursor:pointer;font-family:inherit;border-radius:6px;font-size:12px;">🗡️ 纯力刀</button>
-                <button class="tpl-btn" data-tpl="element" style="flex:1;background:linear-gradient(135deg,#4169E1,#1e3a8a);color:#fff;border:1px solid #87CEEB;padding:6px;cursor:pointer;font-family:inherit;border-radius:6px;font-size:12px;">🔮 纯元剑</button>
-            </div>
             <button id="closeAttr" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
         </div>
     </div>
@@ -4403,23 +4399,6 @@
             tempFree = totalPoints;
             renderAttrPanel();
             createFloatingText(player.x, player.y - 40, '已重置，点确认生效', '#ffd700');
-        });
-
-        // 模板一键套用
-        document.querySelectorAll('.tpl-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const totalPoints = (player.playerLevel - 1) * 5;
-                tempAttr = { ...ATTR_BASE };
-                tempFree = totalPoints;
-                if (btn.dataset.tpl === 'power') {
-                    tempAttr.strength += tempFree; // 全堆力量
-                } else if (btn.dataset.tpl === 'element') {
-                    tempAttr.spirit += tempFree;   // 全堆元神
-                }
-                tempFree = 0;
-                renderAttrPanel();
-                createFloatingText(player.x, player.y - 40, '模板已套用，点确认生效', '#ffd700');
-            });
         });
 
         // 保存/读取属性进度
