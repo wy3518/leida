@@ -256,6 +256,9 @@
                     <span>气血: <span id="playerHp">100</span>/<span id="playerMaxHp">100</span></span>
                 </div>
                 <div class="stat-item">
+                    <span>精气: <span id="playerMp">56</span>/<span id="playerMaxMp">56</span></span>
+                </div>
+                <div class="stat-item">
                     <span>斩妖: <span id="kills">0</span></span>
                 </div>
                 <div class="stat-item">
@@ -277,7 +280,7 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
         </div>
         
         <!-- 装备栏界面 -->
@@ -358,6 +361,25 @@
             <div style="text-align:center;color:#888;font-size:11px;margin-bottom:10px;">击败大世界关底Boss可解锁下一区域 | 等级压制会大幅降低收益</div>
             <div id="mapList" style="display:flex;flex-direction:column;gap:8px;"></div>
             <button id="closeMap" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#228B22,#0d5a0d);color:#fff;border:1px solid #32CD32;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
+        </div>
+
+        <!-- 📊 属性面板 -->
+        <div id="attrPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(25,20,10,0.98),rgba(40,30,15,0.98));border:3px solid #b8860b;border-radius:15px;padding:16px;z-index:10001;box-shadow:0 0 40px rgba(255,215,0,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:420px;max-height:90vh;overflow-y:auto;">
+            <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.6);">📊 人物属性</div>
+            <div id="attrHeader" style="text-align:center;color:#aaa;font-size:12px;margin-bottom:10px;"></div>
+            <div id="attrFreeInfo" style="text-align:center;color:#90EE90;font-size:14px;margin-bottom:12px;font-weight:bold;"></div>
+            <div id="attrFourList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+            <div style="border-top:1px solid #b8860b;margin:10px 0;"></div>
+            <div id="attrStats" style="font-size:13px;color:#ddd;line-height:1.8;margin-bottom:14px;"></div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+                <button id="applyAttrBtn" style="flex:1;background:linear-gradient(135deg,#228B22,#0d5a0d);color:#fff;border:1px solid #32CD32;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">✅ 确认分配</button>
+                <button id="resetAttrBtn" style="flex:1;background:linear-gradient(135deg,#8b4513,#5a2d0a);color:#ffd700;border:1px solid #d4af37;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">🔄 一键洗点</button>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="tpl-btn" data-tpl="power" style="flex:1;background:linear-gradient(135deg,#B22222,#7a1010);color:#fff;border:1px solid #ff6347;padding:6px;cursor:pointer;font-family:inherit;border-radius:6px;font-size:12px;">🗡️ 纯力刀</button>
+                <button class="tpl-btn" data-tpl="element" style="flex:1;background:linear-gradient(135deg,#4169E1,#1e3a8a);color:#fff;border:1px solid #87CEEB;padding:6px;cursor:pointer;font-family:inherit;border-radius:6px;font-size:12px;">🔮 纯元剑</button>
+            </div>
+            <button id="closeAttr" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
         </div>
     </div>
 
@@ -468,18 +490,23 @@
             playerLevel: 1,
             playerExp: 0,
             expToNext: 100,
-            // 基础属性
+            maxPlayerLevel: 99, // 等级上限
+            // 基础属性（手动加点，初始 力量6/筋骨3/元神4/体魄3）
             attributes: {
-                strength: 10,
-                constitution: 10,
-                agility: 10,
-                spirit: 10
+                strength: 6,      // 力量
+                constitution: 3,  // 筋骨
+                spirit: 4,        // 元神
+                agility: 3        // 体魄
             },
+            freePoints: 0,        // 剩余可分配自由点
+            skillPoints: 0,       // 技能点（30级起每级+1）
+            mp: 56,               // 当前精气（放技能用）
             // 计算后的战斗属性
             computedStats: {
                 physicalAtk: 0,
                 maxHp: 100,
                 maxMp: 50,
+                maxSp: 40,
                 physicalDef: 0,
                 elementalAtk: 0,
                 elementalDef: 0,
@@ -626,9 +653,19 @@
             const cls = classes[player.classId];
             const attr = player.attributes;
             const effects = attributeEffects;
-            
-            // 基础值 + 属性加成
-            let physicalAtk = 30 + attr.strength * effects.strength.physicalAtk;
+            // 四维（力量str/筋骨con/元神spi/体魄agi）
+            const str = attr.strength, con = attr.constitution, spi = attr.spirit, phy = attr.agility;
+
+            // 原版三围公式
+            // HP = 力量×3 + 筋骨×3 + 元神×1 + 体魄×3
+            // MP = 力量×2 + 筋骨×2 + 元神×8 + 体魄×2
+            // SP = 力量×2 + 筋骨×4 + 元神×1 + 体魄×4
+            const baseHp = str * 3 + con * 3 + spi * 1 + phy * 3;
+            const baseMp = str * 2 + con * 2 + spi * 8 + phy * 2;
+            const baseSp = str * 2 + con * 4 + spi * 1 + phy * 4;
+
+            // 基础物攻：力量提供（力量×1.2 + 基础30）
+            let physicalAtk = 30 + str * 1.2;
             
             // 绿武攻击加成
             if (player.equippedWeapon) {
@@ -653,17 +690,18 @@
             
             player.computedStats = {
                 physicalAtk: physicalAtk,
-                maxHp: 100 + attr.constitution * effects.constitution.maxHp,
-                maxMp: 50 + attr.spirit * effects.spirit.maxMp,
-                physicalDef: attr.constitution * effects.constitution.physicalDef,
-                elementalAtk: attr.spirit * effects.spirit.elementalAtk,
-                elementalDef: attr.spirit * effects.spirit.elementalDef,
-                attackSpeed: 1.0 + attr.agility * effects.agility.attackSpeed,
-                moveSpeed: 0.6 + attr.agility * effects.agility.moveSpeed * 10,
-                dodge: attr.agility * effects.agility.dodge,
-                crit: attr.agility * effects.agility.crit,
+                maxHp: baseHp,
+                maxMp: baseMp,
+                maxSp: baseSp,
+                physicalDef: con * 0.7,                    // 筋骨→物防
+                elementalAtk: spi * 1.1,                   // 元神→元素攻击
+                elementalDef: spi * 0.6,                   // 元神→元素防御
+                attackSpeed: 1.0 + phy * 0.003,            // 体魄→攻速（少量）
+                moveSpeed: 0.6,                            // 移速固定（不再受敏捷影响）
+                dodge: phy * 0.001,                        // 体魄→少量闪避
+                crit: str * 0.0015,                        // 力量→物理暴击
                 critDamage: 1.5,
-                damageReduce: attr.constitution * effects.constitution.damageReduce
+                damageReduce: con * 0.0015                 // 筋骨→伤害减免
             };
             
             // 剑客被动：剑术精通（物攻+8%）
@@ -696,7 +734,11 @@
             // 同步到 player 的攻击属性
             player.attackDamage = Math.floor(player.computedStats.physicalAtk);
             player.maxHp = Math.floor(player.computedStats.maxHp + getHpBonus());
+            player.maxMp = Math.floor(player.computedStats.maxMp);
+            player.maxSp = Math.floor(player.computedStats.maxSp);
             player.moveSpeed = player.computedStats.moveSpeed;
+            // MP不超过上限
+            if (player.mp > player.maxMp) player.mp = player.maxMp;
             
             // 攻速词条：减少攻击间隔
             const atkSpeedBonus = getAtkSpeedBonus();
@@ -737,20 +779,31 @@
 
         // 角色升级
         function levelUpPlayer() {
+            // 等级上限判定
+            if (player.playerLevel >= player.maxPlayerLevel) {
+                player.playerLevel = player.maxPlayerLevel;
+                player.playerExp = 0;
+                return;
+            }
             player.playerLevel++;
             
-            // 根据职业成长加点
-            const cls = classes[player.classId];
-            player.attributes.strength += cls.growth.strength;
-            player.attributes.constitution += cls.growth.constitution;
-            player.attributes.agility += cls.growth.agility;
-            player.attributes.spirit += cls.growth.spirit;
+            // 每级固定赠送 5 点自由属性点（四维不自动成长，全靠手动加点）
+            player.freePoints += 5;
+            
+            // 30级起每级 +1 技能点
+            if (player.playerLevel >= 30) {
+                player.skillPoints += 1;
+            }
             
             // 重新计算属性
             calculatePlayerStats();
             
-            // 回满血
+            // 回满血、回满蓝
             player.hp = player.maxHp;
+            player.mp = player.maxMp;
+            
+            // 保存进度
+            if (typeof saveAttrProgress === 'function') saveAttrProgress();
             
             // 显示升级提示
             showPlayerLevelUp();
@@ -771,13 +824,19 @@
                 text-align: center;
                 animation: levelUpPulse 2s ease-out forwards;
             `;
-            levelUpDiv.innerHTML = `⚔️ 升级 Lv.${player.playerLevel} ⚔️<br><span style="font-size:16px;color:#fff;">${classes[player.classId].name}</span>`;
+            levelUpDiv.innerHTML = `⚔️ 升级 Lv.${player.playerLevel} ⚔️<br><span style="font-size:16px;color:#fff;">${classes[player.classId].name} · 获得5属性点</span>`;
             document.body.appendChild(levelUpDiv);
             setTimeout(() => levelUpDiv.remove(), 2000);
         }
 
         // 角色获取经验
         function addPlayerExp(baseExp) {
+            // 满级不再获取经验
+            if (player.playerLevel >= player.maxPlayerLevel) {
+                player.playerExp = 0;
+                updateUI();
+                return;
+            }
             // 人物经验加成词条
             let expBonus = getExpBonus();
             // 称号经验加成
@@ -786,11 +845,13 @@
             }
             const finalExp = Math.floor(baseExp * (1 + expBonus));
             player.playerExp += finalExp;
-            while (player.playerExp >= player.expToNext) {
+            while (player.playerExp >= player.expToNext && player.playerLevel < player.maxPlayerLevel) {
                 player.playerExp -= player.expToNext;
                 player.expToNext = Math.floor(player.expToNext * 1.2);
                 levelUpPlayer();
             }
+            // 满级清空经验条
+            if (player.playerLevel >= player.maxPlayerLevel) player.playerExp = 0;
             updateUI();
         }
 
@@ -3446,12 +3507,44 @@
         }
 
         // ========== 神话技能核心更新函数 ==========
+        // 主动神话技能的精气(MP)消耗表
+        const mythicMpCost = {
+            tianGang: 40,   // 天罡剑阵
+            thunder: 12,    // 天雷引
+            iceFreeze: 50,  // 冰封万里
+            zhanTian: 45,   // 斩天一剑
+            wanJian: 45,    // 万剑归宗
+            yiNian: 0,      // 一念（被动proc，不消耗）
+            fenTian: 55,    // 焚天
+            mieShi: 60      // 灭世
+        };
+
         function updateMythicSkill() {
+            // 精气(MP)自然回复：约每秒回复9%
+            if (player.mp < player.maxMp) {
+                player.mp = Math.min(player.maxMp, player.mp + player.maxMp * 0.0015);
+            }
             if (!activeMythicSkill || !playerAlive) return;
             const s = mythicSkillState;
 
             // 冷却倒计时
             if (s.cooldownTimer > 0) s.cooldownTimer--;
+
+            // 【MP消耗守卫】周期性主动技能即将释放时检查精气
+            const mpCost = mythicMpCost[activeMythicSkill.id] || 0;
+            if (mpCost > 0 && s.cooldownTimer <= 0 && (!s.durationTimer || s.durationTimer <= 0) && enemies.length > 0) {
+                if (player.mp < mpCost) {
+                    // 精气不足：延迟重试，不释放
+                    s.cooldownTimer = 30;
+                    if (frameCount % 90 === 0) {
+                        createFloatingText(player.x, player.y - 70, '💧精气不足', '#4dabf7');
+                    }
+                    return;
+                } else {
+                    // 扣除精气
+                    player.mp -= mpCost;
+                }
+            }
 
             // 根据技能ID分别处理
             switch (activeMythicSkill.id) {
@@ -4065,6 +4158,10 @@
             document.getElementById('playerLevel').textContent = player.playerLevel;
             document.getElementById('playerHp').textContent = Math.max(0, Math.floor(player.hp));
             document.getElementById('playerMaxHp').textContent = player.maxHp;
+            const mpEl = document.getElementById('playerMp');
+            const maxMpEl = document.getElementById('playerMaxMp');
+            if (mpEl) mpEl.textContent = Math.floor(player.mp || 0);
+            if (maxMpEl) maxMpEl.textContent = player.maxMp || 0;
             document.getElementById('kills').textContent = kills;
             document.getElementById('wave').textContent = wave;
             document.getElementById('score').textContent = score;
@@ -4164,6 +4261,193 @@
         mapPanel.addEventListener('click', (e) => {
             if (e.target === mapPanel) mapPanel.style.display = 'none';
         });
+
+        // ==================================================
+        // 📊 属性面板系统（四维手动加点）
+        // ==================================================
+        const attrBtn = document.getElementById('attrBtn');
+        const attrPanel = document.getElementById('attrPanel');
+        const closeAttr = document.getElementById('closeAttr');
+        // 四维中文名与图标
+        const attrMeta = [
+            { key: 'strength',     name: '力量', icon: '💪', color: '#ff6347', desc: '普攻/暴击' },
+            { key: 'constitution', name: '筋骨', icon: '🛡️', color: '#DAA520', desc: '物防/减伤' },
+            { key: 'spirit',       name: '元神', icon: '🔮', color: '#4169E1', desc: '元素攻击/精气' },
+            { key: 'agility',      name: '体魄', icon: '🏃', color: '#32CD32', desc: '生命/攻速' }
+        ];
+        // 四维初始值（洗点基准）
+        const ATTR_BASE = { strength: 6, constitution: 3, spirit: 4, agility: 3 };
+        // 临时分配（面板内操作，确认后写回）
+        let tempAttr = null;
+        let tempFree = 0;
+
+        attrBtn.addEventListener('click', () => {
+            openAttrPanel();
+        });
+        closeAttr.addEventListener('click', () => attrPanel.style.display = 'none');
+        attrPanel.addEventListener('click', (e) => {
+            if (e.target === attrPanel) attrPanel.style.display = 'none';
+        });
+        // C 键快捷打开/关闭属性面板
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'c' || e.key === 'C') {
+                if (attrPanel.style.display === 'none' || !attrPanel.style.display) {
+                    openAttrPanel();
+                } else {
+                    attrPanel.style.display = 'none';
+                }
+            }
+        });
+
+        function openAttrPanel() {
+            // 复制当前属性到临时对象
+            tempAttr = { ...player.attributes };
+            tempFree = player.freePoints;
+            attrPanel.style.display = 'block';
+            renderAttrPanel();
+        }
+
+        // 计算某套属性的三围（用于预览）
+        function previewStats(attr) {
+            const str = attr.strength, con = attr.constitution, spi = attr.spirit, phy = attr.agility;
+            return {
+                hp: str*3 + con*3 + spi*1 + phy*3,
+                mp: str*2 + con*2 + spi*8 + phy*2,
+                sp: str*2 + con*4 + spi*1 + phy*4,
+                atk: Math.floor(30 + str*1.2),
+                def: (con*0.7).toFixed(1),
+                eleAtk: (spi*1.1).toFixed(1),
+                crit: (str*0.0015*100).toFixed(1),
+                dmgReduce: (con*0.0015*100).toFixed(1)
+            };
+        }
+
+        function renderAttrPanel() {
+            const cls = classes[player.classId];
+            document.getElementById('attrHeader').textContent = `${cls.name} · Lv.${player.playerLevel}${player.playerLevel>=player.maxPlayerLevel?' (满级)':''}`;
+            document.getElementById('attrFreeInfo').innerHTML = `剩余属性点：<span style="color:#ffd700;font-size:18px;">${tempFree}</span>　技能点：<span style="color:#87CEEB;">${player.skillPoints}</span>`;
+            // 四维行
+            const list = document.getElementById('attrFourList');
+            list.innerHTML = '';
+            attrMeta.forEach(m => {
+                const val = tempAttr[m.key];
+                const orig = player.attributes[m.key];
+                const diff = val - orig;
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.35);padding:6px 10px;border-radius:8px;border:1px solid ' + m.color + '40;';
+                row.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="font-size:18px;">${m.icon}</span>
+                        <span style="color:${m.color};font-weight:bold;font-size:14px;">${m.name}</span>
+                        <span style="color:#888;font-size:10px;">${m.desc}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="color:#fff;font-size:16px;font-weight:bold;min-width:44px;text-align:right;">${val}${diff>0?`<span style="color:#90EE90;font-size:11px;">(+${diff})</span>`:''}</span>
+                        <button class="attr-minus" data-key="${m.key}" style="width:26px;height:26px;background:${diff>0?'#8b4513':'#444'};color:#fff;border:1px solid #d4af37;border-radius:4px;cursor:${diff>0?'pointer':'not-allowed'};font-weight:bold;">−</button>
+                        <button class="attr-plus" data-key="${m.key}" style="width:26px;height:26px;background:${tempFree>0?'#228B22':'#444'};color:#fff;border:1px solid #32CD32;border-radius:4px;cursor:${tempFree>0?'pointer':'not-allowed'};font-weight:bold;">＋</button>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+            // 三围预览
+            const s = previewStats(tempAttr);
+            document.getElementById('attrStats').innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;">
+                    <span>❤️ 生命 HP：<span style="color:#ff6b6b;font-weight:bold;">${s.hp}</span></span>
+                    <span>💧 精气 MP：<span style="color:#4dabf7;font-weight:bold;">${s.mp}</span></span>
+                    <span>⚡ 体力 SP：<span style="color:#ffd43b;font-weight:bold;">${s.sp}</span></span>
+                    <span>⚔️ 物攻：<span style="color:#ff8787;font-weight:bold;">${s.atk}</span></span>
+                    <span>🛡️ 物防：<span style="color:#DAA520;font-weight:bold;">${s.def}</span></span>
+                    <span>🔮 元素攻击：<span style="color:#748ffc;font-weight:bold;">${s.eleAtk}</span></span>
+                    <span>💥 暴击率：<span style="color:#ff8787;font-weight:bold;">${s.crit}%</span></span>
+                    <span>🔰 伤害减免：<span style="color:#DAA520;font-weight:bold;">${s.dmgReduce}%</span></span>
+                </div>
+            `;
+            // 绑定加减按钮
+            list.querySelectorAll('.attr-plus').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (tempFree <= 0) return;
+                    tempAttr[btn.dataset.key]++;
+                    tempFree--;
+                    renderAttrPanel();
+                });
+            });
+            list.querySelectorAll('.attr-minus').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.dataset.key;
+                    if (tempAttr[key] <= player.attributes[key]) return; // 只能减本次加的
+                    tempAttr[key]--;
+                    tempFree++;
+                    renderAttrPanel();
+                });
+            });
+        }
+
+        // 确认分配
+        document.getElementById('applyAttrBtn').addEventListener('click', () => {
+            player.attributes = { ...tempAttr };
+            player.freePoints = tempFree;
+            calculatePlayerStats();
+            player.hp = Math.min(player.hp, player.maxHp);
+            saveAttrProgress();
+            createFloatingText(player.x, player.y - 40, '属性已更新', '#90EE90');
+            updateUI();
+            renderAttrPanel();
+        });
+
+        // 一键洗点（重置为初始值，返还所有已用点数）
+        document.getElementById('resetAttrBtn').addEventListener('click', () => {
+            // 计算总点数 = (等级-1)×5
+            const totalPoints = (player.playerLevel - 1) * 5;
+            tempAttr = { ...ATTR_BASE };
+            tempFree = totalPoints;
+            renderAttrPanel();
+            createFloatingText(player.x, player.y - 40, '已重置，点确认生效', '#ffd700');
+        });
+
+        // 模板一键套用
+        document.querySelectorAll('.tpl-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const totalPoints = (player.playerLevel - 1) * 5;
+                tempAttr = { ...ATTR_BASE };
+                tempFree = totalPoints;
+                if (btn.dataset.tpl === 'power') {
+                    tempAttr.strength += tempFree; // 全堆力量
+                } else if (btn.dataset.tpl === 'element') {
+                    tempAttr.spirit += tempFree;   // 全堆元神
+                }
+                tempFree = 0;
+                renderAttrPanel();
+                createFloatingText(player.x, player.y - 40, '模板已套用，点确认生效', '#ffd700');
+            });
+        });
+
+        // 保存/读取属性进度
+        function saveAttrProgress() {
+            try {
+                localStorage.setItem('attrProgress', JSON.stringify({
+                    attributes: player.attributes,
+                    freePoints: player.freePoints,
+                    skillPoints: player.skillPoints,
+                    playerLevel: player.playerLevel,
+                    playerExp: player.playerExp,
+                    expToNext: player.expToNext
+                }));
+            } catch(e) {}
+        }
+        function loadAttrProgress() {
+            try {
+                const data = JSON.parse(localStorage.getItem('attrProgress') || '{}');
+                if (data.attributes) {
+                    player.attributes = data.attributes;
+                    player.freePoints = data.freePoints || 0;
+                    player.skillPoints = data.skillPoints || 0;
+                    player.playerLevel = data.playerLevel || 1;
+                    player.playerExp = data.playerExp || 0;
+                    player.expToNext = data.expToNext || 100;
+                }
+            } catch(e) {}
+        }
 
         // 渲染地图面板内容
         function updateMapPanel() {
@@ -5534,6 +5818,11 @@
             updateDamageTexts();
             updateFloatingTexts();
             updateMythicSkill(); // 神话技能更新
+            // 每20帧刷新一次精气显示
+            if (frameCount % 20 === 0) {
+                const mpEl = document.getElementById('playerMp');
+                if (mpEl) mpEl.textContent = Math.floor(player.mp || 0);
+            }
             // 连击计时器更新
             if (comboTimer > 0) {
                 comboTimer--;
@@ -5584,8 +5873,11 @@
         // 初始化：生成上古石到背包（测试用）
         bag.items.push({ type: 'ancientStone', name: '上古石', count: 9999, icon: '🗿' });
 
+        // 加载属性进度（等级/四维/自由点）
+        loadAttrProgress();
         // 初始化角色属性
         calculatePlayerStats();
+        player.mp = player.maxMp; // 初始满蓝
         // 加载地图进度（默认桃源林·林间小径）
         loadMapProgress();
         updateUI();
