@@ -280,7 +280,7 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="comboBtn" style="background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#ff9999;border:1px solid #ff4444;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 连招</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
         </div>
         
         <!-- 装备栏界面 -->
@@ -376,6 +376,30 @@
                 <button id="resetAttrBtn" style="flex:1;background:linear-gradient(135deg,#8b4513,#5a2d0a);color:#ffd700;border:1px solid #d4af37;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">🔄 一键洗点</button>
             </div>
             <button id="closeAttr" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
+        </div>
+
+        <!-- ⚔️ 连招编辑器面板 -->
+        <div id="comboPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(30,10,10,0.98),rgba(45,15,15,0.98));border:3px solid #ff4444;border-radius:15px;padding:16px;z-index:10001;box-shadow:0 0 40px rgba(255,68,68,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:560px;max-height:90vh;overflow-y:auto;">
+            <div style="text-align:center;color:#ff6666;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(255,68,68,0.6);">⚔️ 连招编辑器</div>
+            <div style="text-align:center;color:#aaa;font-size:11px;margin-bottom:10px;">攻击削减怪物韧性 → 韧性归零【破防】→ 挑飞技使其浮空 → 空中连击 → 收尾技</div>
+
+            <div style="color:#ffd700;font-size:13px;margin-bottom:6px;font-weight:bold;">【技能库】点击添加到连招序列</div>
+            <div id="comboSkillLib" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px;"></div>
+
+            <div style="color:#ffd700;font-size:13px;margin-bottom:6px;font-weight:bold;">【我的连招序列】点击移除</div>
+            <div id="comboSeqList" style="display:flex;flex-wrap:wrap;gap:6px;min-height:50px;background:rgba(0,0,0,0.35);border:1px dashed #ff4444;border-radius:8px;padding:8px;margin-bottom:12px;"></div>
+
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+                <span style="color:#ccc;font-size:12px;">释放模式：</span>
+                <label style="color:#90EE90;font-size:12px;cursor:pointer;"><input type="radio" name="comboMode" value="semi" checked> 半自动(空格起手)</label>
+                <label style="color:#87CEEB;font-size:12px;cursor:pointer;"><input type="radio" name="comboMode" value="auto"> 全自动循环</label>
+            </div>
+
+            <div style="display:flex;gap:8px;">
+                <button id="clearComboBtn" style="flex:1;background:linear-gradient(135deg,#8b4513,#5a2d0a);color:#ffd700;border:1px solid #d4af37;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">🗑️ 清空</button>
+                <button id="saveComboBtn" style="flex:2;background:linear-gradient(135deg,#B22222,#7a1010);color:#fff;border:1px solid #ff4444;padding:8px;cursor:pointer;font-family:inherit;border-radius:6px;font-weight:bold;">💾 保存连招</button>
+            </div>
+            <button id="closeCombo" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#fff;border:1px solid #ff4444;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
         </div>
     </div>
 
@@ -1658,6 +1682,69 @@
         let currentSubMap = null; // 当前小地图
         let unlockedSeals = []; // 已获得的通关印记
         let inBossBattle = false; // 是否在Boss战中
+
+        // ==================================================
+        // ⚔️ 破韧浮空连招系统
+        // ==================================================
+        // 连招技能库（type: break削韧 / launch挑飞 / air空中连击 / finish收尾）
+        const comboSkills = {
+            zhongZhan: {
+                id: 'zhongZhan', name: '重斩', icon: '🔨', type: 'break', color: '#CD853F',
+                desc: '对目标猛击，造成150%物攻并大幅削韧30', damageMult: 1.5, toughnessDmg: 30,
+                cost: 15, cd: 60
+            },
+            zhenDi: {
+                id: 'zhenDi', name: '震地', icon: '🌊', type: 'break', color: '#8B7355',
+                desc: '震荡地面，对周围敌人造成100%物攻并群体削韧20', damageMult: 1.0, toughnessDmg: 20,
+                aoe: true, range: 130, cost: 25, cd: 120
+            },
+            longTaiTou: {
+                id: 'longTaiTou', name: '龙抬头', icon: '🚀', type: 'launch', color: '#FFD700',
+                desc: '挑起破防的敌人使其浮空2秒（未破防则削韧40）。浮空目标受伤+50%', damageMult: 1.2, toughnessDmg: 40,
+                airborneTime: 120, cost: 30, cd: 90
+            },
+            xuanFengTa: {
+                id: 'xuanFengTa', name: '旋风踏', icon: '🌪️', type: 'launch', color: '#4682B4',
+                desc: '卷起周围所有破防敌人浮空1.5秒（未破防则群体削韧25）', damageMult: 1.0, toughnessDmg: 25,
+                aoe: true, range: 120, airborneTime: 90, cost: 45, cd: 180
+            },
+            lingKongZhan: {
+                id: 'lingKongZhan', name: '凌空斩', icon: '⚡', type: 'air', color: '#00BFFF',
+                desc: '对浮空目标连续追加3段剑气，每段100%物攻', damageMult: 1.0, hits: 3,
+                cost: 20, cd: 60
+            },
+            baiJianCi: {
+                id: 'baiJianCi', name: '百剑刺', icon: '🗡️', type: 'air', color: '#9370DB',
+                desc: '对浮空目标高频突刺8段，每段60%物攻', damageMult: 0.6, hits: 8,
+                cost: 35, cd: 120
+            },
+            luoLongZhan: {
+                id: 'luoLongZhan', name: '落龙斩', icon: '💥', type: 'finish', color: '#FF4500',
+                desc: '将浮空目标砸向地面，造成400%物攻范围爆发+眩晕', damageMult: 4.0,
+                aoe: true, range: 100, cost: 40, cd: 150
+            },
+            tianBeng: {
+                id: 'tianBeng', name: '天崩', icon: '☄️', type: 'finish', color: '#DC143C',
+                desc: '天降陨石砸向全场浮空敌人，造成500%物攻', damageMult: 5.0,
+                aoe: true, range: 200, cost: 60, cd: 240
+            }
+        };
+
+        // 玩家配置的连招序列（技能id数组，默认给一套）
+        let comboSequence = ['zhongZhan', 'longTaiTou', 'lingKongZhan', 'luoLongZhan'];
+        // 连招释放模式：'auto' 自动循环 | 'manual' 手动触发
+        let comboMode = 'semi'; // semi=半自动（削韧自动，破防后手动起手）
+        // 连招运行状态
+        let comboState = {
+            active: false,       // 连招进行中
+            index: 0,            // 当前执行到序列第几个
+            target: null,        // 连招锁定目标
+            castTimer: 0,        // 当前招式后摇计时
+            hitCount: 0          // 连击数
+        };
+        // 各技能冷却计时（帧）
+        let comboCooldowns = {};
+
         let activeMythicSkill = null;
         let mythicSkillState = {
             cooldownTimer: 0,
@@ -2149,7 +2236,16 @@
                 damage: finalDamage,
                 moveSpeed: finalSpeed,
                 attackCooldown: 0,
-                id: Math.random()
+                id: Math.random(),
+                // ===== 韧性/破防/浮空系统 =====
+                maxToughness: getToughnessByTier(config.tier),
+                toughness: getToughnessByTier(config.tier),
+                broken: false,           // 是否破防
+                brokenTimer: 0,          // 破防硬直计时
+                toughnessRegenDelay: 0,  // 韧性恢复延迟（受击后重置）
+                airborne: false,         // 是否浮空
+                airborneTimer: 0,        // 浮空持续帧
+                airborneOffset: 0        // 浮空视觉偏移
             };
             
             enemies.push(enemy);
@@ -2157,6 +2253,76 @@
             // 妖皇和魔神出现时的警示
             if (type === 'emperor' || type === 'god') {
                 showBossWarning(config.name, config.color);
+            }
+            return enemy;
+        }
+
+        // 根据 tier 获取韧性值
+        function getToughnessByTier(tier) {
+            const table = { 1: 30, 2: 50, 3: 80, 4: 120, 5: 180, 6: 260, 7: 400, 8: 800 };
+            return table[tier] || 50;
+        }
+
+        // 破防后硬直帧数
+        function getBrokenStunByTier(tier) {
+            const table = { 1: 90, 2: 90, 3: 72, 4: 72, 5: 60, 6: 60, 7: 48, 8: 40 };
+            return table[tier] || 72;
+        }
+
+        // 削减韧性（普攻/技能命中时调用）
+        function reduceToughness(enemy, amount) {
+            if (!enemy || enemy.broken || enemy.airborne) return; // 已破防/浮空中不再削
+            if (enemy.maxToughness == null) return;
+            enemy.toughness -= amount;
+            enemy.toughnessRegenDelay = 180; // 3秒内不恢复
+            if (enemy.toughness <= 0) {
+                enemy.toughness = 0;
+                triggerBreak(enemy);
+            }
+        }
+
+        // 触发破防（进入硬直，可被挑飞）
+        function triggerBreak(enemy) {
+            enemy.broken = true;
+            enemy.brokenTimer = getBrokenStunByTier(enemy.tier);
+            createFloatingText(enemy.x, enemy.y - 40, '💥破防!', '#FFD700');
+            createParticles(enemy.x, enemy.y, '#FFD700', 20);
+        }
+
+        // 更新单个敌人的韧性/破防/浮空状态（每帧调用）
+        function updateEnemyToughness(enemy) {
+            if (enemy.maxToughness == null) return;
+            // 浮空计时
+            if (enemy.airborne) {
+                enemy.airborneTimer--;
+                // 浮空视觉偏移：先升后降
+                const total = enemy.airborneTotal || 120;
+                const progress = 1 - (enemy.airborneTimer / total);
+                enemy.airborneOffset = Math.sin(progress * Math.PI) * 18; // 最高抬起18px
+                if (enemy.airborneTimer <= 0) {
+                    enemy.airborne = false;
+                    enemy.airborneOffset = 0;
+                    // 落地后韧性恢复满、解除破防
+                    enemy.broken = false;
+                    enemy.toughness = enemy.maxToughness;
+                }
+                return;
+            }
+            // 破防硬直计时
+            if (enemy.broken) {
+                enemy.brokenTimer--;
+                if (enemy.brokenTimer <= 0) {
+                    // 硬直结束未被挑飞：恢复
+                    enemy.broken = false;
+                    enemy.toughness = enemy.maxToughness;
+                }
+                return;
+            }
+            // 韧性自然恢复
+            if (enemy.toughnessRegenDelay > 0) {
+                enemy.toughnessRegenDelay--;
+            } else if (enemy.toughness < enemy.maxToughness) {
+                enemy.toughness = Math.min(enemy.maxToughness, enemy.toughness + enemy.maxToughness * 0.005);
             }
         }
         
@@ -2707,8 +2873,33 @@
                 }
                 const distToPlayer = Math.hypot(enemy.x - player.x, enemy.y - player.y);
                 const sizeMod = sizeModifiers[enemy.sizeType];
-                const scale = sizeMod.scale;
-                const scaledRadius = enemy.radius * scale;
+                let scale = sizeMod.scale;
+                let scaledRadius = enemy.radius * scale;
+
+                // ===== 浮空视觉：绘制地面阴影 + 抬升主体 + 放大 =====
+                let _realY = enemy.y;
+                if (enemy.airborne && enemy.airborneOffset > 0) {
+                    // 地面阴影（留在原地，随高度变小变淡）
+                    const shadowScale = 1 - enemy.airborneOffset / 40;
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+                    ctx.beginPath();
+                    ctx.ellipse(enemy.x, _realY + scaledRadius * 0.6, scaledRadius * shadowScale, scaledRadius * 0.4 * shadowScale, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    // 抬升 + 放大
+                    enemy.y = _realY - enemy.airborneOffset;
+                    scale *= 1.35;
+                    scaledRadius = enemy.radius * scale;
+                    // 浮空金色光圈
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255,215,0,0.6)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(enemy.x, enemy.y, scaledRadius + 6, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                }
                 
                 if (distToPlayer < enemy.attackRange + 50 && playerAlive) {
                     ctx.strokeStyle = 'rgba(139, 0, 0, 0.15)';
@@ -2769,6 +2960,47 @@
                 const hpPercent = enemy.hp / enemy.maxHp;
                 ctx.fillStyle = hpPercent > 0.5 ? '#22c55e' : (hpPercent > 0.25 ? '#eab308' : '#dc2626');
                 ctx.fillRect(enemy.x - barWidth/2, enemy.y - scaledRadius - 12, barWidth * hpPercent, barHeight);
+
+                // ===== 韧性条（血条下方）=====
+                if (enemy.maxToughness != null && !enemy.airborne) {
+                    const tBarY = enemy.y - scaledRadius - 7;
+                    const tPercent = Math.max(0, enemy.toughness / enemy.maxToughness);
+                    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                    ctx.fillRect(enemy.x - barWidth/2, tBarY, barWidth, 3);
+                    if (enemy.broken) {
+                        // 破防：红色闪烁
+                        const blink = 0.5 + Math.sin(frameCount * 0.4) * 0.5;
+                        ctx.fillStyle = `rgba(255,60,60,${blink})`;
+                        ctx.fillRect(enemy.x - barWidth/2, tBarY, barWidth, 3);
+                    } else {
+                        // 正常：黄色韧性
+                        ctx.fillStyle = '#FFD700';
+                        ctx.fillRect(enemy.x - barWidth/2, tBarY, barWidth * tPercent, 3);
+                    }
+                }
+                // 破防状态文字标识
+                if (enemy.broken && !enemy.airborne) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = 'bold 9px SimSun';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('可挑飞', enemy.x, enemy.y - scaledRadius - 22);
+                    ctx.textAlign = 'left';
+                }
+
+                // 恢复浮空临时修改的 y 坐标
+                enemy.y = _realY;
+            });
+            // 连招扩散圆环特效
+            comboEffects.forEach(ef => {
+                const p = 1 - ef.life / ef.maxLife;
+                ctx.save();
+                ctx.strokeStyle = ef.color;
+                ctx.globalAlpha = 1 - p;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(ef.x, ef.y, ef.range * p, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
             });
         }
 
@@ -3004,9 +3236,16 @@
 
         function updateEnemies() {
             enemies.forEach(enemy => {
-                // Boss AI 独立执行
-                if (enemy.isBoss) {
+                // 韧性/破防/浮空状态更新
+                updateEnemyToughness(enemy);
+                // Boss AI 独立执行（浮空时不执行）
+                if (enemy.isBoss && !enemy.airborne) {
                     updateBossAI(enemy);
+                }
+                // 浮空或破防硬直：不能移动、不能攻击
+                if (enemy.airborne || enemy.broken) {
+                    if (enemy.attackCooldown > 0) enemy.attackCooldown--;
+                    return;
                 }
                 // 冰封万里：冻结中的敌人不能移动和攻击
                 const isFrozen = mythicSkillState.frozenTimer[enemy.id] > 0;
@@ -3365,6 +3604,10 @@
                             enemy.hp -= result.damage;
                             createDamageText(enemy.x, enemy.y - 20, result.damage, true, result.isCrit);
                             createParticles(p.x, p.y, result.isCrit ? '#FF4500' : '#ffd700', result.isCrit ? 12 : 6);
+                            // 普攻削韧（剑气+5，暴击额外+3）
+                            if (p.type === 'sword' || p.type === 'wanJianSword') {
+                                reduceToughness(enemy, result.isCrit ? 8 : 5);
+                            }
                             // 神话技能：三昧真火 - 命中时叠加燃烧（只对普通剑气，不对天罡飞剑触发重复）
                             if (p.type === 'sword' || p.type === 'wanJianSword') {
                                 applySanWeiBurn(enemy);
@@ -3503,6 +3746,231 @@
         }
 
         // ========== 神话技能核心更新函数 ==========
+        // ==================================================
+        // ⚔️ 连招系统执行逻辑
+        // ==================================================
+        let comboEffects = [];
+        // 对单个敌人造成直接伤害（连招技能用）
+        function dealComboDamage(enemy, rawDamage, isCrit) {
+            if (!enemy) return;
+            let dmg = rawDamage;
+            // 浮空/破防增伤50%
+            if (enemy.airborne || enemy.broken) dmg *= 1.5;
+            dmg = Math.max(1, Math.floor(dmg));
+            enemy.hp -= dmg;
+            createDamageText(enemy.x, enemy.y - 25, dmg, true, isCrit, isCrit ? '#FF4500' : '#00BFFF');
+            comboState.hitCount++;
+            checkComboKill(enemy);
+        }
+
+        // 检查连招击杀
+        function checkComboKill(enemy) {
+            if (enemy.hp <= 0 && enemies.includes(enemy)) {
+                createParticles(enemy.x, enemy.y, enemy.color || '#FFD700', 22);
+                createFloatingText(enemy.x, enemy.y - 30, '斩!', '#ffd700');
+                addScoreOnKill(enemy.score || 0);
+                kills++;
+                enemies = enemies.filter(e => e !== enemy);
+                if (enemy.isBoss) onBossDefeated(enemy);
+                else onEnemyKilled(enemy);
+                if (comboState.target === enemy) comboState.target = null;
+                updateUI();
+            }
+        }
+
+        // 连击数伤害加成
+        function getComboMultiplier() {
+            const c = comboState.hitCount;
+            if (c >= 7) return 2.0;
+            if (c >= 5) return 1.5;
+            if (c >= 3) return 1.2;
+            return 1.0;
+        }
+
+        // 找最近的敌人（连招起手目标）
+        function findNearestEnemy(maxDist) {
+            let nearest = null, nd = maxDist || Infinity;
+            enemies.forEach(e => {
+                const d = Math.hypot(e.x - player.x, e.y - player.y);
+                if (d < nd) { nd = d; nearest = e; }
+            });
+            return nearest;
+        }
+
+        // 连招特效（扩散圆环）
+        function createComboEffect(x, y, color, range) {
+            comboEffects.push({ x, y, color, range, life: 20, maxLife: 20 });
+        }
+
+        // 执行单个连招技能
+        function executeComboSkill(skillId, target) {
+            const skill = comboSkills[skillId];
+            if (!skill) return false;
+            if (comboCooldowns[skillId] > 0) return false;
+            if (player.mp < skill.cost) {
+                createFloatingText(player.x, player.y - 70, '💧精气不足', '#4dabf7');
+                return false;
+            }
+            player.mp -= skill.cost;
+            comboCooldowns[skillId] = skill.cd;
+            const atk = player.attackDamage;
+            const comboMult = getComboMultiplier();
+
+            switch (skill.type) {
+                case 'break': {
+                    if (skill.aoe) {
+                        const hit = enemies.filter(e => Math.hypot(e.x-player.x, e.y-player.y) <= skill.range);
+                        hit.forEach(e => {
+                            dealComboDamage(e, atk * skill.damageMult * comboMult, false);
+                            reduceToughness(e, skill.toughnessDmg);
+                        });
+                        createComboEffect(player.x, player.y, skill.color, skill.range);
+                    } else {
+                        const t = target || findNearestEnemy(player.attackRange + 40);
+                        if (t) {
+                            dealComboDamage(t, atk * skill.damageMult * comboMult, false);
+                            reduceToughness(t, skill.toughnessDmg);
+                            createComboEffect(t.x, t.y, skill.color, 40);
+                        }
+                    }
+                    createFloatingText(player.x, player.y - 55, `${skill.icon}${skill.name}`, skill.color);
+                    break;
+                }
+                case 'launch': {
+                    const applyLaunch = (e) => {
+                        if (e.noAirborne) {
+                            dealComboDamage(e, atk * skill.damageMult * comboMult, true);
+                            reduceToughness(e, skill.toughnessDmg);
+                            return;
+                        }
+                        if (e.broken) {
+                            e.airborne = true;
+                            e.airborneTimer = skill.airborneTime;
+                            e.airborneTotal = skill.airborneTime;
+                            e.broken = false;
+                            dealComboDamage(e, atk * skill.damageMult * comboMult, true);
+                            createFloatingText(e.x, e.y - 45, '🚀浮空!', '#FFD700');
+                            createParticles(e.x, e.y, '#FFD700', 15);
+                        } else {
+                            dealComboDamage(e, atk * skill.damageMult * comboMult, false);
+                            reduceToughness(e, skill.toughnessDmg);
+                        }
+                    };
+                    if (skill.aoe) {
+                        const hit = enemies.filter(e => Math.hypot(e.x-player.x, e.y-player.y) <= skill.range);
+                        hit.forEach(applyLaunch);
+                        createComboEffect(player.x, player.y, skill.color, skill.range);
+                    } else {
+                        const t = target || findNearestEnemy(player.attackRange + 40);
+                        if (t) applyLaunch(t);
+                    }
+                    createFloatingText(player.x, player.y - 55, `${skill.icon}${skill.name}`, skill.color);
+                    break;
+                }
+                case 'air': {
+                    const t = (target && target.airborne) ? target : enemies.find(e => e.airborne);
+                    if (t && t.airborne) {
+                        for (let i = 0; i < skill.hits; i++) {
+                            setTimeout(() => {
+                                if (enemies.includes(t)) {
+                                    dealComboDamage(t, atk * skill.damageMult * comboMult, i === skill.hits-1);
+                                    createParticles(t.x, t.y, skill.color, 4);
+                                }
+                            }, i * 60);
+                        }
+                        createFloatingText(player.x, player.y - 55, `${skill.icon}${skill.name}`, skill.color);
+                    } else {
+                        player.mp += skill.cost;
+                        comboCooldowns[skillId] = 0;
+                        return false;
+                    }
+                    break;
+                }
+                case 'finish': {
+                    const airborneEnemies = enemies.filter(e => e.airborne);
+                    const targets = skill.aoe ? airborneEnemies : (target && target.airborne ? [target] : airborneEnemies.slice(0,1));
+                    if (targets.length > 0) {
+                        targets.forEach(e => {
+                            dealComboDamage(e, atk * skill.damageMult * comboMult, true);
+                            e.airborne = false;
+                            e.airborneOffset = 0;
+                            e.broken = true;
+                            e.brokenTimer = 60;
+                            createComboEffect(e.x, e.y, skill.color, skill.range || 80);
+                            createParticles(e.x, e.y, skill.color, 25);
+                        });
+                        createFloatingText(player.x, player.y - 55, `${skill.icon}${skill.name}!`, skill.color);
+                    } else {
+                        player.mp += skill.cost;
+                        comboCooldowns[skillId] = 0;
+                        return false;
+                    }
+                    break;
+                }
+            }
+            return true;
+        }
+
+        // 半自动连招主循环（每帧调用）
+        function updateComboSystem() {
+            for (const k in comboCooldowns) {
+                if (comboCooldowns[k] > 0) comboCooldowns[k]--;
+            }
+            // 连招特效更新
+            comboEffects = comboEffects.filter(ef => { ef.life--; return ef.life > 0; });
+            if (!playerAlive) { comboState.active = false; return; }
+
+            if (comboState.active) {
+                if (comboState.castTimer > 0) { comboState.castTimer--; return; }
+                if (comboState.index >= comboSequence.length) {
+                    endCombo();
+                    return;
+                }
+                const skillId = comboSequence[comboState.index];
+                executeComboSkill(skillId, comboState.target);
+                comboState.index++;
+                comboState.castTimer = 36; // 每招间隔0.6秒
+                return;
+            }
+            // 全自动模式：附近有敌人则自动起手连招
+            if (comboMode === 'auto' && frameCount % 30 === 0) {
+                const target = findNearestEnemy(player.attackRange + 60);
+                if (target) triggerCombo();
+            }
+        }
+
+        // 手动触发连招（空格/按钮）
+        function triggerCombo() {
+            if (comboState.active) return;
+            if (comboSequence.length === 0) {
+                createFloatingText(player.x, player.y - 60, '未配置连招', '#ff4444');
+                return;
+            }
+            const target = findNearestEnemy(player.attackRange + 60);
+            if (!target) {
+                createFloatingText(player.x, player.y - 60, '附近无敌人', '#ff4444');
+                return;
+            }
+            comboState.active = true;
+            comboState.index = 0;
+            comboState.target = target;
+            comboState.castTimer = 0;
+            comboState.hitCount = 0;
+        }
+
+        function endCombo() {
+            if (comboState.hitCount >= 7) {
+                createFloatingText(player.x, player.y - 70, `✨完美连招 ${comboState.hitCount}连!`, '#FFD700');
+                addScoreOnKill(comboState.hitCount * 5);
+            } else if (comboState.hitCount >= 3) {
+                createFloatingText(player.x, player.y - 70, `${comboState.hitCount}连击!`, '#00BFFF');
+            }
+            comboState.active = false;
+            comboState.index = 0;
+            comboState.target = null;
+            comboState.hitCount = 0;
+        }
+
         // 主动神话技能的精气(MP)消耗表
         const mythicMpCost = {
             tianGang: 40,   // 天罡剑阵
@@ -4293,6 +4761,11 @@
                     attrPanel.style.display = 'none';
                 }
             }
+            // 空格键：手动触发连招
+            if (e.code === 'Space') {
+                e.preventDefault();
+                triggerCombo();
+            }
         });
 
         function openAttrPanel() {
@@ -4425,6 +4898,113 @@
                     player.playerExp = data.playerExp || 0;
                     player.expToNext = data.expToNext || 100;
                 }
+            } catch(e) {}
+        }
+
+        // ==================================================
+        // ⚔️ 连招编辑器 UI 逻辑
+        // ==================================================
+        const comboBtn = document.getElementById('comboBtn');
+        const comboPanel = document.getElementById('comboPanel');
+        const closeCombo = document.getElementById('closeCombo');
+        const comboTypeMeta = {
+            break: { label: '削韧', color: '#CD853F' },
+            launch: { label: '挑飞', color: '#FFD700' },
+            air: { label: '空连', color: '#00BFFF' },
+            finish: { label: '收尾', color: '#FF4500' }
+        };
+
+        comboBtn.addEventListener('click', () => {
+            comboPanel.style.display = 'block';
+            renderComboPanel();
+        });
+        closeCombo.addEventListener('click', () => comboPanel.style.display = 'none');
+        comboPanel.addEventListener('click', (e) => {
+            if (e.target === comboPanel) comboPanel.style.display = 'none';
+        });
+
+        function renderComboPanel() {
+            // 技能库
+            const lib = document.getElementById('comboSkillLib');
+            lib.innerHTML = '';
+            Object.values(comboSkills).forEach(skill => {
+                const meta = comboTypeMeta[skill.type];
+                const card = document.createElement('div');
+                card.style.cssText = `background:linear-gradient(135deg,${skill.color}25,rgba(0,0,0,0.4));border:1px solid ${skill.color};border-radius:8px;padding:6px 8px;cursor:pointer;transition:all 0.15s;`;
+                card.onmouseover = () => card.style.transform = 'scale(1.03)';
+                card.onmouseout = () => card.style.transform = 'scale(1)';
+                card.innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="color:${skill.color};font-weight:bold;font-size:13px;">${skill.icon}${skill.name}</span>
+                        <span style="background:${meta.color};color:#000;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:bold;">${meta.label}</span>
+                    </div>
+                    <div style="color:#aaa;font-size:9px;margin-top:2px;line-height:1.3;">${skill.desc}</div>
+                    <div style="color:#4dabf7;font-size:9px;margin-top:2px;">💧${skill.cost} · CD ${(skill.cd/60).toFixed(1)}s</div>
+                `;
+                card.addEventListener('click', () => {
+                    comboSequence.push(skill.id);
+                    renderComboPanel();
+                });
+                lib.appendChild(card);
+            });
+            // 连招序列
+            const seq = document.getElementById('comboSeqList');
+            seq.innerHTML = '';
+            if (comboSequence.length === 0) {
+                seq.innerHTML = '<span style="color:#666;font-size:12px;">点击上方技能添加到连招…</span>';
+            }
+            comboSequence.forEach((sid, idx) => {
+                const skill = comboSkills[sid];
+                if (!skill) return;
+                const chip = document.createElement('div');
+                chip.style.cssText = `display:flex;align-items:center;gap:3px;background:${skill.color}30;border:1px solid ${skill.color};border-radius:6px;padding:4px 8px;cursor:pointer;`;
+                chip.innerHTML = `<span style="color:#888;font-size:10px;">${idx+1}</span><span style="color:${skill.color};font-weight:bold;font-size:12px;">${skill.icon}${skill.name}</span><span style="color:#ff6666;font-size:12px;margin-left:2px;">✕</span>`;
+                chip.addEventListener('click', () => {
+                    comboSequence.splice(idx, 1);
+                    renderComboPanel();
+                });
+                seq.appendChild(chip);
+                // 箭头连接
+                if (idx < comboSequence.length - 1) {
+                    const arrow = document.createElement('span');
+                    arrow.style.cssText = 'color:#ff4444;font-weight:bold;align-self:center;';
+                    arrow.textContent = '→';
+                    seq.appendChild(arrow);
+                }
+            });
+            // 模式单选
+            document.querySelectorAll('input[name="comboMode"]').forEach(r => {
+                r.checked = (r.value === comboMode);
+            });
+        }
+
+        // 清空连招
+        document.getElementById('clearComboBtn').addEventListener('click', () => {
+            comboSequence = [];
+            renderComboPanel();
+        });
+        // 保存连招
+        document.getElementById('saveComboBtn').addEventListener('click', () => {
+            const mode = document.querySelector('input[name="comboMode"]:checked');
+            comboMode = mode ? mode.value : 'semi';
+            saveComboProgress();
+            createFloatingText(player.x, player.y - 40, '连招已保存', '#ff6666');
+            comboPanel.style.display = 'none';
+        });
+
+        function saveComboProgress() {
+            try {
+                localStorage.setItem('comboProgress', JSON.stringify({
+                    sequence: comboSequence,
+                    mode: comboMode
+                }));
+            } catch(e) {}
+        }
+        function loadComboProgress() {
+            try {
+                const data = JSON.parse(localStorage.getItem('comboProgress') || '{}');
+                if (data.sequence) comboSequence = data.sequence;
+                if (data.mode) comboMode = data.mode;
             } catch(e) {}
         }
 
@@ -4665,7 +5245,13 @@
                 phaseIndex: 0,
                 skillTimers: {}, // 每个技能的冷却
                 bossLevel: bossData.level,
-                shape: 'boss'
+                shape: 'boss',
+                // 韧性系统（Boss韧性巨大，破防后短硬直，不可挑飞浮空）
+                maxToughness: bossData.hp * 0.15,
+                toughness: bossData.hp * 0.15,
+                broken: false, brokenTimer: 0, toughnessRegenDelay: 0,
+                airborne: false, airborneTimer: 0, airborneOffset: 0,
+                noAirborne: true // Boss 不能被挑飞
             };
             currentBoss = boss;
             enemies.push(boss);
@@ -5797,6 +6383,7 @@
             updateDamageTexts();
             updateFloatingTexts();
             updateMythicSkill(); // 神话技能更新
+            updateComboSystem(); // 连招系统更新
             // 每20帧刷新一次精气显示
             if (frameCount % 20 === 0) {
                 const mpEl = document.getElementById('playerMp');
@@ -5854,6 +6441,8 @@
 
         // 加载属性进度（等级/四维/自由点）
         loadAttrProgress();
+        // 加载连招配置
+        loadComboProgress();
         // 初始化角色属性
         calculatePlayerStats();
         player.mp = player.maxMp; // 初始满蓝
