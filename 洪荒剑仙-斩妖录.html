@@ -428,6 +428,7 @@
         let kills = 0;
         let score = 0;
         let frameCount = 0;
+        let waveCooldown = 0;   // 波次之间的冷却计时（帧），清怪后需等待才刷下一波
 
         // ========== 📊 战斗统计系统 ==========
         // 本局数据（每次重开/复活不清空，游戏页面刷新才重置）
@@ -2493,11 +2494,11 @@
         }
 
         function getWaveEnemyCount() {
-            if (wave <= 5) return 3 + wave;
-            if (wave <= 10) return 5 + wave;
-            if (wave <= 15) return 8 + wave;
-            if (wave <= 20) return 10 + wave;
-            return 15 + Math.floor(wave / 2);
+            if (wave <= 5) return 2 + Math.floor(wave / 2);
+            if (wave <= 10) return 4 + Math.floor(wave / 2);
+            if (wave <= 15) return 6 + Math.floor(wave / 2);
+            if (wave <= 20) return 8 + Math.floor(wave / 2);
+            return 10 + Math.floor(wave / 3);
         }
 
         function spawnWave() {
@@ -2512,7 +2513,7 @@
                     // 优先使用当前地图配置的怪物类型
                     const type = mapEnemyTypes ? mapEnemyTypes[Math.floor(Math.random() * mapEnemyTypes.length)] : getEnemyTypeByWave();
                     spawnEnemy(type);
-                }, i * 600);
+                }, i * 1000);
             }
         }
 
@@ -6634,10 +6635,17 @@
                     comboCount = 0;
                 }
             }
-            if (playerAlive && enemies.length === 0 && frameCount % 60 === 0 && !inBossBattle) {
-                wave++;
-                updateUI();
-                spawnWave();
+            if (playerAlive && enemies.length === 0 && !inBossBattle) {
+                // 场上清空后进入冷却，冷却结束再刷下一波（约3秒喘息）
+                waveCooldown++;
+                if (waveCooldown >= 180) {
+                    waveCooldown = 0;
+                    wave++;
+                    updateUI();
+                    spawnWave();
+                }
+            } else {
+                waveCooldown = 0;
             }
         }
 
