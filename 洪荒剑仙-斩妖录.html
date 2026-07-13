@@ -280,7 +280,7 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="comboBtn" style="background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#ff9999;border:1px solid #ff4444;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 连招</button> | <button id="statsBtn" style="background:linear-gradient(135deg,#1a4a8b,#0d2d5a);color:#87CEFA;border:1px solid #4DA6FF;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📈 统计</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="dungeonBtn" style="background:linear-gradient(135deg,#5a2d0d,#3a1c08);color:#FFB870;border:1px solid #FF8C00;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 副本</button> | <button id="craftBtn" style="background:linear-gradient(135deg,#2d5a3d,#0d3a24);color:#90EE90;border:1px solid #2E8B57;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🔨 锻造</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="talentBtn" style="background:linear-gradient(135deg,#6a1b9a,#38006b);color:#E1BEE7;border:1px solid #BA68C8;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🌳 天赋</button> | <button id="comboBtn" style="background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#ff9999;border:1px solid #ff4444;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 连招</button> | <button id="statsBtn" style="background:linear-gradient(135deg,#1a4a8b,#0d2d5a);color:#87CEFA;border:1px solid #4DA6FF;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📈 统计</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="dungeonBtn" style="background:linear-gradient(135deg,#5a2d0d,#3a1c08);color:#FFB870;border:1px solid #FF8C00;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 副本</button> | <button id="craftBtn" style="background:linear-gradient(135deg,#2d5a3d,#0d3a24);color:#90EE90;border:1px solid #2E8B57;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🔨 锻造</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
         </div>
         
         <!-- 装备栏界面 -->
@@ -380,6 +380,17 @@
             <button id="closeCraft" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#2d5a3d,#0d3a24);color:#fff;border:1px solid #2E8B57;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
         </div>
 
+        <!-- 🌳 剑客天赋面板 -->
+        <div id="talentPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(20,10,30,0.98),rgba(35,18,50,0.98));border:3px solid #BA68C8;border-radius:15px;padding:16px;z-index:10001;box-shadow:0 0 40px rgba(186,104,200,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:660px;max-height:88vh;overflow-y:auto;">
+            <div style="text-align:center;color:#E1BEE7;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(186,104,200,0.6);">🌳 剑客天赋</div>
+            <div id="talentPointInfo" style="text-align:center;color:#ccc;font-size:12px;margin-bottom:12px;"></div>
+            <div id="talentTreeContainer" style="display:flex;gap:10px;"></div>
+            <div style="text-align:center;margin-top:12px;">
+                <button id="resetTalentBtn" style="background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#fff;border:1px solid #ff6666;padding:5px 16px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:12px;font-weight:bold;">🔄 重置天赋（返还全部天赋点）</button>
+            </div>
+            <button id="closeTalent" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#6a1b9a,#38006b);color:#fff;border:1px solid #BA68C8;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
+        </div>
+
         <!-- 📊 属性面板 -->
         <div id="attrPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(25,20,10,0.98),rgba(40,30,15,0.98));border:3px solid #b8860b;border-radius:15px;padding:16px;z-index:10001;box-shadow:0 0 40px rgba(255,215,0,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:420px;max-height:90vh;overflow-y:auto;">
             <div style="text-align:center;color:#ffd700;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(255,215,0,0.6);">📊 人物属性</div>
@@ -400,7 +411,8 @@
             <div style="text-align:center;color:#ff6666;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(255,68,68,0.6);">⚔️ 连招编辑器</div>
             <div style="text-align:center;color:#aaa;font-size:11px;margin-bottom:10px;">攻击削减怪物韧性 → 韧性归零【破防】→ 挑飞技使其浮空 → 空中连击 → 收尾技</div>
 
-            <div style="color:#ffd700;font-size:13px;margin-bottom:6px;font-weight:bold;">【技能库】点击添加到连招序列</div>
+            <div style="color:#ffd700;font-size:13px;margin-bottom:6px;font-weight:bold;">【技能库】点击加入连招 · 消耗技能点升级</div>
+            <div id="comboSkillPointInfo" style="text-align:center;color:#ccc;font-size:11px;margin-bottom:6px;"></div>
             <div id="comboSkillLib" style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px;"></div>
 
             <div style="color:#ffd700;font-size:13px;margin-bottom:6px;font-weight:bold;">【我的连招序列】点击移除</div>
@@ -542,6 +554,46 @@
             }
         };
 
+        // ========== P2 剑客天赋树 ==========
+        // 3 条路线，每条4个节点。maxRank=最大等级，cost=每级消耗天赋点，
+        // requires=前置节点id(需先点满)，effect=效果类型，perRank=每级效果值
+        const talentTree = {
+            // === 路线1：力斩（输出）===
+            t_atk: { line: 'power', tier: 0, name: '淬体', icon: '💪', maxRank: 5, cost: 1, requires: null,
+                     effect: 'atkPct', perRank: 0.03, desc: '物攻 +3%/级' },
+            t_crit: { line: 'power', tier: 1, name: '锐锋', icon: '🗡️', maxRank: 5, cost: 1, requires: 't_atk',
+                      effect: 'crit', perRank: 0.02, desc: '暴击率 +2%/级' },
+            t_critdmg: { line: 'power', tier: 2, name: '裂伤', icon: '💥', maxRank: 5, cost: 1, requires: 't_crit',
+                         effect: 'critDmg', perRank: 0.1, desc: '暴击伤害 +10%/级' },
+            t_power_ult: { line: 'power', tier: 3, name: '剑意通神', icon: '⚔️', maxRank: 1, cost: 3, requires: 't_critdmg',
+                           effect: 'atkPct', perRank: 0.15, desc: '物攻 +15%（终极）' },
+
+            // === 路线2：浮空连击（连击强化）===
+            t_combodmg: { line: 'combo', tier: 0, name: '连招精通', icon: '🌀', maxRank: 5, cost: 1, requires: null,
+                          effect: 'comboDmgPct', perRank: 0.04, desc: '连招伤害 +4%/级' },
+            t_air: { line: 'combo', tier: 1, name: '凌空', icon: '🚀', maxRank: 5, cost: 1, requires: 't_combodmg',
+                     effect: 'airborneDmgPct', perRank: 0.05, desc: '对浮空/破防目标额外 +5%/级' },
+            t_tough: { line: 'combo', tier: 2, name: '破韧', icon: '🔨', maxRank: 5, cost: 1, requires: 't_air',
+                       effect: 'toughDmgPct', perRank: 0.08, desc: '削韧效率 +8%/级' },
+            t_combo_ult: { line: 'combo', tier: 3, name: '万剑归宗', icon: '✨', maxRank: 1, cost: 3, requires: 't_tough',
+                           effect: 'comboDmgPct', perRank: 0.2, desc: '连招伤害 +20%（终极）' },
+
+            // === 路线3：生存续航 ===
+            t_hp: { line: 'life', tier: 0, name: '铁骨', icon: '🛡️', maxRank: 5, cost: 1, requires: null,
+                    effect: 'hpPct', perRank: 0.04, desc: '气血上限 +4%/级' },
+            t_def: { line: 'life', tier: 1, name: '御体', icon: '🧱', maxRank: 5, cost: 1, requires: 't_hp',
+                     effect: 'defFlat', perRank: 3, desc: '物防 +3/级' },
+            t_reduce: { line: 'life', tier: 2, name: '金身', icon: '🟡', maxRank: 5, cost: 1, requires: 't_def',
+                        effect: 'dmgReduce', perRank: 0.015, desc: '伤害减免 +1.5%/级' },
+            t_life_ult: { line: 'life', tier: 3, name: '不灭金身', icon: '🌟', maxRank: 1, cost: 3, requires: 't_reduce',
+                          effect: 'hpPct', perRank: 0.15, desc: '气血上限 +15%（终极）' }
+        };
+        const talentLines = {
+            power: { name: '力斩', color: '#FF4500', desc: '强化物攻与暴击的纯输出流派' },
+            combo: { name: '浮空连击', color: '#4DA6FF', desc: '强化连招与浮空追击伤害' },
+            life:  { name: '生存续航', color: '#32CD32', desc: '强化气血、防御与减伤' }
+        };
+
         // 属性效果配置
         const attributeEffects = {
             strength: {
@@ -616,6 +668,8 @@
             },
             freePoints: 0,        // 剩余可分配自由点
             skillPoints: 0,       // 技能点（30级起每级+1）
+            talentPoints: 0,      // 天赋点（每5级+1）
+            talents: {},          // 已点亮天赋 { talentId: rank }
             mp: 56,               // 当前精气（放技能用）
             // 计算后的战斗属性
             computedStats: {
@@ -835,6 +889,59 @@
 
         // ========== 职业系统函数 ==========
 
+        // ========== P2 天赋工具函数 ==========
+        // 汇总所有已点亮天赋的效果加成（按 effect 类型累加 rank×perRank）
+        function getTalentBonus() {
+            const b = { atkPct: 0, crit: 0, critDmg: 0, comboDmgPct: 0, airborneDmgPct: 0,
+                        toughDmgPct: 0, hpPct: 0, defFlat: 0, dmgReduce: 0 };
+            for (const id in (player.talents || {})) {
+                const rank = player.talents[id];
+                const node = talentTree[id];
+                if (!node || !rank) continue;
+                if (b[node.effect] != null) b[node.effect] += node.perRank * rank;
+            }
+            return b;
+        }
+        // 校验某天赋能否升级（前置点满 + 天赋点足够 + 未满级）
+        function canLearnTalent(id) {
+            const node = talentTree[id];
+            if (!node) return { ok: false, msg: '无此天赋' };
+            const cur = player.talents[id] || 0;
+            if (cur >= node.maxRank) return { ok: false, msg: '已满级' };
+            if (node.requires) {
+                const req = talentTree[node.requires];
+                if ((player.talents[node.requires] || 0) < req.maxRank) {
+                    return { ok: false, msg: `需先点满【${req.name}】` };
+                }
+            }
+            if (player.talentPoints < node.cost) return { ok: false, msg: `天赋点不足(需${node.cost})` };
+            return { ok: true };
+        }
+        // 学习/升级天赋
+        function learnTalent(id) {
+            const check = canLearnTalent(id);
+            if (!check.ok) return check;
+            const node = talentTree[id];
+            player.talentPoints -= node.cost;
+            player.talents[id] = (player.talents[id] || 0) + 1;
+            calculatePlayerStats();
+            saveAttrProgress();
+            return { ok: true, msg: `${node.name} 已提升` };
+        }
+        // 一键重置天赋（返还全部天赋点）
+        function resetTalents() {
+            let refund = 0;
+            for (const id in player.talents) {
+                const node = talentTree[id];
+                if (node) refund += node.cost * player.talents[id];
+            }
+            player.talentPoints += refund;
+            player.talents = {};
+            calculatePlayerStats();
+            saveAttrProgress();
+            return refund;
+        }
+
         // 计算角色属性
         // 汇总所有已装备防具的属性加成
         function getEquipmentBonus() {
@@ -942,6 +1049,15 @@
             player.computedStats.crit += equip.crit;
             player.computedStats.attackSpeed += equip.attackSpeed;
 
+            // P2 天赋加成
+            const talent = getTalentBonus();
+            player.computedStats.physicalAtk *= (1 + talent.atkPct);
+            player.computedStats.maxHp *= (1 + talent.hpPct);
+            player.computedStats.physicalDef += talent.defFlat;
+            player.computedStats.crit += talent.crit;
+            player.computedStats.critDamage += talent.critDmg;
+            player.computedStats.damageReduce += talent.dmgReduce;
+
             // 同步到 player 的攻击属性
             player.attackDamage = Math.floor(player.computedStats.physicalAtk);
             player.maxHp = Math.floor(player.computedStats.maxHp + getHpBonus());
@@ -1027,6 +1143,10 @@
             // 30级起每级 +1 技能点
             if (player.playerLevel >= 30) {
                 player.skillPoints += 1;
+            }
+            // 每5级 +1 天赋点
+            if (player.playerLevel % 5 === 0) {
+                player.talentPoints += 1;
             }
             
             // 重新计算属性
@@ -2058,6 +2178,55 @@
         // 各技能冷却计时（帧）
         let comboCooldowns = {};
 
+        // ========== P2 连招技能升级系统 ==========
+        // 各技能等级（默认1级，上限10级），用 skillPoints 升级
+        const COMBO_SKILL_MAX_LEVEL = 10;
+        let comboSkillLevels = {}; // { skillId: level }
+        // 初始化所有技能为1级
+        Object.keys(comboSkills).forEach(id => { comboSkillLevels[id] = 1; });
+        // 升级某技能所需技能点（等级越高越贵）
+        function getSkillUpgradeCost(skillId) {
+            const lv = comboSkillLevels[skillId] || 1;
+            return lv; // 升到2级需1点、3级需2点…升到10级需9点
+        }
+        // 获取技能某字段"按等级成长后的有效数值"
+        // damageMult: 每级+8%；toughnessDmg: 每级+6%；cost: 每级-2%(下限-18%)；
+        // cd: 每级-1.5%(下限-13%)；hits: 每3级+1
+        function getSkillStat(skillId, field) {
+            const skill = comboSkills[skillId];
+            if (!skill) return 0;
+            const lv = comboSkillLevels[skillId] || 1;
+            const up = lv - 1; // 已升级的次数
+            const base = skill[field];
+            switch (field) {
+                case 'damageMult':
+                    return base * (1 + up * 0.08);
+                case 'toughnessDmg':
+                    return base != null ? Math.round(base * (1 + up * 0.06)) : base;
+                case 'cost':
+                    return Math.max(1, Math.round(base * (1 - Math.min(up * 0.02, 0.18))));
+                case 'cd':
+                    return Math.max(1, Math.round(base * (1 - Math.min(up * 0.015, 0.135))));
+                case 'hits':
+                    return base != null ? base + Math.floor(up / 3) : base;
+                default:
+                    return base;
+            }
+        }
+        // 升级技能（消耗skillPoints）
+        function upgradeComboSkill(skillId) {
+            const lv = comboSkillLevels[skillId] || 1;
+            if (lv >= COMBO_SKILL_MAX_LEVEL) return { ok: false, msg: '已满级' };
+            const cost = getSkillUpgradeCost(skillId);
+            if (player.skillPoints < cost) return { ok: false, msg: `技能点不足(需${cost})` };
+            player.skillPoints -= cost;
+            comboSkillLevels[skillId] = lv + 1;
+            saveComboProgress();
+            saveAttrProgress();
+            return { ok: true, msg: `${comboSkills[skillId].name} 升至 Lv${lv + 1}` };
+        }
+
+
         let activeMythicSkill = null;
         let mythicSkillState = {
             cooldownTimer: 0,
@@ -2599,7 +2768,9 @@
         function reduceToughness(enemy, amount) {
             if (!enemy || enemy.broken || enemy.airborne) return; // 已破防/浮空中不再削
             if (enemy.maxToughness == null) return;
-            enemy.toughness -= amount;
+            // P2 天赋：削韧效率加成
+            const tb = getTalentBonus();
+            enemy.toughness -= amount * (1 + tb.toughDmgPct);
             enemy.toughnessRegenDelay = 180; // 3秒内不恢复
             if (enemy.toughness <= 0) {
                 enemy.toughness = 0;
@@ -4177,8 +4348,11 @@
         function dealComboDamage(enemy, rawDamage, isCrit) {
             if (!enemy) return;
             let dmg = rawDamage;
-            // 浮空/破防增伤50%
-            if (enemy.airborne || enemy.broken) dmg *= 1.5;
+            // P2 天赋：连招伤害加成
+            const tb = getTalentBonus();
+            dmg *= (1 + tb.comboDmgPct);
+            // 浮空/破防增伤50%（+天赋额外浮空增伤）
+            if (enemy.airborne || enemy.broken) dmg *= (1.5 + tb.airborneDmgPct);
             dmg = Math.max(1, Math.floor(dmg));
             enemy.hp -= dmg;
             createDamageText(enemy.x, enemy.y - 25, dmg, true, isCrit, isCrit ? '#FF4500' : '#00BFFF');
@@ -4231,12 +4405,18 @@
             const skill = comboSkills[skillId];
             if (!skill) return false;
             if (comboCooldowns[skillId] > 0) return false;
-            if (player.mp < skill.cost) {
+            // P2 按技能等级计算有效数值
+            const dmgMult = getSkillStat(skillId, 'damageMult');
+            const toughDmg = getSkillStat(skillId, 'toughnessDmg');
+            const cost = getSkillStat(skillId, 'cost');
+            const cd = getSkillStat(skillId, 'cd');
+            const hits = getSkillStat(skillId, 'hits');
+            if (player.mp < cost) {
                 createFloatingText(player.x, player.y - 70, '💧精气不足', '#4dabf7');
                 return false;
             }
-            player.mp -= skill.cost;
-            comboCooldowns[skillId] = skill.cd;
+            player.mp -= cost;
+            comboCooldowns[skillId] = cd;
             const atk = player.attackDamage;
             const comboMult = getComboMultiplier();
 
@@ -4245,15 +4425,15 @@
                     if (skill.aoe) {
                         const hit = enemies.filter(e => Math.hypot(e.x-player.x, e.y-player.y) <= skill.range);
                         hit.forEach(e => {
-                            dealComboDamage(e, atk * skill.damageMult * comboMult, false);
-                            reduceToughness(e, skill.toughnessDmg);
+                            dealComboDamage(e, atk * dmgMult * comboMult, false);
+                            reduceToughness(e, toughDmg);
                         });
                         createComboEffect(player.x, player.y, skill.color, skill.range);
                     } else {
                         const t = target || findNearestEnemy(player.attackRange + 40);
                         if (t) {
-                            dealComboDamage(t, atk * skill.damageMult * comboMult, false);
-                            reduceToughness(t, skill.toughnessDmg);
+                            dealComboDamage(t, atk * dmgMult * comboMult, false);
+                            reduceToughness(t, toughDmg);
                             createComboEffect(t.x, t.y, skill.color, 40);
                         }
                     }
@@ -4263,8 +4443,8 @@
                 case 'launch': {
                     const applyLaunch = (e) => {
                         if (e.noAirborne) {
-                            dealComboDamage(e, atk * skill.damageMult * comboMult, true);
-                            reduceToughness(e, skill.toughnessDmg);
+                            dealComboDamage(e, atk * dmgMult * comboMult, true);
+                            reduceToughness(e, toughDmg);
                             return;
                         }
                         if (e.broken) {
@@ -4272,14 +4452,14 @@
                             e.airborneTimer = skill.airborneTime;
                             e.airborneTotal = skill.airborneTime;
                             e.broken = false;
-                            dealComboDamage(e, atk * skill.damageMult * comboMult, true);
+                            dealComboDamage(e, atk * dmgMult * comboMult, true);
                             createFloatingText(e.x, e.y - 45, '🚀浮空!', '#FFD700');
                             createParticles(e.x, e.y, '#FFD700', 15);
                             triggerSlowMo(18);       // 浮空瞬间慢动作 0.3秒(18帧)
                             triggerScreenShake(8, 10);
                         } else {
-                            dealComboDamage(e, atk * skill.damageMult * comboMult, false);
-                            reduceToughness(e, skill.toughnessDmg);
+                            dealComboDamage(e, atk * dmgMult * comboMult, false);
+                            reduceToughness(e, toughDmg);
                         }
                     };
                     if (skill.aoe) {
@@ -4296,17 +4476,17 @@
                 case 'air': {
                     const t = (target && target.airborne) ? target : enemies.find(e => e.airborne);
                     if (t && t.airborne) {
-                        for (let i = 0; i < skill.hits; i++) {
+                        for (let i = 0; i < hits; i++) {
                             setTimeout(() => {
                                 if (enemies.includes(t)) {
-                                    dealComboDamage(t, atk * skill.damageMult * comboMult, i === skill.hits-1);
+                                    dealComboDamage(t, atk * dmgMult * comboMult, i === hits-1);
                                     createParticles(t.x, t.y, skill.color, 4);
                                 }
                             }, i * 60);
                         }
                         createFloatingText(player.x, player.y - 55, `${skill.icon}${skill.name}`, skill.color);
                     } else {
-                        player.mp += skill.cost;
+                        player.mp += cost;
                         comboCooldowns[skillId] = 0;
                         return false;
                     }
@@ -4317,7 +4497,7 @@
                     const targets = skill.aoe ? airborneEnemies : (target && target.airborne ? [target] : airborneEnemies.slice(0,1));
                     if (targets.length > 0) {
                         targets.forEach(e => {
-                            dealComboDamage(e, atk * skill.damageMult * comboMult, true);
+                            dealComboDamage(e, atk * dmgMult * comboMult, true);
                             e.airborne = false;
                             e.airborneOffset = 0;
                             e.broken = true;
@@ -4327,7 +4507,7 @@
                         });
                         createFloatingText(player.x, player.y - 55, `${skill.icon}${skill.name}!`, skill.color);
                     } else {
-                        player.mp += skill.cost;
+                        player.mp += cost;
                         comboCooldowns[skillId] = 0;
                         return false;
                     }
@@ -5258,6 +5438,71 @@
         craftPanel.addEventListener('click', (e) => { if (e.target === craftPanel) craftPanel.style.display = 'none'; });
 
         // ==================================================
+        // 🌳 剑客天赋面板系统
+        // ==================================================
+        const talentBtn = document.getElementById('talentBtn');
+        const talentPanel = document.getElementById('talentPanel');
+        const closeTalent = document.getElementById('closeTalent');
+        const resetTalentBtn = document.getElementById('resetTalentBtn');
+        function renderTalentPanel() {
+            document.getElementById('talentPointInfo').innerHTML = `🌟 可用天赋点：<b style="color:#FFD700;">${player.talentPoints}</b> <span style="color:#888;">（每5级+1 · 需点满前置才能解锁下一层）</span>`;
+            const container = document.getElementById('talentTreeContainer');
+            container.innerHTML = '';
+            // 按路线分3列
+            for (const lineId in talentLines) {
+                const line = talentLines[lineId];
+                const col = document.createElement('div');
+                col.style.cssText = `flex:1;background:rgba(0,0,0,0.3);border:1px solid ${line.color};border-radius:10px;padding:8px;`;
+                let html = `<div style="text-align:center;color:${line.color};font-weight:bold;font-size:14px;margin-bottom:2px;">${line.name}</div>
+                            <div style="text-align:center;color:#888;font-size:9px;margin-bottom:8px;">${line.desc}</div>`;
+                // 该路线节点按tier排序
+                const nodes = Object.keys(talentTree).filter(id => talentTree[id].line === lineId)
+                    .sort((a,b) => talentTree[a].tier - talentTree[b].tier);
+                nodes.forEach((id, idx) => {
+                    const node = talentTree[id];
+                    const rank = player.talents[id] || 0;
+                    const maxed = rank >= node.maxRank;
+                    const check = canLearnTalent(id);
+                    const locked = node.requires && (player.talents[node.requires] || 0) < talentTree[node.requires].maxRank;
+                    const bgColor = maxed ? line.color + '40' : (locked ? 'rgba(50,50,50,0.5)' : 'rgba(0,0,0,0.4)');
+                    const borderColor = maxed ? line.color : (rank > 0 ? line.color : '#555');
+                    // 连接箭头
+                    if (idx > 0) html += `<div style="text-align:center;color:${rank > 0 || !locked ? line.color : '#555'};font-size:12px;line-height:1;">▲</div>`;
+                    html += `
+                        <div style="background:${bgColor};border:2px solid ${borderColor};border-radius:8px;padding:6px 8px;margin-bottom:2px;${locked ? 'opacity:0.6;' : ''}">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="color:${maxed ? line.color : '#fff'};font-weight:bold;font-size:12px;">${node.icon}${node.name}</span>
+                                <span style="color:${rank>0?line.color:'#888'};font-size:11px;font-weight:bold;">${rank}/${node.maxRank}</span>
+                            </div>
+                            <div style="color:#aaa;font-size:9px;margin:3px 0;line-height:1.2;">${node.desc}</div>
+                            <button class="talent-learn-btn" data-tid="${id}" ${check.ok ? '' : 'disabled'} style="width:100%;background:${maxed ? '#333' : (check.ok ? 'linear-gradient(135deg,'+line.color+','+line.color+'99)' : '#444')};color:${maxed || check.ok ? '#fff' : '#888'};border:none;border-radius:4px;font-size:10px;padding:3px;cursor:${check.ok ? 'pointer' : 'not-allowed'};font-family:inherit;font-weight:bold;">
+                                ${maxed ? '已满级' : (locked ? '🔒未解锁' : (check.ok ? `点亮(${node.cost}点)` : check.msg))}
+                            </button>
+                        </div>`;
+                });
+                col.innerHTML = html;
+                container.appendChild(col);
+            }
+            container.querySelectorAll('.talent-learn-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const result = learnTalent(btn.dataset.tid);
+                    createFloatingText(player.x, player.y - 40, result.msg, result.ok ? '#BA68C8' : '#ff5555');
+                    renderTalentPanel();
+                    updateUI();
+                });
+            });
+        }
+        talentBtn.addEventListener('click', () => { talentPanel.style.display = 'block'; renderTalentPanel(); });
+        closeTalent.addEventListener('click', () => talentPanel.style.display = 'none');
+        talentPanel.addEventListener('click', (e) => { if (e.target === talentPanel) talentPanel.style.display = 'none'; });
+        resetTalentBtn.addEventListener('click', () => {
+            const refund = resetTalents();
+            createFloatingText(player.x, player.y - 40, `已重置，返还${refund}天赋点`, '#BA68C8');
+            renderTalentPanel();
+            updateUI();
+        });
+
+        // ==================================================
         // 📊 属性面板系统（四维手动加点）
         // ==================================================
         const attrBtn = document.getElementById('attrBtn');
@@ -5417,6 +5662,8 @@
                     attributes: player.attributes,
                     freePoints: player.freePoints,
                     skillPoints: player.skillPoints,
+                    talentPoints: player.talentPoints,
+                    talents: player.talents,
                     playerLevel: player.playerLevel,
                     playerExp: player.playerExp,
                     expToNext: player.expToNext
@@ -5430,6 +5677,8 @@
                     player.attributes = data.attributes;
                     player.freePoints = data.freePoints || 0;
                     player.skillPoints = data.skillPoints || 0;
+                    player.talentPoints = data.talentPoints || 0;
+                    player.talents = data.talents || {};
                     player.playerLevel = data.playerLevel || 1;
                     player.playerExp = data.playerExp || 0;
                     // 按新经验曲线校准（忽略旧存档里的 expToNext 旧值）
@@ -5527,25 +5776,54 @@
             // 技能库
             const lib = document.getElementById('comboSkillLib');
             lib.innerHTML = '';
+            // 顶部技能点提示
+            const spInfo = document.getElementById('comboSkillPointInfo');
+            if (spInfo) spInfo.innerHTML = `🔧 可用技能点：<b style="color:#FFD700;">${player.skillPoints}</b> <span style="color:#888;">（30级起每级+1，点击技能升级）</span>`;
             Object.values(comboSkills).forEach(skill => {
                 const meta = comboTypeMeta[skill.type];
+                const lv = comboSkillLevels[skill.id] || 1;
+                const maxed = lv >= COMBO_SKILL_MAX_LEVEL;
+                const upCost = getSkillUpgradeCost(skill.id);
+                const canUp = !maxed && player.skillPoints >= upCost;
+                // 有效数值（按等级）
+                const effDmg = getSkillStat(skill.id, 'damageMult');
+                const effCost = getSkillStat(skill.id, 'cost');
+                const effCd = getSkillStat(skill.id, 'cd');
+                const effHits = getSkillStat(skill.id, 'hits');
                 const card = document.createElement('div');
                 card.style.cssText = `background:linear-gradient(135deg,${skill.color}25,rgba(0,0,0,0.4));border:1px solid ${skill.color};border-radius:8px;padding:6px 8px;cursor:pointer;transition:all 0.15s;`;
                 card.onmouseover = () => card.style.transform = 'scale(1.03)';
                 card.onmouseout = () => card.style.transform = 'scale(1)';
                 card.innerHTML = `
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span style="color:${skill.color};font-weight:bold;font-size:13px;">${skill.icon}${skill.name}</span>
+                        <span style="color:${skill.color};font-weight:bold;font-size:13px;">${skill.icon}${skill.name} <span style="color:#FFD700;font-size:10px;">Lv${lv}${maxed ? '(满)' : ''}</span></span>
                         <span style="background:${meta.color};color:#000;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:bold;">${meta.label}</span>
                     </div>
                     <div style="color:#aaa;font-size:9px;margin-top:2px;line-height:1.3;">${skill.desc}</div>
-                    <div style="color:#4dabf7;font-size:9px;margin-top:2px;">💧${skill.cost} · CD ${(skill.cd/60).toFixed(1)}s</div>
+                    <div style="color:#4dabf7;font-size:9px;margin-top:2px;">💧${effCost} · CD ${(effCd/60).toFixed(1)}s · 伤害${Math.round(effDmg*100)}%${skill.type==='air' ? ' · '+effHits+'段' : ''}</div>
+                    <div style="display:flex;gap:4px;margin-top:4px;">
+                        <button class="combo-add-btn" data-sid="${skill.id}" style="flex:1;background:${skill.color}40;color:#fff;border:1px solid ${skill.color};border-radius:4px;font-size:10px;padding:2px;cursor:pointer;font-family:inherit;">＋加入连招</button>
+                        <button class="combo-up-btn" data-sid="${skill.id}" ${canUp ? '' : 'disabled'} style="flex:1;background:${maxed ? '#333' : (canUp ? 'linear-gradient(135deg,#FFD700,#c8a400)' : '#444')};color:${maxed ? '#888' : (canUp ? '#000' : '#888')};border:1px solid ${maxed ? '#555' : '#FFD700'};border-radius:4px;font-size:10px;padding:2px;cursor:${canUp ? 'pointer' : 'not-allowed'};font-family:inherit;font-weight:bold;">${maxed ? '已满级' : '⬆升级('+upCost+')'}</button>
+                    </div>
                 `;
-                card.addEventListener('click', () => {
-                    comboSequence.push(skill.id);
+                lib.appendChild(card);
+            });
+            // 绑定加入连招按钮
+            lib.querySelectorAll('.combo-add-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    comboSequence.push(btn.dataset.sid);
                     renderComboPanel();
                 });
-                lib.appendChild(card);
+            });
+            // 绑定升级按钮
+            lib.querySelectorAll('.combo-up-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const result = upgradeComboSkill(btn.dataset.sid);
+                    createFloatingText(player.x, player.y - 40, result.msg, result.ok ? '#FFD700' : '#ff5555');
+                    renderComboPanel();
+                });
             });
             // 连招序列
             const seq = document.getElementById('comboSeqList');
@@ -5596,7 +5874,8 @@
             try {
                 localStorage.setItem('comboProgress', JSON.stringify({
                     sequence: comboSequence,
-                    mode: comboMode
+                    mode: comboMode,
+                    skillLevels: comboSkillLevels
                 }));
             } catch(e) {}
         }
@@ -5605,6 +5884,12 @@
                 const data = JSON.parse(localStorage.getItem('comboProgress') || '{}');
                 if (data.sequence) comboSequence = data.sequence;
                 if (data.mode) comboMode = data.mode;
+                if (data.skillLevels) {
+                    // 合并存档等级（兼容新增技能）
+                    Object.keys(comboSkills).forEach(id => {
+                        if (data.skillLevels[id]) comboSkillLevels[id] = data.skillLevels[id];
+                    });
+                }
             } catch(e) {}
         }
 
