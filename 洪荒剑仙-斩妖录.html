@@ -748,6 +748,22 @@
         // ========== 职业系统函数 ==========
 
         // 计算角色属性
+        // 汇总所有已装备防具的属性加成
+        function getEquipmentBonus() {
+            const bonus = { attack: 0, defense: 0, hp: 0, crit: 0, attackSpeed: 0 };
+            for (const slot in player.equipped) {
+                const item = player.equipped[slot];
+                if (item && item.stats) {
+                    bonus.attack += item.stats.attack || 0;
+                    bonus.defense += item.stats.defense || 0;
+                    bonus.hp += item.stats.hp || 0;
+                    bonus.crit += item.stats.crit || 0;
+                    bonus.attackSpeed += item.stats.attackSpeed || 0;
+                }
+            }
+            return bonus;
+        }
+
         function calculatePlayerStats() {
             const cls = classes[player.classId];
             const attr = player.attributes;
@@ -830,6 +846,14 @@
             player.computedStats.damageReduce += titleBonus.dmgReduceBonus;
             player.computedStats.elementalAtk *= (1 + titleBonus.elementBonus);
 
+            // 装备防具加成（普通掉落装备的实际属性）
+            const equip = getEquipmentBonus();
+            player.computedStats.physicalAtk += equip.attack;
+            player.computedStats.physicalDef += equip.defense;
+            player.computedStats.maxHp += equip.hp;
+            player.computedStats.crit += equip.crit;
+            player.computedStats.attackSpeed += equip.attackSpeed;
+
             // 同步到 player 的攻击属性
             player.attackDamage = Math.floor(player.computedStats.physicalAtk);
             player.maxHp = Math.floor(player.computedStats.maxHp + getHpBonus());
@@ -840,7 +864,7 @@
             if (player.mp > player.maxMp) player.mp = player.maxMp;
             
             // 攻速词条：减少攻击间隔
-            const atkSpeedBonus = getAtkSpeedBonus();
+            const atkSpeedBonus = getAtkSpeedBonus() + equip.attackSpeed;
             const baseInterval = 6;
             player.attackInterval = Math.max(2, Math.floor(baseInterval / (1 + atkSpeedBonus)));
             
@@ -874,6 +898,29 @@
             
             player.attackRange = baseRange * (1 + rangeBonus);
             player.computedStats.atkRangeBonus = rangeBonus;
+        }
+
+        // 经验曲线（长线养成，约90天满级节奏）
+        // 全局缩放常量：调大=升级更慢，调小=更快。测试期可下调。
+        const EXP_CURVE_SCALE = 1.0;
+        // 计算「从 level 升到 level+1」所需经验。分段设计：
+        //   1-30 顺畅期、30-60 平稳期、60-90 长草期、90-99 硬核期
+        function getExpToNext(level) {
+            let base;
+            if (level < 30) {
+                // 顺畅期：温和增长（lv29≈7157）
+                base = 100 + Math.pow(level, 2.1) * 6;
+            } else if (level < 60) {
+                // 平稳期：明显拉高（衔接段1末尾，lv59≈20万）
+                base = 7200 + Math.pow(level - 30, 2.4) * 60;
+            } else if (level < 90) {
+                // 长草期：陡增（衔接段2末尾，lv89≈820万）
+                base = 201300 + Math.pow(level - 60, 2.7) * 900;
+            } else {
+                // 硬核期：巨量（衔接段3末尾）
+                base = 8200000 + Math.pow(level - 90, 3.0) * 45000;
+            }
+            return Math.floor(base * EXP_CURVE_SCALE);
         }
 
         // 角色升级
@@ -930,6 +977,7 @@
 
         // 角色获取经验
         function addPlayerExp(baseExp) {
+
             // 满级不再获取经验
             if (player.playerLevel >= player.maxPlayerLevel) {
                 player.playerExp = 0;
@@ -946,15 +994,14 @@
             player.playerExp += finalExp;
             while (player.playerExp >= player.expToNext && player.playerLevel < player.maxPlayerLevel) {
                 player.playerExp -= player.expToNext;
-                player.expToNext = Math.floor(player.expToNext * 1.2);
                 levelUpPlayer();
+                // 升级后按新等级刷新下一级所需经验
+                player.expToNext = getExpToNext(player.playerLevel);
             }
             // 满级清空经验条
             if (player.playerLevel >= player.maxPlayerLevel) player.playerExp = 0;
             updateUI();
         }
-
-        // ========== 绿武系统函数 ==========
 
         // 创建深绿武器实例
         function createGreenWeaponInstance(weaponId) {
@@ -2043,11 +2090,11 @@
                 }
             }
 
-            // 给当前装备武器加经验（应用等级压制）
+            // 给当前装备武器加经验（应用怪物个体等级压制）
             if (player.equippedWeapon) {
                 let baseExp = enemy.tier * 3 + 2;
-                const mapLv = getCurrentMapLevel();
-                const expMult = getLevelPenaltyMult(player.playerLevel, mapLv, 'exp');
+                const eLv = enemy.level != null ? enemy.level : getCurrentMapLevel();
+                const expMult = getLevelPenaltyMult(player.playerLevel, eLv, 'exp');
                 baseExp = Math.max(1, Math.floor(baseExp * expMult));
                 addWeaponExp(player.equippedWeapon, baseExp);
             }
@@ -2057,7 +2104,7 @@
                 consumeWeaponDurability(player.equippedWeapon);
             }
 
-            // 角色获取经验（应用等级压制）
+            // 角色获取经验（应用怪物个体等级压制）
             let playerBaseExp = enemy.tier * 5 + 10;
             // 连击加成
             if (comboCount >= 100) {
@@ -2065,9 +2112,9 @@
             } else if (comboCount >= 50) {
                 playerBaseExp *= 1.15;
             }
-            // 地图等级压制
-            const mapLv = getCurrentMapLevel();
-            const expMult = getLevelPenaltyMult(player.playerLevel, mapLv, 'exp');
+            // 按怪物个体等级压制（低级怪随玩家成长快速贬值）
+            const eLv = enemy.level != null ? enemy.level : getCurrentMapLevel();
+            const expMult = getLevelPenaltyMult(player.playerLevel, eLv, 'exp');
             playerBaseExp = Math.max(1, playerBaseExp * expMult);
             addPlayerExp(Math.floor(playerBaseExp));
         }
@@ -2289,6 +2336,9 @@
             const distance = radarRadius - 35;
             const sizeType = getRandomSizeType(type);
             const sizeMod = sizeModifiers[sizeType];
+            // 怪物个体等级：以地图等级为基准，按 tier 上下浮动
+            // tier3 为基准，低 tier 小怪等级更低（击杀衰减更狠），高 tier 精英等级更高
+            const enemyLevel = getEnemyLevel(config.tier);
             
             let finalHp = config.hp;
             let finalDamage = config.damage;
@@ -2309,6 +2359,7 @@
                 y: centerY + Math.sin(angle) * distance,
                 type: type,
                 ...config,
+                level: enemyLevel,       // 怪物个体等级（用于击杀经验/掉落衰减）
                 sizeType: sizeType,
                 hp: finalHp,
                 maxHp: finalHp,
@@ -2340,6 +2391,15 @@
         function getToughnessByTier(tier) {
             const table = { 1: 30, 2: 50, 3: 80, 4: 120, 5: 180, 6: 260, 7: 400, 8: 800 };
             return table[tier] || 50;
+        }
+
+        // 计算怪物个体等级：地图等级 + tier 偏移（tier3 为基准0）
+        // tier1妖灵 -4级，tier7魔神 +8级，让同图内小怪随玩家成长快速贬值
+        function getEnemyLevel(tier) {
+            const offsetTable = { 1: -4, 2: -2, 3: 0, 4: 2, 5: 4, 6: 6, 7: 8, 8: 10 };
+            const mapLv = getCurrentMapLevel();
+            const lv = mapLv + (offsetTable[tier] || 0);
+            return Math.max(1, lv);
         }
 
         // 破防后硬直帧数
@@ -3580,7 +3640,18 @@
             let html = `<div class="tt-title" style="color:${quality.color};">${quality.name}${equipType.name}</div>`;
             html += `<div class="tt-row"><span class="tt-label">部位</span><span class="tt-value">${equipType.name}</span></div>`;
             html += `<div class="tt-row"><span class="tt-label">品质</span><span class="tt-value" style="color:${quality.color};">${quality.name}</span></div>`;
-            html += `<div class="tt-row"><span class="tt-label">加成倍率</span><span class="tt-value gold">×${quality.bonus}</span></div>`;
+            if (item.level) html += `<div class="tt-row"><span class="tt-label">等级</span><span class="tt-value">Lv${item.level}</span></div>`;
+            // 实际属性数值
+            if (item.stats) {
+                const s = item.stats;
+                if (s.attack) html += `<div class="tt-row"><span class="tt-label">攻击</span><span class="tt-value gold">+${s.attack}</span></div>`;
+                if (s.defense) html += `<div class="tt-row"><span class="tt-label">防御</span><span class="tt-value gold">+${s.defense}</span></div>`;
+                if (s.hp) html += `<div class="tt-row"><span class="tt-label">气血</span><span class="tt-value gold">+${s.hp}</span></div>`;
+                if (s.crit) html += `<div class="tt-row"><span class="tt-label">暴击</span><span class="tt-value gold">+${(s.crit*100).toFixed(1)}%</span></div>`;
+                if (s.attackSpeed) html += `<div class="tt-row"><span class="tt-label">攻速</span><span class="tt-value gold">+${(s.attackSpeed*100).toFixed(1)}%</span></div>`;
+            } else {
+                html += `<div class="tt-row"><span class="tt-label">加成倍率</span><span class="tt-value gold">×${quality.bonus}</span></div>`;
+            }
 
             return html;
         }
@@ -3783,9 +3854,9 @@
                                 } else {
                                     // 绿武系统：击杀处理（经验、耐久消耗）
                                     onEnemyKilled(enemy);
-                                    // 掉落装备（应用地图等级压制）
-                                    if (shouldDrop(0.3)) {
-                                        const drop = generateRandomEquip();
+                                    // 掉落装备（应用怪物个体等级压制）
+                                    if (shouldDrop(0.3, enemy.level)) {
+                                        const drop = generateRandomEquip(enemy.level);
                                         addToBag(drop);
                                         createFloatingText(enemy.x, enemy.y - 50, `掉落${itemQualities[drop.quality].name}${equipTypes[drop.type].name}`, itemQualities[drop.quality].color);
                                     }
@@ -5072,7 +5143,8 @@
                     player.skillPoints = data.skillPoints || 0;
                     player.playerLevel = data.playerLevel || 1;
                     player.playerExp = data.playerExp || 0;
-                    player.expToNext = data.expToNext || 100;
+                    // 按新经验曲线校准（忽略旧存档里的 expToNext 旧值）
+                    player.expToNext = getExpToNext(player.playerLevel);
                 }
             } catch(e) {}
         }
@@ -5440,9 +5512,10 @@
             score += Math.max(0, Math.floor(baseScore * mult));
         }
 
-        // 判定掉落（已应用地图等级压制）
-        function shouldDrop(baseChance) {
-            const mult = getLevelPenaltyMult(player.playerLevel, getCurrentMapLevel(), 'drop');
+        // 判定掉落（应用等级压制；传入怪物个体等级则按个体压制，否则回退地图等级）
+        function shouldDrop(baseChance, enemyLevel) {
+            const lv = (enemyLevel != null) ? enemyLevel : getCurrentMapLevel();
+            const mult = getLevelPenaltyMult(player.playerLevel, lv, 'drop');
             return Math.random() < (baseChance * mult);
         }
 
@@ -5690,7 +5763,7 @@
                 if (Math.random() < drop.chance) {
                     if (drop.item === 'mythicWeapon') {
                         // 生成圣物级武器
-                        const w = createGreenWeaponInstance('ruyiDao');
+                        const w = createGreenWeaponInstance('ruyidao');
                         if (w) {
                             w.totalScore = 1700 + Math.floor(Math.random() * 500);
                             w.scoreRating = getScoreRating(w.totalScore);
@@ -5714,7 +5787,7 @@
             if (!inBossBattle || !currentSubMap) return;
             // 扣10%经验
             const expLost = Math.floor(player.expToNext * 0.1);
-            player.exp = Math.max(0, player.exp - expLost);
+            player.playerExp = Math.max(0, player.playerExp - expLost);
             createFloatingText(canvas.width/2, canvas.height/2, `💀 Boss战失败 -${expLost}经验`, '#ff4444');
             // 回到入口（同大世界的第一个小地图）
             inBossBattle = false;
@@ -6384,8 +6457,10 @@
             bag.items.splice(index, 1);
 
             createFloatingText(player.x, player.y - 40, `装备${itemQualities[item.quality].name}${equipTypes[item.type].name}`, itemQualities[item.quality].color);
+            calculatePlayerStats(); // 重算属性以应用装备加成
             updateBagDisplay();
             updateEquipSlots();
+            updateUI();
         }
 
         // 更新装备栏显示
@@ -6447,23 +6522,56 @@
         }
 
         // 生成随机装备（测试用）
-        function generateRandomEquip() {
+        // 生成随机装备。source: 掉落来源等级（怪物个体等级），用于决定属性数值与品质上限
+        // 普通刷怪(默认)品质封顶到"稀有"，史诗/传说/神话仅副本或世界Boss产出（P1接入）
+        function generateRandomEquip(sourceLevel, allowHighTier) {
             const types = ['helmet', 'armor', 'shoes', 'necklace', 'ring', 'leftHand'];
-            const qualities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic'];
-            const qualityWeights = [0.4, 0.3, 0.15, 0.1, 0.04, 0.01];
+            let qualities, qualityWeights;
+            if (allowHighTier) {
+                // 副本/世界Boss：可出高端品质
+                qualities = ['uncommon', 'rare', 'epic', 'legendary', 'mythic'];
+                qualityWeights = [0.35, 0.35, 0.20, 0.08, 0.02];
+            } else {
+                // 普通刷怪：封顶到稀有
+                qualities = ['common', 'uncommon', 'rare'];
+                qualityWeights = [0.6, 0.3, 0.1];
+            }
 
             const type = types[Math.floor(Math.random() * types.length)];
             let rand = Math.random();
-            let quality = 'common';
+            let quality = qualities[0];
             for (let i = 0; i < qualities.length; i++) {
                 rand -= qualityWeights[i];
-                if (rand <= 0) {
-                    quality = qualities[i];
-                    break;
-                }
+                if (rand <= 0) { quality = qualities[i]; break; }
             }
 
-            return { type, quality };
+            // 生成实际属性数值：基础值 × 品质倍率 × (1 + 等级×0.08)
+            const lv = Math.max(1, sourceLevel || getCurrentMapLevel());
+            const qBonus = itemQualities[quality].bonus;
+            const stat = equipTypes[type].stat; // defense/hp/speed/all/attack/special
+            const levelMult = 1 + lv * 0.08;
+            const stats = {};
+            // 各槽位对应主属性基础值
+            const baseByStat = {
+                defense: 4,   // 头盔→防御
+                hp: 20,       // 衣服→气血
+                speed: 0,     // 鞋子→攻速(下方特殊处理)
+                attack: 3,    // 戒指→攻击
+                all: 2,       // 项链→全属性
+                special: 3    // 法宝→暴击/特殊
+            };
+            const roll = 0.85 + Math.random() * 0.3; // ±15%浮动
+            const val = (base) => Math.max(1, Math.floor(base * qBonus * levelMult * roll));
+            if (stat === 'defense') { stats.defense = val(baseByStat.defense); }
+            else if (stat === 'hp') { stats.hp = val(baseByStat.hp); }
+            else if (stat === 'speed') { stats.attackSpeed = +(0.02 * qBonus * roll).toFixed(3); }
+            else if (stat === 'attack') { stats.attack = val(baseByStat.attack); }
+            else if (stat === 'special') { stats.crit = +(0.01 * qBonus * roll).toFixed(4); }
+            else if (stat === 'all') {
+                stats.attack = val(2); stats.defense = val(2); stats.hp = val(10);
+            }
+
+            return { type, quality, level: lv, stats, category: 'equip' };
         }
 
         // 添加物品到背包
@@ -6585,7 +6693,9 @@
                 if (item) {
                     if (addToBag(item)) {
                         player.equipped[type] = null;
+                        calculatePlayerStats(); // 重算属性以移除装备加成
                         updateEquipSlots();
+                        updateUI();
                         createFloatingText(player.x, player.y - 40, `卸下${equipTypes[type].name}`, '#888');
                     }
                 }
@@ -6717,6 +6827,8 @@
 
         // 加载属性进度（等级/四维/自由点）
         loadAttrProgress();
+        // 按当前等级校准下一级所需经验（无存档时用初始等级1）
+        player.expToNext = getExpToNext(player.playerLevel);
         // 加载连招配置
         loadComboProgress();
         // 加载生涯累计统计
