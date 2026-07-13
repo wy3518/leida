@@ -280,7 +280,7 @@
         </div>
         
         <div class="controls">
-            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="comboBtn" style="background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#ff9999;border:1px solid #ff4444;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 连招</button> | <button id="statsBtn" style="background:linear-gradient(135deg,#1a4a8b,#0d2d5a);color:#87CEFA;border:1px solid #4DA6FF;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📈 统计</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
+            点击地面御剑飞行 | 剑气自动斩妖 | 死亡后5秒重塑肉身 | <button id="attrBtn" style="background:linear-gradient(135deg,#b8860b,#8b6914);color:#fff;border:1px solid #ffd700;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📊 属性</button> | <button id="comboBtn" style="background:linear-gradient(135deg,#8b1a1a,#5a0d0d);color:#ff9999;border:1px solid #ff4444;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 连招</button> | <button id="statsBtn" style="background:linear-gradient(135deg,#1a4a8b,#0d2d5a);color:#87CEFA;border:1px solid #4DA6FF;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">📈 统计</button> | <button id="mapBtn" style="background:linear-gradient(135deg,#1e5128,#0d3a18);color:#90EE90;border:1px solid #32CD32;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🗺️ 地图</button> | <button id="dungeonBtn" style="background:linear-gradient(135deg,#5a2d0d,#3a1c08);color:#FFB870;border:1px solid #FF8C00;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">⚔️ 副本</button> | <button id="craftBtn" style="background:linear-gradient(135deg,#2d5a3d,#0d3a24);color:#90EE90;border:1px solid #2E8B57;padding:2px 10px;cursor:pointer;font-family:inherit;border-radius:4px;font-weight:bold;">🔨 锻造</button> | <button id="equipBtn" style="background:#8b4513;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">装备栏</button> | <button id="bagBtn" style="background:#4a7c59;color:#ffd700;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">背包</button> | <button id="skinBtn" style="background:#9b59b6;color:#fff;border:1px solid #d4af37;padding:2px 8px;cursor:pointer;font-family:inherit;">皮肤</button>
         </div>
         
         <!-- 装备栏界面 -->
@@ -361,6 +361,23 @@
             <div style="text-align:center;color:#888;font-size:11px;margin-bottom:10px;">击败大世界关底Boss可解锁下一区域 | 等级压制会大幅降低收益</div>
             <div id="mapList" style="display:flex;flex-direction:column;gap:8px;"></div>
             <button id="closeMap" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#228B22,#0d5a0d);color:#fff;border:1px solid #32CD32;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
+        </div>
+
+        <!-- ⚔️ 限定副本面板 -->
+        <div id="dungeonPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(30,18,8,0.98),rgba(45,28,12,0.98));border:3px solid #FF8C00;border-radius:15px;padding:16px;z-index:10001;box-shadow:0 0 40px rgba(255,140,0,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:600px;max-height:88vh;overflow-y:auto;">
+            <div style="text-align:center;color:#FFB870;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(255,140,0,0.6);">⚔️ 限定副本</div>
+            <div style="text-align:center;color:#888;font-size:11px;margin-bottom:12px;">每日次数有限 · 跨天0点重置 · 高阶材料与装备的主要来源</div>
+            <div id="dungeonList" style="display:flex;flex-direction:column;gap:10px;"></div>
+            <button id="closeDungeon" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#5a2d0d,#3a1c08);color:#fff;border:1px solid #FF8C00;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
+        </div>
+
+        <!-- 🔨 锻造合成台面板 -->
+        <div id="craftPanel" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,rgba(10,25,18,0.98),rgba(18,40,28,0.98));border:3px solid #2E8B57;border-radius:15px;padding:16px;z-index:10001;box-shadow:0 0 40px rgba(46,139,87,0.4),inset 0 0 20px rgba(0,0,0,0.5);width:620px;max-height:88vh;overflow-y:auto;">
+            <div style="text-align:center;color:#90EE90;font-size:20px;margin-bottom:4px;font-weight:bold;text-shadow:0 0 10px rgba(46,139,87,0.6);">🔨 锻造合成台</div>
+            <div style="text-align:center;color:#888;font-size:11px;margin-bottom:10px;">收集副本/世界Boss掉落的材料，合成专属绿武</div>
+            <div id="craftMaterials" style="background:rgba(0,0,0,0.3);border-radius:8px;padding:8px;margin-bottom:12px;"></div>
+            <div id="craftRecipes" style="display:flex;flex-direction:column;gap:10px;"></div>
+            <button id="closeCraft" style="position:absolute;top:8px;right:10px;background:linear-gradient(135deg,#2d5a3d,#0d3a24);color:#fff;border:1px solid #2E8B57;padding:4px 10px;cursor:pointer;font-family:inherit;border-radius:5px;font-size:14px;font-weight:bold;">✕</button>
         </div>
 
         <!-- 📊 属性面板 -->
@@ -632,6 +649,77 @@
         // ========== 绿武系统数据 ==========
 
         // 深绿武器模板
+        // ========== P1 产出经济：材料表 ==========
+        // 通用材料定义。tier 用于展示与掉落分级；category 统一为 'material'
+        const materials = {
+            yaohun:   { id: 'yaohun',   name: '妖魂晶', icon: '🔮', tier: 1, color: '#90EE90', desc: '低阶妖兽凝聚的魂魄结晶，合成绿武的基础材料。' },
+            xuantie:  { id: 'xuantie',  name: '玄铁精', icon: '⛏️', tier: 2, color: '#4DA6FF', desc: '深埋地脉的玄铁精华，锻造兵器的骨架。' },
+            linghun:  { id: 'linghun',  name: '灵魂石', icon: '💠', tier: 3, color: '#C77DFF', desc: '蕴含灵性的魂石，可为兵器注入灵韵。' },
+            longjin:  { id: 'longjin',  name: '真龙筋', icon: '🐉', tier: 4, color: '#FF9500', desc: '上古真龙之筋，坚韧无比，绿武进阶所需。' },
+            shenjing: { id: 'shenjing', name: '神魂精魄', icon: '✨', tier: 5, color: '#FF2D2D', desc: '神魔陨落后残留的精魄，最高阶合成材料。' }
+        };
+
+        // ========== P1 产出经济：绿武合成配方 ==========
+        // key = 目标武器id（对应 greenWeapons）；材料需求 + 需求等级
+        const weaponRecipes = {
+            ruyidao:  { weaponId: 'ruyidao',  reqLevel: 9,  cost: { yaohun: 20, xuantie: 8 } },
+            qiankun:  { weaponId: 'qiankun',  reqLevel: 9,  cost: { yaohun: 20, xuantie: 8, linghun: 3 } }
+        };
+
+        // 绿武进阶（升阶）额外材料消耗表：stage 1~4
+        const stageMaterialCost = {
+            1: { xuantie: 10, linghun: 4 },
+            2: { linghun: 8, longjin: 3 },
+            3: { longjin: 8, shenjing: 3 },
+            4: { shenjing: 10, longjin: 15 }
+        };
+
+        // ========== P1 产出经济：限定副本 ==========
+        // dailyLimit=每日进入次数上限；waves=需清的波数；enemies=刷怪种类；
+        // dropTable=通关必得材料/装备（每项 {material?/equip?, count, chance}）
+        const dailyDungeons = {
+            yaoshou: {
+                id: 'yaoshou', name: '妖兽巢穴', icon: '🐾', reqLevel: 5, dailyLimit: 3,
+                mapLevel: 8, waves: 3, enemies: ['spirit', 'goblin', 'demon'],
+                desc: '低阶妖兽盘踞之地，产出妖魂晶与玄铁精。',
+                dropTable: [
+                    { material: 'yaohun', count: 8, chance: 1.0 },
+                    { material: 'xuantie', count: 3, chance: 0.8 },
+                    { equip: true, count: 1, chance: 0.5 }
+                ]
+            },
+            xuantie: {
+                id: 'xuantie', name: '玄铁矿窟', icon: '⛰️', reqLevel: 20, dailyLimit: 3,
+                mapLevel: 25, waves: 4, enemies: ['demon', 'general', 'boss'],
+                desc: '深山矿脉，盛产玄铁精与灵魂石。',
+                dropTable: [
+                    { material: 'xuantie', count: 8, chance: 1.0 },
+                    { material: 'linghun', count: 3, chance: 0.7 },
+                    { equip: true, count: 1, chance: 0.6 }
+                ]
+            },
+            longyuan: {
+                id: 'longyuan', name: '真龙渊', icon: '🐲', reqLevel: 40, dailyLimit: 2,
+                mapLevel: 48, waves: 4, enemies: ['general', 'boss', 'emperor'],
+                desc: '真龙沉眠的深渊，可得真龙筋等高阶材料。',
+                dropTable: [
+                    { material: 'linghun', count: 6, chance: 1.0 },
+                    { material: 'longjin', count: 3, chance: 0.8 },
+                    { equip: true, count: 1, chance: 0.7 }
+                ]
+            },
+            shenmo: {
+                id: 'shenmo', name: '神魔战场', icon: '⚔️', reqLevel: 70, dailyLimit: 2,
+                mapLevel: 78, waves: 5, enemies: ['emperor', 'god'],
+                desc: '神魔陨落之地，最高阶材料神魂精魄的唯一来源。',
+                dropTable: [
+                    { material: 'longjin', count: 6, chance: 1.0 },
+                    { material: 'shenjing', count: 3, chance: 0.85 },
+                    { equip: true, count: 1, chance: 0.8 }
+                ]
+            }
+        };
+
         const greenWeapons = {
             ruyidao: { name: '如意刀', class: '剑客', minAtk: 38, maxAtk: 48, element: null, elementGrowth: 0, growth: 1.08, totalGrowth: 97.2, reqLevel: 9, maxLevel: 99, icon: 'images/ruyi_dao.png' },
             qiankun: { name: '乾坤剑', class: '剑客', minAtk: 32, maxAtk: 42, element: '火攻', elementGrowth: 0.7, growth: 0.72, totalGrowth: 64.8, reqLevel: 9, maxLevel: 99 },
@@ -1001,6 +1089,101 @@
             // 满级清空经验条
             if (player.playerLevel >= player.maxPlayerLevel) player.playerExp = 0;
             updateUI();
+        }
+
+        // ========== P1 材料 & 每日副本 工具函数 ==========
+        // 背包内查找材料条目
+        function findMaterialInBag(matId) {
+            return bag.items.find(i => i && i.category === 'material' && i.matId === matId);
+        }
+        // 获取材料持有数量
+        function getMaterialCount(matId) {
+            const e = findMaterialInBag(matId);
+            return e ? e.count : 0;
+        }
+        // 增加材料（自动堆叠或新建条目）
+        function addMaterial(matId, count) {
+            const def = materials[matId];
+            if (!def || count <= 0) return;
+            const e = findMaterialInBag(matId);
+            if (e) { e.count += count; }
+            else {
+                bag.items.push({ category: 'material', matId: matId, name: def.name, icon: def.icon, count: count });
+            }
+        }
+        // 扣除材料（不足返回false）
+        function removeMaterial(matId, count) {
+            const e = findMaterialInBag(matId);
+            if (!e || e.count < count) return false;
+            e.count -= count;
+            if (e.count <= 0) {
+                const idx = bag.items.indexOf(e);
+                if (idx >= 0) bag.items.splice(idx, 1);
+            }
+            return true;
+        }
+        // 校验一组材料需求（cost为 {matId:count}）是否足够
+        function hasMaterials(cost) {
+            for (const matId in cost) {
+                if (getMaterialCount(matId) < cost[matId]) return false;
+            }
+            return true;
+        }
+
+        // 绿武合成：校验配方材料+等级，扣材料产出绿武
+        function craftWeapon(weaponId) {
+            const recipe = weaponRecipes[weaponId];
+            if (!recipe) return { ok: false, msg: '无此配方' };
+            if (player.playerLevel < recipe.reqLevel) {
+                return { ok: false, msg: `需等级Lv${recipe.reqLevel}` };
+            }
+            if (!hasMaterials(recipe.cost)) {
+                return { ok: false, msg: '材料不足' };
+            }
+            // 扣材料
+            for (const matId in recipe.cost) removeMaterial(matId, recipe.cost[matId]);
+            // 产出绿武
+            const w = createGreenWeaponInstance(weaponId);
+            if (!w) return { ok: false, msg: '合成失败' };
+            addToBag(w);
+            updateBagDisplay();
+            return { ok: true, msg: `合成成功：${w.name}`, weapon: w };
+        }
+
+        // 绿武进阶所需材料（在原成功率基础上叠加材料消耗）
+        function getStageMaterialCost(stage) {
+            return stageMaterialCost[stage] || null;
+        }
+
+        // 每日副本次数管理（localStorage 跨天自动重置）
+        function getTodayStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+        }
+        function loadDungeonDaily() {
+            let data = {};
+            try { data = JSON.parse(localStorage.getItem('dungeonDaily') || '{}'); } catch (e) {}
+            // 跨天重置
+            if (data.date !== getTodayStr()) {
+                data = { date: getTodayStr(), used: {} };
+                localStorage.setItem('dungeonDaily', JSON.stringify(data));
+            }
+            if (!data.used) data.used = {};
+            return data;
+        }
+        // 获取某副本今日剩余次数
+        function getDungeonRemaining(dungeonId) {
+            const data = loadDungeonDaily();
+            const dg = dailyDungeons[dungeonId];
+            if (!dg) return 0;
+            const used = data.used[dungeonId] || 0;
+            return Math.max(0, dg.dailyLimit - used);
+        }
+        // 消耗一次副本次数
+        function consumeDungeonEntry(dungeonId) {
+            const data = loadDungeonDaily();
+            data.used[dungeonId] = (data.used[dungeonId] || 0) + 1;
+            localStorage.setItem('dungeonDaily', JSON.stringify(data));
         }
 
         // 创建深绿武器实例
@@ -1808,6 +1991,10 @@
         let currentSubMap = null; // 当前小地图
         let unlockedSeals = []; // 已获得的通关印记
         let inBossBattle = false; // 是否在Boss战中
+        // P1 限定副本状态
+        let inDungeon = false;       // 是否在限定副本中
+        let currentDungeon = null;   // 当前副本数据
+        let dungeonWave = 0;         // 副本已清波数
 
         // ==================================================
         // ⚔️ 破韧浮空连招系统
@@ -4968,6 +5155,108 @@
             if (e.target === mapPanel) mapPanel.style.display = 'none';
         });
 
+        // ========== P1 限定副本面板 ==========
+        const dungeonBtn = document.getElementById('dungeonBtn');
+        const dungeonPanel = document.getElementById('dungeonPanel');
+        const closeDungeon = document.getElementById('closeDungeon');
+        function updateDungeonPanel() {
+            const list = document.getElementById('dungeonList');
+            list.innerHTML = '';
+            for (const id in dailyDungeons) {
+                const dg = dailyDungeons[id];
+                const remaining = getDungeonRemaining(id);
+                const canEnter = player.playerLevel >= dg.reqLevel && remaining > 0;
+                const lvlOk = player.playerLevel >= dg.reqLevel;
+                // 掉落预览
+                const dropPreview = dg.dropTable.map(d => {
+                    if (d.material) return `${materials[d.material].icon}${materials[d.material].name}`;
+                    if (d.equip) return `🎁装备`;
+                    return '';
+                }).join(' · ');
+                const card = document.createElement('div');
+                card.style.cssText = `background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(255,140,0,0.08));border:2px solid ${canEnter ? '#FF8C00' : '#555'};border-radius:10px;padding:10px 12px;${canEnter ? '' : 'opacity:0.7;'}`;
+                card.innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <div><span style="font-size:20px;">${dg.icon}</span> <span style="color:#FFB870;font-size:15px;font-weight:bold;">${dg.name}</span> <span style="color:#888;font-size:11px;">[需Lv${dg.reqLevel} · 内部Lv${dg.mapLevel}]</span></div>
+                        <div style="color:${remaining > 0 ? '#90EE90' : '#ff5555'};font-size:12px;font-weight:bold;">今日剩余 ${remaining}/${dg.dailyLimit}</div>
+                    </div>
+                    <div style="color:#aaa;font-size:10px;margin-bottom:5px;font-style:italic;">${dg.desc}</div>
+                    <div style="color:#ccc;font-size:11px;margin-bottom:8px;">清 ${dg.waves} 波 · 掉落：${dropPreview}</div>
+                    <button data-dgid="${id}" class="dungeon-enter-btn" style="width:100%;background:linear-gradient(135deg,${canEnter ? '#FF8C00,#c56d00' : '#555,#333'});color:#fff;border:none;padding:7px;cursor:${canEnter ? 'pointer' : 'not-allowed'};border-radius:6px;font-family:inherit;font-weight:bold;font-size:13px;">
+                        ${!lvlOk ? `等级不足(需Lv${dg.reqLevel})` : (remaining <= 0 ? '今日次数已用尽' : '进入副本')}
+                    </button>`;
+                list.appendChild(card);
+            }
+            document.querySelectorAll('.dungeon-enter-btn').forEach(btn => {
+                btn.addEventListener('click', () => enterDungeon(btn.dataset.dgid));
+            });
+        }
+        dungeonBtn.addEventListener('click', () => {
+            dungeonPanel.style.display = 'block';
+            updateDungeonPanel();
+        });
+        closeDungeon.addEventListener('click', () => dungeonPanel.style.display = 'none');
+        dungeonPanel.addEventListener('click', (e) => { if (e.target === dungeonPanel) dungeonPanel.style.display = 'none'; });
+
+        // ========== P1 锻造合成台面板 ==========
+        const craftBtn = document.getElementById('craftBtn');
+        const craftPanel = document.getElementById('craftPanel');
+        const closeCraft = document.getElementById('closeCraft');
+        function updateCraftPanel() {
+            // 材料库存展示
+            const matDiv = document.getElementById('craftMaterials');
+            let matHtml = `<div style="color:#90EE90;font-size:12px;font-weight:bold;margin-bottom:5px;">🎒 材料库存</div><div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+            for (const id in materials) {
+                const m = materials[id];
+                const cnt = getMaterialCount(id);
+                matHtml += `<span style="background:rgba(0,0,0,0.4);border:1px solid ${m.color};border-radius:5px;padding:3px 8px;font-size:12px;color:${cnt>0?'#fff':'#666'};">${m.icon}${m.name} <b style="color:${m.color};">${cnt}</b></span>`;
+            }
+            matHtml += `</div>`;
+            matDiv.innerHTML = matHtml;
+            // 配方列表
+            const recDiv = document.getElementById('craftRecipes');
+            recDiv.innerHTML = '';
+            for (const id in weaponRecipes) {
+                const recipe = weaponRecipes[id];
+                const tpl = greenWeapons[id];
+                const lvlOk = player.playerLevel >= recipe.reqLevel;
+                const matOk = hasMaterials(recipe.cost);
+                const canCraft = lvlOk && matOk;
+                // 材料需求展示
+                const costHtml = Object.keys(recipe.cost).map(matId => {
+                    const need = recipe.cost[matId];
+                    const have = getMaterialCount(matId);
+                    const ok = have >= need;
+                    return `<span style="color:${ok ? '#90EE90' : '#ff5555'};font-size:12px;">${materials[matId].icon}${materials[matId].name} ${have}/${need}</span>`;
+                }).join('　');
+                const card = document.createElement('div');
+                card.style.cssText = `background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(46,139,87,0.08));border:2px solid ${canCraft ? '#2E8B57' : '#555'};border-radius:10px;padding:10px 12px;`;
+                card.innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <div><span style="color:#2E8B57;font-size:15px;font-weight:bold;">🗡️ ${tpl.name}</span> <span style="color:#888;font-size:11px;">[深绿武器 · 需Lv${recipe.reqLevel}]</span></div>
+                    </div>
+                    <div style="color:#ccc;font-size:11px;margin-bottom:4px;">攻击 ${tpl.minAtk}-${tpl.maxAtk} · 成长${tpl.growth}/级${tpl.element ? ' · '+tpl.element : ''}</div>
+                    <div style="margin-bottom:8px;">${costHtml}</div>
+                    <button data-craftid="${id}" class="craft-do-btn" style="width:100%;background:linear-gradient(135deg,${canCraft ? '#2E8B57,#1c5a37' : '#555,#333'});color:#fff;border:none;padding:7px;cursor:${canCraft ? 'pointer' : 'not-allowed'};border-radius:6px;font-family:inherit;font-weight:bold;font-size:13px;">
+                        ${!lvlOk ? `等级不足(需Lv${recipe.reqLevel})` : (!matOk ? '材料不足' : '🔨 合成')}
+                    </button>`;
+                recDiv.appendChild(card);
+            }
+            document.querySelectorAll('.craft-do-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const result = craftWeapon(btn.dataset.craftid);
+                    createFloatingText(player.x, player.y - 40, result.msg, result.ok ? '#90EE90' : '#ff5555');
+                    updateCraftPanel(); // 刷新库存与按钮状态
+                });
+            });
+        }
+        craftBtn.addEventListener('click', () => {
+            craftPanel.style.display = 'block';
+            updateCraftPanel();
+        });
+        closeCraft.addEventListener('click', () => craftPanel.style.display = 'none');
+        craftPanel.addEventListener('click', (e) => { if (e.target === craftPanel) craftPanel.style.display = 'none'; });
+
         // ==================================================
         // 📊 属性面板系统（四维手动加点）
         // ==================================================
@@ -5503,8 +5792,124 @@
 
         // 获取当前地图等级（推荐挑战等级）
         function getCurrentMapLevel() {
+            if (inDungeon && currentDungeon) return currentDungeon.mapLevel;
             return currentSubMap ? currentSubMap.level : 1;
         }
+
+        // ========== P1 限定副本战斗流程 ==========
+        // 进入限定副本
+        function enterDungeon(dungeonId) {
+            const dg = dailyDungeons[dungeonId];
+            if (!dg) return;
+            // 等级检查
+            if (player.playerLevel < dg.reqLevel) {
+                createFloatingText(player.x, player.y - 40, `等级不足(需Lv${dg.reqLevel})`, '#ff4444');
+                return;
+            }
+            // 次数检查
+            if (getDungeonRemaining(dungeonId) <= 0) {
+                createFloatingText(player.x, player.y - 40, '今日次数已用尽', '#ff4444');
+                return;
+            }
+            // 扣次数
+            consumeDungeonEntry(dungeonId);
+            // 进入副本状态
+            inDungeon = true;
+            currentDungeon = dg;
+            dungeonWave = 0;
+            inBossBattle = false;
+            enemies = [];
+            projectiles = [];
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            player.vx = 0; player.vy = 0;
+            player.targetX = null; player.targetY = null;
+            // 关闭副本面板
+            if (dungeonPanel) dungeonPanel.style.display = 'none';
+            // 进场提示
+            showDungeonEnterText(dg);
+            spawnDungeonWave();
+            updateUI();
+        }
+
+        // 生成副本一波怪
+        function spawnDungeonWave() {
+            if (!inDungeon || !currentDungeon) return;
+            const types = currentDungeon.enemies;
+            const count = 4 + dungeonWave * 2; // 波数越高怪越多
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    if (!gameRunning || !inDungeon) return;
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    spawnEnemy(type);
+                }, i * 900);
+            }
+        }
+
+        // 完成副本：发放限定掉落
+        function completeDungeon() {
+            const dg = currentDungeon;
+            if (!dg) return;
+            // 发放掉落
+            let dropMsgs = [];
+            dg.dropTable.forEach(d => {
+                if (Math.random() < d.chance) {
+                    if (d.material) {
+                        addMaterial(d.material, d.count);
+                        dropMsgs.push(`${materials[d.material].icon}${materials[d.material].name}×${d.count}`);
+                    } else if (d.equip) {
+                        for (let i = 0; i < d.count; i++) {
+                            const eq = generateRandomEquip(dg.mapLevel, true);
+                            addToBag(eq);
+                            dropMsgs.push(`${itemQualities[eq.quality].name}${equipTypes[eq.type].name}`);
+                        }
+                    }
+                }
+            });
+            // 经验奖励
+            addPlayerExp(dg.mapLevel * 30);
+            updateBagDisplay();
+            showDungeonClearText(dg, dropMsgs);
+            // 退出副本回到之前的世界地图
+            exitDungeon();
+        }
+
+        // 退出副本，恢复到常规地图
+        function exitDungeon() {
+            inDungeon = false;
+            currentDungeon = null;
+            dungeonWave = 0;
+            enemies = [];
+            projectiles = [];
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2;
+            player.vx = 0; player.vy = 0;
+            player.targetX = null; player.targetY = null;
+            // 恢复常规刷怪
+            inBossBattle = false;
+            wave = 1;
+            spawnWave();
+            updateUI();
+        }
+
+        // 副本进场提示
+        function showDungeonEnterText(dg) {
+            const div = document.createElement('div');
+            div.style.cssText = `position:fixed;top:20%;left:50%;transform:translateX(-50%);color:#FFD700;font-size:30px;font-weight:bold;text-shadow:0 0 20px #FF8C00,0 0 40px #000;z-index:10002;text-align:center;pointer-events:none;animation:levelUpPulse 2.5s ease-out forwards;`;
+            div.innerHTML = `${dg.icon} 进入【${dg.name}】<br><span style="font-size:16px;color:#90EE90;">清剿 ${dg.waves} 波妖兽即可通关</span>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2500);
+        }
+        // 副本通关提示
+        function showDungeonClearText(dg, dropMsgs) {
+            const div = document.createElement('div');
+            div.style.cssText = `position:fixed;top:28%;left:50%;transform:translate(-50%,-50%);font-size:30px;font-weight:bold;color:#FFD700;text-shadow:0 0 30px #FFD700;z-index:10002;text-align:center;pointer-events:none;animation:levelUpPulse 3.5s ease-out forwards;`;
+            const drops = dropMsgs.length ? dropMsgs.join('　') : '无';
+            div.innerHTML = `🎉 通关【${dg.name}】<br><span style="font-size:15px;color:#90EE90;">获得：${drops}</span>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3500);
+        }
+
 
         // 击杀时获得修为（已应用地图等级压制）
         function addScoreOnKill(baseScore) {
@@ -5780,6 +6185,25 @@
                     }
                 }
             });
+            // 世界Boss额外掉落：高端装备（allowHighTier）+ 按Boss等级掉高阶材料
+            const bLv = bossData.level || 10;
+            // 高端装备 1~2 件
+            const equipCount = 1 + (Math.random() < 0.5 ? 1 : 0);
+            for (let i = 0; i < equipCount; i++) {
+                const drop = generateRandomEquip(bLv, true);
+                addToBag(drop);
+                createFloatingText(boss.x + (Math.random()-0.5)*40, boss.y - 20 - i*18, `${itemQualities[drop.quality].name}${equipTypes[drop.type].name}`, itemQualities[drop.quality].color);
+            }
+            // 按Boss等级给对应档次材料
+            let matId = 'yaohun';
+            if (bLv >= 70) matId = 'shenjing';
+            else if (bLv >= 50) matId = 'longjin';
+            else if (bLv >= 30) matId = 'linghun';
+            else if (bLv >= 15) matId = 'xuantie';
+            const matCount = 5 + Math.floor(bLv / 10);
+            addMaterial(matId, matCount);
+            createFloatingText(boss.x, boss.y + 40, `${materials[matId].icon}${materials[matId].name} ×${matCount}`, materials[matId].color);
+            updateBagDisplay();
         }
 
         // Boss战失败：扣经验+回到入口
@@ -6338,8 +6762,18 @@
             slots.forEach((slot, i) => {
                 const item = bag.items[i];
                 if (item) {
+                    // P1 材料
+                    if (item.category === 'material') {
+                        const m = materials[item.matId];
+                        const col = m ? m.color : '#aaa';
+                        slot.innerHTML = `<span style="font-size:22px;">${item.icon}</span><span style="font-size:9px;color:${col};position:absolute;bottom:1px;right:2px;font-weight:bold;text-shadow:0 0 3px #000;">×${item.count}</span>`;
+                        slot.style.borderColor = col;
+                        slot.style.boxShadow = `0 0 10px ${col}, inset 0 0 4px ${col}40`;
+                        slot.style.animation = '';
+                        slot.title = `${item.name} ×${item.count}${m ? '\n' + m.desc : ''}`;
+                    }
                     // 上古石
-                    if (item.type === 'ancientStone') {
+                    else if (item.type === 'ancientStone') {
                         slot.innerHTML = `<span style="font-size:24px;">🗿</span><span style="font-size:9px;color:#FFD700;position:absolute;bottom:1px;right:2px;font-weight:bold;text-shadow:0 0 3px #000;">×${item.count}</span>`;
                         slot.style.borderColor = '#FF8C00';
                         slot.style.boxShadow = '0 0 12px #FF8C00, inset 0 0 6px rgba(255,140,0,0.4)';
@@ -6412,6 +6846,12 @@
         function useBagItem(index) {
             const item = bag.items[index];
             if (!item) return;
+
+            // P1 材料：点击提示前往锻造台合成，不做装备处理
+            if (item.category === 'material') {
+                createFloatingText(player.x, player.y - 40, `${item.name} ×${item.count}（锻造台合成）`, materials[item.matId] ? materials[item.matId].color : '#aaa');
+                return;
+            }
 
             // 上古石：左键放入上古石槽位
             if (item.type === 'ancientStone') {
@@ -6750,9 +7190,20 @@
                 waveCooldown++;
                 if (waveCooldown >= 180) {
                     waveCooldown = 0;
-                    wave++;
-                    updateUI();
-                    spawnWave();
+                    if (inDungeon && currentDungeon) {
+                        // 限定副本：清完一波推进，达到目标波数则通关
+                        dungeonWave++;
+                        if (dungeonWave >= currentDungeon.waves) {
+                            completeDungeon();
+                        } else {
+                            updateUI();
+                            spawnDungeonWave();
+                        }
+                    } else {
+                        wave++;
+                        updateUI();
+                        spawnWave();
+                    }
                 }
             } else {
                 waveCooldown = 0;
@@ -6824,6 +7275,11 @@
 
         // 初始化：生成上古石到背包（测试用）
         bag.items.push({ type: 'ancientStone', name: '上古石', count: 9999, icon: '🗿' });
+
+        // 初始化：赠送部分合成材料（测试用，后续正式化时移除）
+        addMaterial('yaohun', 50);
+        addMaterial('xuantie', 30);
+        addMaterial('linghun', 15);
 
         // 加载属性进度（等级/四维/自由点）
         loadAttrProgress();
