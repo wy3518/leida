@@ -1070,8 +1070,10 @@
             
             // 攻速词条：减少攻击间隔
             const atkSpeedBonus = getAtkSpeedBonus() + equip.attackSpeed;
-            const baseInterval = 6;
-            player.attackInterval = Math.max(2, Math.floor(baseInterval / (1 + atkSpeedBonus)));
+            // 基础攻击间隔18帧(约每秒3.3刀)。原值6帧=每秒10刀过快，导致低血怪"秒杀感"。
+            // 下限6帧(每秒10刀)防止攻速堆叠后重现秒杀。
+            const baseInterval = 18;
+            player.attackInterval = Math.max(6, Math.floor(baseInterval / (1 + atkSpeedBonus)));
             
             // 计算攻击范围（词条+进阶）
             updatePlayerAttackRange();
