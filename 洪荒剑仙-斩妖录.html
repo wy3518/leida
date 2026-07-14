@@ -1954,6 +1954,28 @@
         ];
 
         // ==================================================
+        // 🎨 P3 地图主题换皮（每个大世界一套：配色+粒子+装饰）
+        // bg=底色 grid=网格线 ring=外环 dir=方位字 particle=环境粒子 deco=装饰类型
+        // ==================================================
+        const mapThemes = {
+            taoyuan:  { bg:'#0a1508', grid:'rgba(120,200,110,0.28)', ring:'rgba(150,230,140,0.5)', dir:'rgba(180,240,160,0.55)', particle:{ type:'petal', color:'#ffb7d5', count:28 }, deco:'trees' },
+            youming:  { bg:'#140a16', grid:'rgba(150,90,180,0.26)', ring:'rgba(180,110,210,0.5)', dir:'rgba(190,140,220,0.55)', particle:{ type:'bubble', color:'#9b6fb0', count:20 }, deco:'swamp' },
+            huangsha: { bg:'#1a1305', grid:'rgba(210,170,70,0.28)', ring:'rgba(230,190,90,0.5)', dir:'rgba(235,205,120,0.6)', particle:{ type:'sand', color:'#e8c06a', count:34 }, deco:'dunes' },
+            bingyuan: { bg:'#08131a', grid:'rgba(130,200,230,0.28)', ring:'rgba(150,220,245,0.5)', dir:'rgba(180,230,250,0.6)', particle:{ type:'snow', color:'#eaf6ff', count:36 }, deco:'ice' },
+            huoyan:   { bg:'#1a0805', grid:'rgba(230,90,40,0.28)', ring:'rgba(255,110,50,0.55)', dir:'rgba(255,150,90,0.6)', particle:{ type:'ember', color:'#ff7a2a', count:30 }, deco:'lava' },
+            jiuyou:   { bg:'#120414', grid:'rgba(150,50,170,0.28)', ring:'rgba(180,60,200,0.5)', dir:'rgba(200,100,220,0.55)', particle:{ type:'ember', color:'#b0309a', count:22 }, deco:'hell' },
+            tianmo:   { bg:'#0c0818', grid:'rgba(110,80,190,0.28)', ring:'rgba(140,100,220,0.5)', dir:'rgba(170,140,230,0.55)', particle:{ type:'ash', color:'#8a7ad0', count:24 }, deco:'battlefield' },
+            xian:     { bg:'#181405', grid:'rgba(230,200,80,0.26)', ring:'rgba(255,220,100,0.55)', dir:'rgba(255,235,150,0.6)', particle:{ type:'spark', color:'#ffe680', count:28 }, deco:'palace' },
+            huntun:   { bg:'#080a18', grid:'rgba(90,90,200,0.26)', ring:'rgba(120,120,230,0.5)', dir:'rgba(150,150,240,0.55)', particle:{ type:'star', color:'#aab4ff', count:32 }, deco:'void' },
+            honghuang:{ bg:'#160414', grid:'rgba(230,40,120,0.28)', ring:'rgba(255,60,150,0.55)', dir:'rgba(255,110,180,0.6)', particle:{ type:'ember', color:'#ff2d7e', count:30 }, deco:'primal' }
+        };
+        const defaultTheme = mapThemes.taoyuan;
+        function getCurrentTheme() {
+            if (currentWorld && mapThemes[currentWorld.id]) return mapThemes[currentWorld.id];
+            return defaultTheme;
+        }
+
+        // ==================================================
         // 👹 Boss 数据库（10大世界关底Boss）
         // ==================================================
         const bosses = {
@@ -2113,6 +2135,99 @@
         let currentWorld = null; // 当前大世界
         let currentSubMap = null; // 当前小地图
         let unlockedSeals = []; // 已获得的通关印记
+
+        // ========== L2 环境粒子系统（地图氛围） ==========
+        let envParticles = [];
+        let envAnimTime = 0; // 装饰动画计时（逻辑帧驱动）
+        // 按主题初始化环境粒子
+        function initEnvParticles(theme) {
+            envParticles = [];
+            if (!theme || !theme.particle) return;
+            const cfg = theme.particle;
+            for (let i = 0; i < cfg.count; i++) {
+                envParticles.push(spawnEnvParticle(cfg, true));
+            }
+        }
+        function spawnEnvParticle(cfg, randomY) {
+            const W = canvas.width, H = canvas.height;
+            const p = { type: cfg.type, color: cfg.color, life: 1 };
+            switch (cfg.type) {
+                case 'petal': // 花瓣：斜向飘落+摆动
+                    p.x = Math.random()*W; p.y = randomY?Math.random()*H:-10;
+                    p.vx = 0.2+Math.random()*0.4; p.vy = 0.4+Math.random()*0.5;
+                    p.size = 3+Math.random()*3; p.sway = Math.random()*Math.PI*2; p.rot = Math.random()*Math.PI; break;
+                case 'snow': // 雪：缓慢下落+轻摆
+                    p.x = Math.random()*W; p.y = randomY?Math.random()*H:-10;
+                    p.vx = (Math.random()-0.5)*0.3; p.vy = 0.3+Math.random()*0.4;
+                    p.size = 1.5+Math.random()*2.5; p.sway = Math.random()*Math.PI*2; break;
+                case 'sand': // 沙尘：横向快速飘移
+                    p.x = randomY?Math.random()*W:-10; p.y = Math.random()*H;
+                    p.vx = 1.2+Math.random()*1.5; p.vy = (Math.random()-0.5)*0.3;
+                    p.size = 1+Math.random()*2; break;
+                case 'ember': case 'spark': // 火星/灵光：上升+闪烁
+                    p.x = Math.random()*W; p.y = randomY?Math.random()*H:H+10;
+                    p.vx = (Math.random()-0.5)*0.4; p.vy = -(0.4+Math.random()*0.7);
+                    p.size = 1.5+Math.random()*2.5; p.flick = Math.random()*Math.PI*2; break;
+                case 'bubble': // 毒气泡：缓慢上浮
+                    p.x = Math.random()*W; p.y = randomY?Math.random()*H:H+10;
+                    p.vx = (Math.random()-0.5)*0.2; p.vy = -(0.2+Math.random()*0.4);
+                    p.size = 2+Math.random()*4; break;
+                case 'ash': // 灰烬：飘落
+                    p.x = Math.random()*W; p.y = randomY?Math.random()*H:-10;
+                    p.vx = (Math.random()-0.5)*0.5; p.vy = 0.25+Math.random()*0.4;
+                    p.size = 1+Math.random()*2; break;
+                case 'star': // 星尘：缓慢漂移+闪烁
+                    p.x = Math.random()*W; p.y = Math.random()*H;
+                    p.vx = (Math.random()-0.5)*0.25; p.vy = (Math.random()-0.5)*0.25;
+                    p.size = 1+Math.random()*2; p.flick = Math.random()*Math.PI*2; break;
+                default:
+                    p.x = Math.random()*W; p.y = Math.random()*H; p.vx=0; p.vy=0.3; p.size=2;
+            }
+            return p;
+        }
+        // 逻辑更新（固定步长调用）
+        function updateEnvParticles() {
+            envAnimTime++;
+            const theme = getCurrentTheme();
+            const cfg = theme.particle;
+            if (!cfg) { envParticles = []; return; }
+            const W = canvas.width, H = canvas.height;
+            for (let i = 0; i < envParticles.length; i++) {
+                const p = envParticles[i];
+                p.x += p.vx; p.y += p.vy;
+                if (p.sway != null) { p.sway += 0.04; p.x += Math.sin(p.sway)*0.4; }
+                if (p.flick != null) p.flick += 0.15;
+                // 越界重生
+                if (p.y > H+15 || p.y < -15 || p.x > W+15 || p.x < -15) {
+                    envParticles[i] = spawnEnvParticle(cfg, false);
+                }
+            }
+        }
+        // 渲染
+        function drawEnvParticles(theme) {
+            if (!envParticles.length) return;
+            ctx.save();
+            for (const p of envParticles) {
+                let alpha = 0.6;
+                if (p.flick != null) alpha = 0.4 + Math.abs(Math.sin(p.flick))*0.5;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                if (p.type === 'petal') {
+                    ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.sway||0);
+                    ctx.beginPath(); ctx.ellipse(0,0,p.size,p.size*0.5,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+                } else if (p.type === 'ember' || p.type === 'spark' || p.type === 'star') {
+                    ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+                    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+                    ctx.shadowBlur = 0;
+                } else if (p.type === 'bubble') {
+                    ctx.globalAlpha = alpha*0.5;
+                    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+                } else {
+                    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+                }
+            }
+            ctx.restore();
+        }
         let inBossBattle = false; // 是否在Boss战中
         // P1 限定副本状态
         let inDungeon = false;       // 是否在限定副本中
@@ -3013,10 +3128,16 @@
         }
 
         function drawBackground() {
-            ctx.fillStyle = 'rgba(13, 7, 5, 0.98)';
+            const theme = getCurrentTheme();
+            // 底色（主题化）
+            ctx.fillStyle = theme.bg;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.strokeStyle = 'rgba(139, 69, 19, 0.3)';
+            // L3 主题装饰元素（画在网格之下）
+            drawMapDecoration(theme);
+
+            // 同心圆网格（主题色）
+            ctx.strokeStyle = theme.grid;
             ctx.lineWidth = 2;
             for (let r = 60; r <= radarRadius; r += 60) {
                 ctx.beginPath();
@@ -3024,13 +3145,14 @@
                 ctx.stroke();
                 for (let i = 0; i < 8; i++) {
                     const angle = (i / 8) * Math.PI * 2;
-                    ctx.fillStyle = 'rgba(139, 69, 19, 0.4)';
+                    ctx.fillStyle = theme.grid;
                     ctx.font = '12px serif';
                     ctx.fillText('◆', centerX + Math.cos(angle) * r - 4, centerY + Math.sin(angle) * r + 4);
                 }
             }
 
-            ctx.strokeStyle = 'rgba(139, 69, 19, 0.25)';
+            // 放射状分割线
+            ctx.strokeStyle = theme.grid;
             ctx.lineWidth = 1;
             for (let i = 0; i < 8; i++) {
                 const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
@@ -3040,8 +3162,9 @@
                 ctx.stroke();
             }
 
+            // 方位文字（主题色）
             const directions = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
-            ctx.fillStyle = 'rgba(212, 175, 55, 0.5)';
+            ctx.fillStyle = theme.dir;
             ctx.font = '12px SimSun';
             directions.forEach((dir, i) => {
                 const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
@@ -3050,11 +3173,102 @@
                 ctx.fillText(dir, x - 6, y + 4);
             });
 
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            // 外环（主题色）
+            ctx.strokeStyle = theme.ring;
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.arc(centerX, centerY, radarRadius, 0, Math.PI * 2);
             ctx.stroke();
+
+            // L2 环境粒子（画在最上层，营造氛围）
+            drawEnvParticles(theme);
+        }
+
+        // ========== L3 主题装饰元素（纯Canvas，静态/缓慢） ==========
+        function drawMapDecoration(theme) {
+            const t = envAnimTime;
+            ctx.save();
+            switch (theme.deco) {
+                case 'trees': {
+                    // 桃源林：四角树影
+                    const spots = [[80,90],[canvas.width-90,110],[110,canvas.height-110],[canvas.width-100,canvas.height-90]];
+                    spots.forEach((s,idx) => {
+                        ctx.fillStyle = 'rgba(60,130,60,0.10)';
+                        ctx.beginPath(); ctx.arc(s[0], s[1]-18, 26+idx*3, 0, Math.PI*2); ctx.fill();
+                        ctx.fillStyle = 'rgba(90,60,40,0.12)';
+                        ctx.fillRect(s[0]-3, s[1]-10, 6, 22);
+                    });
+                    break;
+                }
+                case 'ice': {
+                    // 雪原：散布冰晶
+                    ctx.strokeStyle = 'rgba(180,230,255,0.16)';
+                    ctx.lineWidth = 2;
+                    const pts=[[90,120],[canvas.width-120,90],[130,canvas.height-100],[canvas.width-90,canvas.height-130]];
+                    pts.forEach(p=>{ for(let a=0;a<6;a++){const ang=a/6*Math.PI*2; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(p[0]+Math.cos(ang)*14, p[1]+Math.sin(ang)*14); ctx.stroke();}});
+                    break;
+                }
+                case 'lava': case 'primal': {
+                    // 火山/洪荒：岩浆裂纹（脉动发光）
+                    const glow = 0.10 + Math.sin(t*0.04)*0.05;
+                    ctx.strokeStyle = theme.deco==='primal' ? `rgba(255,40,120,${glow})` : `rgba(255,90,30,${glow})`;
+                    ctx.lineWidth = 3;
+                    for(let i=0;i<5;i++){
+                        const y = 60 + i*(canvas.height-120)/4;
+                        ctx.beginPath(); ctx.moveTo(0,y);
+                        for(let x=0;x<=canvas.width;x+=40){ ctx.lineTo(x, y + Math.sin((x+i*50)*0.03)*10); }
+                        ctx.stroke();
+                    }
+                    break;
+                }
+                case 'dunes': {
+                    // 黄沙：沙丘弧线
+                    ctx.strokeStyle = 'rgba(230,190,90,0.12)';
+                    ctx.lineWidth = 2;
+                    for(let i=0;i<4;i++){
+                        const y = 100 + i*(canvas.height-160)/3;
+                        ctx.beginPath();
+                        for(let x=0;x<=canvas.width;x+=10){ const yy=y+Math.sin(x*0.012+i)*18; x===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy); }
+                        ctx.stroke();
+                    }
+                    break;
+                }
+                case 'void': case 'huntun': {
+                    // 混沌虚空：漂浮光点星云
+                    for(let i=0;i<18;i++){
+                        const a = i*0.35 + t*0.006;
+                        const rr = 40 + (i*17 % (radarRadius-30));
+                        const x = centerX + Math.cos(a)*rr, y = centerY + Math.sin(a*1.3)*rr*0.7;
+                        ctx.fillStyle = `rgba(150,150,240,${0.10+((i%3)*0.04)})`;
+                        ctx.beginPath(); ctx.arc(x,y,2+(i%3),0,Math.PI*2); ctx.fill();
+                    }
+                    break;
+                }
+                case 'palace': {
+                    // 仙宫：祥云纹
+                    ctx.strokeStyle = 'rgba(255,225,120,0.12)';
+                    ctx.lineWidth = 2;
+                    const cl=[[90,110],[canvas.width-110,130],[120,canvas.height-120]];
+                    cl.forEach(c=>{ ctx.beginPath(); ctx.arc(c[0],c[1],10,Math.PI*0.3,Math.PI*1.6); ctx.arc(c[0]+14,c[1],8,Math.PI*1.4,Math.PI*0.4); ctx.stroke(); });
+                    break;
+                }
+                case 'swamp': case 'hell': {
+                    // 沼泽/地狱：地面暗色斑块
+                    const c = theme.deco==='hell' ? '150,40,60' : '90,120,60';
+                    const sp=[[100,130],[canvas.width-130,100],[140,canvas.height-120],[canvas.width-100,canvas.height-110]];
+                    sp.forEach((s,i)=>{ ctx.fillStyle=`rgba(${c},0.10)`; ctx.beginPath(); ctx.ellipse(s[0],s[1],30+i*4,16,0,0,Math.PI*2); ctx.fill(); });
+                    break;
+                }
+                case 'battlefield': {
+                    // 天魔战场：残破武器剪影（斜线）
+                    ctx.strokeStyle = 'rgba(150,130,220,0.12)';
+                    ctx.lineWidth = 3;
+                    const w=[[90,canvas.height-90,60],[canvas.width-100,120,-50],[150,140,40]];
+                    w.forEach(s=>{ ctx.beginPath(); ctx.moveTo(s[0],s[1]); ctx.lineTo(s[0]+s[2],s[1]-s[2]*1.4); ctx.stroke(); });
+                    break;
+                }
+            }
+            ctx.restore();
         }
 
         function drawAttackRange() {
@@ -6011,6 +6225,7 @@
             // 切换地图
             currentWorld = targetWorld;
             currentSubMap = targetSub;
+            initEnvParticles(getCurrentTheme()); // P3 换皮：切换环境粒子
             // 清空当前怪物和投射物
             enemies = [];
             projectiles = [];
@@ -6079,6 +6294,7 @@
                 currentWorld = worldMaps[0];
                 currentSubMap = worldMaps[0].subMaps[0];
             }
+            initEnvParticles(getCurrentTheme()); // P3 换皮：初始化当前世界环境粒子
         }
 
         // 计算等级差对收益的影响
@@ -7473,6 +7689,7 @@
         // 游戏主循环逻辑（与渲染分离）
         function gameLogic() {
             frameCount++;
+            updateEnvParticles(); // L2 环境粒子（固定步长驱动）
             updatePlayer();
             playerAutoAttack();
             updateEnemies();
