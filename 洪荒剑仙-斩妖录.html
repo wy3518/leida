@@ -2943,7 +2943,8 @@
             projectiles.push({
                 x: from.x, y: from.y,
                 vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8,
-                isPlayer: true, damage: damage, life: 50, angle: angle, type: 'sword'
+                isPlayer: true, damage: damage, life: 50, angle: angle, type: 'sword',
+                targetId: to.id   // 绑定目标，避免多支剑气重叠命中同一只怪造成秒杀
             });
         }
 
@@ -4200,6 +4201,8 @@
                 if (p.isPlayer) {
                     for (let i = enemies.length - 1; i >= 0; i--) {
                         const enemy = enemies[i];
+                        // 若剑气绑定了目标，仅对该目标生效（防止多支剑气重叠命中单一只怪导致秒杀）
+                        if (p.targetId != null && enemy.id !== p.targetId) continue;
                         const dist = Math.hypot(p.x - enemy.x, p.y - enemy.y);
                         if (dist < enemy.radius + 6) {
                             // 计算实际伤害（考虑防御、破防、暴击、体型增伤、元素伤害）
@@ -7514,17 +7517,34 @@
 
         // 前台渲染循环（使用 requestAnimationFrame）
         let slowMoFrameToggle = 0;
+        // 固定时间步长：逻辑锁定60帧/秒，与渲染帧率解耦
+        // 解决高刷新率屏幕(如100Hz+)上游戏整体加速、怪物"秒杀"/冲脸的问题
+        const LOGIC_STEP_MS = 1000 / 60;
+        let __lastLoopTime = performance.now();
+        let __logicAccumulator = 0;
         function gameLoop() {
             if (!isPageVisible) return; // 后台时不执行 RAF
 
-            // 慢动作：每2帧才推进一次逻辑（0.5x 时间流速）
-            let runLogic = true;
-            if (slowMoTimer > 0) {
-                slowMoTimer--;
-                slowMoFrameToggle = (slowMoFrameToggle + 1) % 2;
-                runLogic = (slowMoFrameToggle === 0);
+            // 累加真实时间，按固定步长执行逻辑（最多补5帧，防止卡顿后爆发）
+            const now = performance.now();
+            let delta = now - __lastLoopTime;
+            __lastLoopTime = now;
+            if (delta > 250) delta = 250; // 防止切后台回来后一次补太多
+            __logicAccumulator += delta;
+
+            let steps = 0;
+            while (__logicAccumulator >= LOGIC_STEP_MS && steps < 5) {
+                // 慢动作：每2个逻辑步才推进一次（0.5x 时间流速）
+                let runLogic = true;
+                if (slowMoTimer > 0) {
+                    slowMoTimer--;
+                    slowMoFrameToggle = (slowMoFrameToggle + 1) % 2;
+                    runLogic = (slowMoFrameToggle === 0);
+                }
+                if (runLogic) gameLogic();
+                __logicAccumulator -= LOGIC_STEP_MS;
+                steps++;
             }
-            if (runLogic) gameLogic();
 
             // 屏幕震动：偏移画布
             let shakeX = 0, shakeY = 0;
