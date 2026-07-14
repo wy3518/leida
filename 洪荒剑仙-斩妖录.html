@@ -7290,11 +7290,15 @@
                 if (rand <= 0) { quality = qualities[i]; break; }
             }
 
-            // 生成实际属性数值：基础值 × 品质倍率 × (1 + 等级×0.08)
+            // 生成实际属性数值：装等主导 + 品质加成（压缩）
             const lv = Math.max(1, sourceLevel || getCurrentMapLevel());
-            const qBonus = itemQualities[quality].bonus;
             const stat = equipTypes[type].stat; // defense/hp/speed/all/attack/special
-            const levelMult = 1 + lv * 0.08;
+            // 装等系数：每级+12%，让装等成为属性高低的主导因素
+            const levelMult = 1 + lv * 0.12;
+            // 品质倍率软化：原始 1~3 压缩到约 1~2.2，避免低装等高品质倒挂高装等
+            // 公式：softBonus = 1 + (rawBonus - 1) * 0.6
+            const rawBonus = itemQualities[quality].bonus;
+            const qBonus = 1 + (rawBonus - 1) * 0.6;
             const stats = {};
             // 各槽位对应主属性基础值
             const baseByStat = {
@@ -7309,9 +7313,9 @@
             const val = (base) => Math.max(1, Math.floor(base * qBonus * levelMult * roll));
             if (stat === 'defense') { stats.defense = val(baseByStat.defense); }
             else if (stat === 'hp') { stats.hp = val(baseByStat.hp); }
-            else if (stat === 'speed') { stats.attackSpeed = +(0.02 * qBonus * roll).toFixed(3); }
+            else if (stat === 'speed') { stats.attackSpeed = +(0.015 * qBonus * levelMult * roll).toFixed(3); }
             else if (stat === 'attack') { stats.attack = val(baseByStat.attack); }
-            else if (stat === 'special') { stats.crit = +(0.01 * qBonus * roll).toFixed(4); }
+            else if (stat === 'special') { stats.crit = +(0.006 * qBonus * levelMult * roll).toFixed(4); }
             else if (stat === 'all') {
                 stats.attack = val(2); stats.defense = val(2); stats.hp = val(10);
             }
